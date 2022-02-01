@@ -6,9 +6,12 @@ from datetime import datetime
 from time import ctime
 
 def transform_timestamp(stamp):
-    if type(stamp) == list:
-        return [datetime.fromtimestamp(((x/100000)+1000000000)).strftime('%d-%m-%Y %H:%M:%S.%f') for x in stamp]
-    return datetime.fromtimestamp(((stamp/100000)+1000000000)).strftime('%d-%m-%Y %H:%M:%S.%f')
+    try:
+        if type(stamp) == list:
+            return [datetime.fromordinal(int(x/(24*3600*1000))).strftime('%d-%m-%Y %H:%M:%S.%f') for x in stamp]
+        return datetime.fromordinal(int(stamp/(24*3600*1000))).strftime('%d-%m-%Y %H:%M:%S.%f')
+    except:
+        return 1
 
 def get_min(cursor, table):
     sql = "SELECT * FROM `{0}` WHERE `timestamp` = (SELECT MIN(`timestamp`) FROM `{0}`) LIMIT 1".format(table)
@@ -53,7 +56,7 @@ def print_stats(cursor, table):
     print()
 
 # Connect to the database
-connection = pymysql.connect(host='localhost',
+connection = pymysql.connect(host='192.168.32.3',
                              user='root',
                              password='example',
                              database='humber_bridge',
