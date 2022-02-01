@@ -1,17 +1,28 @@
 from math import sqrt
-from numpy import average
+from numpy import average, int0
 import pymysql.cursors
 import pandas as pd
-from datetime import datetime
+import datetime
 from time import ctime
 
+def OrdinalToDatetime(ordinal):
+    plaindate = datetime.date.fromordinal(int(ordinal))
+    date_time = datetime.datetime.combine(plaindate, datetime.datetime.min.time())
+    return date_time + datetime.timedelta(days=ordinal-int(ordinal))
+
 def transform_timestamp(stamp):
-    try:
         if type(stamp) == list:
-            return [datetime.fromordinal(int(x/(24*3600*1000))).strftime('%d-%m-%Y %H:%M:%S.%f') for x in stamp]
-        return datetime.fromordinal(int(stamp/(24*3600*1000))).strftime('%d-%m-%Y %H:%M:%S.%f')
-    except:
-        return 1
+            result = []
+            for i in stamp:
+                try:
+                    result.append(OrdinalToDatetime(i/(24*3600*1000)).strftime('%d-%m-%Y %H:%M:%S.%f'))
+                except:
+                    result.append(i)
+            return result
+        try:
+            return OrdinalToDatetime(stamp/(24*3600*1000)).strftime('%d-%m-%Y %H:%M:%S.%f')
+        except:
+            return 1
 
 def get_min(cursor, table):
     sql = "SELECT * FROM `{0}` WHERE `timestamp` = (SELECT MIN(`timestamp`) FROM `{0}`) LIMIT 1".format(table)
@@ -33,6 +44,7 @@ def get_first_x(cursor, table, x):
     cursor.execute(sql)
     result = cursor.fetchall()
     result = [res['timestamp'] for res in result]
+    print(result)
     return transform_timestamp(result)
 
 def avg_timestep(cursor, table, sample):
@@ -43,7 +55,7 @@ def avg_timestep(cursor, table, sample):
     avgs = []
     for i in range(1,sample-1):
         avgs.append(result[i+1]-result[i])
-    return datetime.fromtimestamp(((average(avgs)/100000))).strftime('%M:%S.%f')
+    return transform_timestamp(average(avgs))
 
 def print_stats(cursor, table):
     print("### {0}".format(table.title()))
@@ -55,7 +67,7 @@ def print_stats(cursor, table):
     print(" - Average timestep (minutes:seconds.microseconds): \n\t - {0}".format(avg_timestep(cursor, table, 1000)))
     print()
 
-# Connect to the database
+# Connect to the database '192.168.32.3'
 connection = pymysql.connect(host='192.168.32.3',
                              user='root',
                              password='example',
