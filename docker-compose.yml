@@ -17,7 +17,7 @@ services:
       - ./external-database/init:/docker-entrypoint-initdb.d
   
   internal-database:
-    image: mysql:5.5
+    image: mysql
     command: --default-authentication-plugin=mysql_native_password
     restart: always
     environment:
