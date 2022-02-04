@@ -1,0 +1,106 @@
+@font-face {
+    font-family: "Poppins";
+    src: url('fonts/Poppins/Poppins-Regular.ttf');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: "Poppins";
+    src: url('fonts/Poppins/Poppins-Italic.ttf');
+    font-weight: normal;
+    font-style: italic;
+}
+@font-face {
+    font-family: "Poppins";
+    src: url('fonts/Poppins/Poppins-Bold.ttf');
+    font-weight: bold;
+    font-style: normal;
+}
+
+body {
+    margin: 0;
+    background-color: #F2F2F2;
+    font-family: "Poppins", Calibri, sans-seif;
+}
+
+.navbar-div {
+    height: 80px;
+    width: 100%;
+    background-color: #1F3864;
+    position: fixed;
+    z-index: 10;
+    top: 0;
+    left: 0;
+    box-shadow: 0px -20px 20px 20px rgba(0, 0, 0, 0.5);
+}
+
+.profile-pic {
+    height: 40px;
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    transition: 0.3s;
+}
+
+.profile-link:hover {
+    transition: 0.3s;
+    opacity: 0.8;
+}
+
+.profile-name {
+    margin: 0;
+    position: absolute;
+    text-align: right;
+    color: white;
+    right: 80px;
+    top: 40px;
+    transform: translateY(-50%);
+}
+
+.sidebar-div {
+    width: 80px;
+    height: calc(100% - 80px);
+    background-color: white;
+    position: fixed;
+    top: 80px;
+    left: 0;
+}
+
+.sidebar-icon-div {
+    height: 80px;
+    width: 100%;
+    transition: 0.3s;
+}
+
+.sidebar-icon-div:hover:not(.sidebar-icon-active) {
+    background-color: #ebebeb;
+}
+
+.sidebar-icon-active{
+    background-color: #F2F2F2;
+}
+
+.sidebar-icon-span {
+    position: absolute;
+    height: 80px;
+    width: 80px;
+}
+
+.sidebar-icon-img {
+    width: 40%;
+    margin: 30%;
+    transition: 0.3s;
+}
+
+.sidebar-icon-div:hover:not(.sidebar-icon-active) .sidebar-icon-img {
+    opacity: 0.5;
+}
+
+.main-content-div {
+    width: calc(100% - 200px);
+    height: 10000px;
+    top: 80px;
+    left: 80px;
+    position: absolute;
+    margin: 60px;
+}
