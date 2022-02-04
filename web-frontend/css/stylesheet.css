@@ -23,6 +23,16 @@ body {
     font-family: "Poppins", Calibri, sans-seif;
 }
 
+@media (max-width: 600px) {
+    .sidebar-div {
+        display: none;
+    }
+    .main-content-div {
+        width: calc(100% - 120px);
+        left: 0 !important;
+    }
+}
+
 .navbar-div {
     height: 80px;
     width: 100%;
@@ -98,9 +108,49 @@ body {
 
 .main-content-div {
     width: calc(100% - 200px);
-    height: 10000px;
     top: 80px;
     left: 80px;
     position: absolute;
     margin: 60px;
+}
+
+.dashboard-tile-parent {
+    display: grid;
+    grid-gap: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    padding-bottom: 60px;
+}
+
+.dashboard-tile-div {
+    background-color: white;
+    height: 300px;
+    padding: 40px;
+    box-shadow: 2px 2px 6px rgb(0 0 0 / 10%);
+    transition: 0.3s;
+    overflow: scroll;
+    place-items: center;
+}
+
+.dashboard-tile-div:hover {
+    transform: scale(1.005);
+}
+
+.dashboard-title {
+    text-align: center;
+    margin: 0 0 20px;
+    font-size: 1em;
+}
+
+.weatherwidget-io {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#tile3 {
+    height: 220px;
+}
+#tile4 {
+    height: 220px;
 }
