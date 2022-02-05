@@ -15,27 +15,27 @@
                 </span></a>
             </div>
             <div class="sidebar-icon-div">
-                <a href="notifications.html"><span class="sidebar-icon-span"></span>
+                <a href="notifications.html"><span class="sidebar-icon-span">
                     <img src="images/notifications_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
             <div class="sidebar-icon-div">
-                <a href="images.html"><span class="sidebar-icon-span"></span>
+                <a href="images.html"><span class="sidebar-icon-span">
                     <img src="images/images_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
             <div class="sidebar-icon-div">
-                <a href="visualisations.html"><span class="sidebar-icon-span"></span>
+                <a href="visualisations.html"><span class="sidebar-icon-span">
                     <img src="images/visualisations_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
             <div class="sidebar-icon-div">
-                <a href="database.html"><span class="sidebar-icon-span"></span>
+                <a href="database.html"><span class="sidebar-icon-span">
                     <img src="images/database_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
             <div class="sidebar-icon-div">
-                <a href="code.html"><span class="sidebar-icon-span"></span>
+                <a href="code.html"><span class="sidebar-icon-span">
                     <img src="images/code_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
@@ -43,13 +43,17 @@
         <div class="main-content-div">
             <div class="dashboard-tile-parent">
                 <div class="dashboard-tile-div" id="tile1">
-                    <h1 class="dashboard-title">Content</h1>
+                    <h1 class="dashboard-title">Reports</h1>
                 </div>
                 <div class="dashboard-tile-div" id="tile2">
-                    <h1 class="dashboard-title">Anomalies</h1>
+                    <a href="notifications.html" class="dashboard-title"><h1 class="dashboard-title">Detected Anomalies</h1></a>
+                    <table class="anomaly-table">
+                        <tbody id="anomaly-table">
+                        </tbody>
+                    </table>
                 </div>
                 <div class="dashboard-tile-div" id="tile3">
-                    <a class="weatherwidget-io" href="https://forecast7.com/en/53d72n0d43/hessle/" data-label_1="Humber Bridge Weather" data-font="Roboto" data-theme="pure" data-highcolor="#1279c2" data-lowcolor="#55a1d8" data-suncolor="#f7ff2e" >Humber Bridge Weather</a>
+                    <a class="weatherwidget-io" href="https://forecast7.com/en/53d72n0d43/hessle/" data-label_1="Humber Bridge" data-label_2="Weather" data-font="Open Sans" data-theme="pure" data-accent="#ffffff" data-textcolor="#000000" data-highcolor="#0d65a5" data-lowcolor="#50a5e0" data-suncolor="#ffdb06" data-mooncolor="#a5a5a5" data-cloudfill="#ffffff" data-raincolor="#0d65a5" data-snowcolor="#68c8cd" >Humber Bridge Weather</a>
                     <script>
                         !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}}(document,'script','weatherwidget-io-js');
                     </script>
@@ -71,3 +75,30 @@
         </div>
     </body>
 </html>
+<script>    
+    for (let i = 0; i < 6; i++) {
+
+        anomaly = generatedAnomalies[i]
+        tr = document.createElement("tr")
+        tr.classList.add("anomaly-table-row")
+        td = document.createElement("td")
+        td.classList.add("anomaly-table-element")
+
+        if (anomaly[4] > 80) {
+            td.classList.add("confidence-red")
+        } else if (anomaly[4] > 60) {
+            td.classList.add("confidence-orange")
+        } else {
+            td.classList.add("confidence-green")
+        }
+        rowString = document.createTextNode(anomaly[1].toLocaleString() + ": "+anomaly[3]+" #"+anomaly[2])
+        link = document.createElement('a')
+        link.href="sensor.html?anomalyID="+anomaly[0]+"&sensorID="+anomaly[2]
+        link.appendChild(rowString)
+    
+        td.appendChild(link)
+        tr.appendChild(td)
+
+        document.getElementById("anomaly-table").appendChild(tr)
+    }
+</script>

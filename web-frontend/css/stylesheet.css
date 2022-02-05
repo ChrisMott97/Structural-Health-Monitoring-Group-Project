@@ -36,7 +36,7 @@ body {
 .navbar-div {
     height: 80px;
     width: 100%;
-    background-color: #1F3864;
+    background: linear-gradient(108deg, rgba(31,69,135,1) 0%, rgba(39,70,125,1) 100%);
     position: fixed;
     z-index: 10;
     top: 0;
@@ -131,14 +131,17 @@ body {
     place-items: center;
 }
 
-.dashboard-tile-div:hover {
-    transform: scale(1.005);
-}
-
 .dashboard-title {
     text-align: center;
     margin: 0 0 20px;
     font-size: 1em;
+    text-decoration: none;
+    color: black;
+    transition: 0.2s;
+}
+
+a .dashboard-title:hover {
+    opacity: 0.5;
 }
 
 .weatherwidget-io {
@@ -148,9 +151,142 @@ body {
     transform: translate(-50%, -50%);
 }
 
+#weatherWidget {
+    font-family: "Poppins", Calibri, sans-seif;
+    font-size: 1rem;
+}
+
 #tile3 {
     height: 220px;
 }
 #tile4 {
     height: 220px;
+}
+
+.anomaly-table {
+    border-spacing: 0;
+    border-collapse: collapse;
+    width: 100%;
+    height: calc(100% - 45px);
+}
+
+.anomaly-table-row {
+    border-spacing: 0;
+    width: 100%;
+}
+
+.anomaly-table-element {
+    text-align: center;
+    border: solid 1px #ebebeb;
+    padding: 4px;
+    transition: 0.2s;
+}
+
+.confidence-red a {
+    color: red;
+    text-decoration: none;
+}
+
+.anomaly-table-row .confidence-red:hover {
+    background: linear-gradient(270deg, rgba(255,0,0,0.2) 0%, rgba(255,0,0,0.1) 100%);
+}
+
+.confidence-orange a {
+    color: orange;
+    text-decoration: none;
+}
+
+.anomaly-table-row:hover .confidence-orange {
+    background: linear-gradient(270deg, rgba(255, 165, 0, 0.2) 0%, rgba(255, 165, 0, 0.1) 100%);
+}
+
+.confidence-green a {
+    color: green;
+    text-decoration: none;
+}
+
+.anomaly-table-row:hover .confidence-green {
+    background: linear-gradient(270deg, rgba(0, 128, 0, 0.2) 0%, rgba(0, 128, 0, 0.1) 100%);
+}
+
+.sensor-title {
+    margin-top: 0;
+    text-align: center;
+    font-size: 1.5em;
+}
+
+.database-main-content-div {
+    width: calc(100% - 280px);
+    top: 80px;
+    left: 80px;
+    position: absolute;
+    margin: 60px;
+    padding: 40px;
+    background-color: white;
+    box-shadow: 2px 2px 6px rgb(0 0 0 / 10%);
+}
+
+.database-table {
+    width: 100%;
+    border-spacing: 0;
+    border-collapse: collapse;
+    text-align: center;
+}
+
+.database-table-row {
+    border: solid 1px black;
+    transition: 0.2s;
+}
+
+.database-table-row:hover {
+    background-color: #F2F2F2;
+}
+
+.database-table-row th{
+    background-color: rgba(31,69,135,1);
+    color: white;
+    font-weight: normal;
+    padding: 5px 0;
+    text-align: center;
+}
+
+.database-table-row td {
+    padding: 5px 0;
+    text-align: center;
+}
+
+.database-table-row td a {
+    color: black;
+}
+
+.database-table-row td a:hover {
+    opacity: 0s;
+}
+
+.database-table-row td a:visited {
+    color: black;
+}
+
+.database-search-table {
+    width: 60%;
+    text-align: center;
+    margin: 20px auto;
+}
+
+.database-search-table-td input{ 
+    width: 100%;
+    padding: 4px;
+    font-size: 1em;
+    height: 30px;
+}
+.database-search-table-td select{ 
+    padding: 4px;
+    font-size: 1em;
+    height: 30px;
+}
+
+.search-icon {
+    height: 16px;
+    transform: translate(-23px, 7px);
+    position: absolute;
 }
