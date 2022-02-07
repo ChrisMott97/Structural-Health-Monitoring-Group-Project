@@ -1,0 +1,104 @@
+<html>
+    <head>
+        <title>SHM Monitoring Dashboard</title>
+        <link href="css/stylesheet.css" rel='stylesheet' type='text/css'/>
+        <script src="js/js.js"></script>
+    </head>
+    <body>
+        <div class="navbar-div">
+            <a href="https://google.co.uk" class="profile-link"><p class="profile-name">John Smith</p><img src="images/user-pic.png" class="profile-pic"></a>
+        </div>
+        <div class="sidebar-div">
+            <div class="sidebar-icon-div sidebar-icon-active">
+                <a href="dash.html"><span class="sidebar-icon-span">
+                    <img src="images/dashboard_icon.png" class="sidebar-icon-img">
+                </span></a>
+            </div>
+            <div class="sidebar-icon-div">
+                <a href="notifications.html"><span class="sidebar-icon-span">
+                    <img src="images/notifications_icon.png" class="sidebar-icon-img">
+                </span></a>
+            </div>
+            <div class="sidebar-icon-div">
+                <a href="images.html"><span class="sidebar-icon-span">
+                    <img src="images/images_icon.png" class="sidebar-icon-img">
+                </span></a>
+            </div>
+            <div class="sidebar-icon-div">
+                <a href="visualisations.html"><span class="sidebar-icon-span">
+                    <img src="images/visualisations_icon.png" class="sidebar-icon-img">
+                </span></a>
+            </div>
+            <div class="sidebar-icon-div">
+                <a href="database.html"><span class="sidebar-icon-span">
+                    <img src="images/database_icon.png" class="sidebar-icon-img">
+                </span></a>
+            </div>
+            <div class="sidebar-icon-div">
+                <a href="code.html"><span class="sidebar-icon-span">
+                    <img src="images/code_icon.png" class="sidebar-icon-img">
+                </span></a>
+            </div>
+        </div>
+        <div class="main-content-div">
+            <div class="dashboard-tile-parent">
+                <div class="dashboard-tile-div" id="tile1">
+                    <h1 class="dashboard-title">Reports</h1>
+                </div>
+                <div class="dashboard-tile-div" id="tile2">
+                    <a href="notifications.html" class="dashboard-title"><h1 class="dashboard-title">Detected Anomalies</h1></a>
+                    <table class="anomaly-table">
+                        <tbody id="anomaly-table">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="dashboard-tile-div" id="tile3">
+                    <a class="weatherwidget-io" href="https://forecast7.com/en/53d72n0d43/hessle/" data-label_1="Humber Bridge" data-label_2="Weather" data-font="Open Sans" data-theme="pure" data-accent="#ffffff" data-textcolor="#000000" data-highcolor="#0d65a5" data-lowcolor="#50a5e0" data-suncolor="#ffdb06" data-mooncolor="#a5a5a5" data-cloudfill="#ffffff" data-raincolor="#0d65a5" data-snowcolor="#68c8cd" >Humber Bridge Weather</a>
+                    <script>
+                        !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}}(document,'script','weatherwidget-io-js');
+                    </script>
+                </div>
+                <div class="dashboard-tile-div" id="tile4">
+                    <h1 class="dashboard-title">More Content</h1>
+                </div>
+                <div class="dashboard-tile-div" id="tile5">
+                    <h1 class="dashboard-title">Even More Content</h1>
+                </div>
+            </div>
+
+            <!--<a href="https://www.flaticon.com/free-icons/dashboard" title="dashboard icons">Dashboard icons created by Those Icons - Flaticon</a>
+            <a href="https://www.flaticon.com/free-icons/email" title="email icons">Email icons created by Those Icons - Flaticon</a>
+            <a href="https://www.flaticon.com/free-icons/picture" title="picture icons">Picture icons created by Pixel perfect - Flaticon</a>
+            <a href="https://www.flaticon.com/free-icons/graph" title="graph icons">Graph icons created by ibrandify - Flaticon</a>
+            <a href="https://www.flaticon.com/free-icons/database" title="database icons">Database icons created by Pixel perfect - Flaticon</a>
+            <a href="https://www.flaticon.com/free-icons/code" title="code icons">Code icons created by Stockio - Flaticon</a>-->
+        </div>
+    </body>
+</html>
+<script>    
+    for (let i = 0; i < 6; i++) {
+
+        anomaly = generatedAnomalies[i]
+        tr = document.createElement("tr")
+        tr.classList.add("anomaly-table-row")
+        td = document.createElement("td")
+        td.classList.add("anomaly-table-element")
+
+        if (anomaly[4] > 80) {
+            td.classList.add("confidence-red")
+        } else if (anomaly[4] > 60) {
+            td.classList.add("confidence-orange")
+        } else {
+            td.classList.add("confidence-green")
+        }
+        rowString = document.createTextNode(anomaly[1].toLocaleString() + ": "+anomaly[3]+" #"+anomaly[2])
+        link = document.createElement('a')
+        link.href="sensor.html?anomalyID="+anomaly[0]+"&sensorID="+anomaly[2]
+        link.appendChild(rowString)
+    
+        td.appendChild(link)
+        tr.appendChild(td)
+
+        document.getElementById("anomaly-table").appendChild(tr)
+    }
+</script>

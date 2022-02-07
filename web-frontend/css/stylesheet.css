@@ -1,0 +1,292 @@
+@font-face {
+    font-family: "Poppins";
+    src: url('fonts/Poppins/Poppins-Regular.ttf');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: "Poppins";
+    src: url('fonts/Poppins/Poppins-Italic.ttf');
+    font-weight: normal;
+    font-style: italic;
+}
+@font-face {
+    font-family: "Poppins";
+    src: url('fonts/Poppins/Poppins-Bold.ttf');
+    font-weight: bold;
+    font-style: normal;
+}
+
+body {
+    margin: 0;
+    background-color: #F2F2F2;
+    font-family: "Poppins", Calibri, sans-seif;
+}
+
+@media (max-width: 600px) {
+    .sidebar-div {
+        display: none;
+    }
+    .main-content-div {
+        width: calc(100% - 120px);
+        left: 0 !important;
+    }
+}
+
+.navbar-div {
+    height: 80px;
+    width: 100%;
+    background: linear-gradient(108deg, rgba(31,69,135,1) 0%, rgba(39,70,125,1) 100%);
+    position: fixed;
+    z-index: 10;
+    top: 0;
+    left: 0;
+    box-shadow: 0px -20px 20px 20px rgba(0, 0, 0, 0.5);
+}
+
+.profile-pic {
+    height: 40px;
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    transition: 0.3s;
+}
+
+.profile-link:hover {
+    transition: 0.3s;
+    opacity: 0.8;
+}
+
+.profile-name {
+    margin: 0;
+    position: absolute;
+    text-align: right;
+    color: white;
+    right: 80px;
+    top: 40px;
+    transform: translateY(-50%);
+}
+
+.sidebar-div {
+    width: 80px;
+    height: calc(100% - 80px);
+    background-color: white;
+    position: fixed;
+    top: 80px;
+    left: 0;
+}
+
+.sidebar-icon-div {
+    height: 80px;
+    width: 100%;
+    transition: 0.3s;
+}
+
+.sidebar-icon-div:hover:not(.sidebar-icon-active) {
+    background-color: #ebebeb;
+}
+
+.sidebar-icon-active{
+    background-color: #F2F2F2;
+}
+
+.sidebar-icon-span {
+    position: absolute;
+    height: 80px;
+    width: 80px;
+}
+
+.sidebar-icon-img {
+    width: 40%;
+    margin: 30%;
+    transition: 0.3s;
+}
+
+.sidebar-icon-div:hover:not(.sidebar-icon-active) .sidebar-icon-img {
+    opacity: 0.5;
+}
+
+.main-content-div {
+    width: calc(100% - 200px);
+    top: 80px;
+    left: 80px;
+    position: absolute;
+    margin: 60px;
+}
+
+.dashboard-tile-parent {
+    display: grid;
+    grid-gap: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    padding-bottom: 60px;
+}
+
+.dashboard-tile-div {
+    background-color: white;
+    height: 300px;
+    padding: 40px;
+    box-shadow: 2px 2px 6px rgb(0 0 0 / 10%);
+    transition: 0.3s;
+    overflow: scroll;
+    place-items: center;
+}
+
+.dashboard-title {
+    text-align: center;
+    margin: 0 0 20px;
+    font-size: 1em;
+    text-decoration: none;
+    color: black;
+    transition: 0.2s;
+}
+
+a .dashboard-title:hover {
+    opacity: 0.5;
+}
+
+.weatherwidget-io {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#weatherWidget {
+    font-family: "Poppins", Calibri, sans-seif;
+    font-size: 1rem;
+}
+
+#tile3 {
+    height: 220px;
+}
+#tile4 {
+    height: 220px;
+}
+
+.anomaly-table {
+    border-spacing: 0;
+    border-collapse: collapse;
+    width: 100%;
+    height: calc(100% - 45px);
+}
+
+.anomaly-table-row {
+    border-spacing: 0;
+    width: 100%;
+}
+
+.anomaly-table-element {
+    text-align: center;
+    border: solid 1px #ebebeb;
+    padding: 4px;
+    transition: 0.2s;
+}
+
+.confidence-red a {
+    color: red;
+    text-decoration: none;
+}
+
+.anomaly-table-row .confidence-red:hover {
+    background: linear-gradient(270deg, rgba(255,0,0,0.2) 0%, rgba(255,0,0,0.1) 100%);
+}
+
+.confidence-orange a {
+    color: orange;
+    text-decoration: none;
+}
+
+.anomaly-table-row:hover .confidence-orange {
+    background: linear-gradient(270deg, rgba(255, 165, 0, 0.2) 0%, rgba(255, 165, 0, 0.1) 100%);
+}
+
+.confidence-green a {
+    color: green;
+    text-decoration: none;
+}
+
+.anomaly-table-row:hover .confidence-green {
+    background: linear-gradient(270deg, rgba(0, 128, 0, 0.2) 0%, rgba(0, 128, 0, 0.1) 100%);
+}
+
+.sensor-title {
+    margin-top: 0;
+    text-align: center;
+    font-size: 1.5em;
+}
+
+.database-main-content-div {
+    width: calc(100% - 280px);
+    top: 80px;
+    left: 80px;
+    position: absolute;
+    margin: 60px;
+    padding: 40px;
+    background-color: white;
+    box-shadow: 2px 2px 6px rgb(0 0 0 / 10%);
+}
+
+.database-table {
+    width: 100%;
+    border-spacing: 0;
+    border-collapse: collapse;
+    text-align: center;
+}
+
+.database-table-row {
+    border: solid 1px black;
+    transition: 0.2s;
+}
+
+.database-table-row:hover {
+    background-color: #F2F2F2;
+}
+
+.database-table-row th{
+    background-color: rgba(31,69,135,1);
+    color: white;
+    font-weight: normal;
+    padding: 5px 0;
+    text-align: center;
+}
+
+.database-table-row td {
+    padding: 5px 0;
+    text-align: center;
+}
+
+.database-table-row td a {
+    color: black;
+}
+
+.database-table-row td a:hover {
+    opacity: 0s;
+}
+
+.database-table-row td a:visited {
+    color: black;
+}
+
+.database-search-table {
+    width: 60%;
+    text-align: center;
+    margin: 20px auto;
+}
+
+.database-search-table-td input{ 
+    width: 100%;
+    padding: 4px;
+    font-size: 1em;
+    height: 30px;
+}
+.database-search-table-td select{ 
+    padding: 4px;
+    font-size: 1em;
+    height: 30px;
+}
+
+.search-icon {
+    height: 16px;
+    transform: translate(-23px, 7px);
+    position: absolute;
+}
