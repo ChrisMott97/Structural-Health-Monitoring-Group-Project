@@ -1,0 +1,73 @@
+<html>
+    <head>
+        <title>SHM Monitoring Dashboard</title>
+        <link href="css/stylesheet.css" rel='stylesheet' type='text/css'/>
+        <script src="js/js.js"></script>
+    </head>
+    <body>
+        <div class="navbar-div">
+            <a href="https://google.co.uk" class="profile-link"><p class="profile-name">John Smith</p><img src="images/user-pic.png" class="profile-pic"></a>
+        </div>
+        <div class="sidebar-div">
+            <div class="sidebar-icon-div">
+                <a href="dash.html"><span class="sidebar-icon-span">
+                    <img src="images/dashboard_icon.png" class="sidebar-icon-img">
+                </span></a>
+            </div>
+            <div class="sidebar-icon-div">
+                <a href="notifications.html"><span class="sidebar-icon-span">
+                    <img src="images/notifications_icon.png" class="sidebar-icon-img">
+                </span></a>
+            </div>
+            <div class="sidebar-icon-div">
+                <a href="images.html"><span class="sidebar-icon-span">
+                    <img src="images/images_icon.png" class="sidebar-icon-img">
+                </span></a>
+            </div>
+            <div class="sidebar-icon-div">
+                <a href="visualisations.html"><span class="sidebar-icon-span">
+                    <img src="images/visualisations_icon.png" class="sidebar-icon-img">
+                </span></a>
+            </div>
+            <div class="sidebar-icon-div sidebar-icon-active">
+                <a href="database.html"><span class="sidebar-icon-span">
+                    <img src="images/database_icon.png" class="sidebar-icon-img">
+                </span></a>
+            </div>
+            <div class="sidebar-icon-div">
+                <a href="code.html"><span class="sidebar-icon-span">
+                    <img src="images/code_icon.png" class="sidebar-icon-img">
+                </span></a>
+            </div>
+        </div>
+        <div class="database-main-content-div">
+            <h1 class="dashboard-title">Sensor Database</h1>
+            <form>
+                <table class="database-search-table">
+                    <tbody>
+                        <tr>
+                            <td class="database-search-table-td">
+                                <input id="sensorID" name="sensorID" type="text" placeholder="Search Sensors"><img class="search-icon" src="images/search.png"></td>
+                            <td class="database-search-table-td">Sort By: <select>
+                                                                                <option value="updated-newest">Updated Last</option>
+                                                                                <option value="updated-oldest">Updated Earliest</option>
+                                                                                <option value="sensor-type">Sensor Type</option>
+                                                                                <option value="sensor-location">Sensor Location</option>
+                                                                          </select></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </form>
+            <table class="database-table">
+                <tbody>
+                    <tr class="database-table-row"><th width="15%">Sensor ID</th><th width="15%">Sensor Type</th><th width="20%">Location</th><th width="20%">Last Updated</th><th width="30%">Notes</th></tr>
+                    <tr class="database-table-row"><td><a href="sensor.html?sensorID=VUIGS1K">#VUIGS1K</a></td><td>Inclinometer</td><td>South Pillar</td><td>05/02/2022, 00:00:00</td><td>...</td></tr>
+                    <tr class="database-table-row"><td><a href="sensor.html?sensorID=B8911NX">#B8911NX</a></td><td>Accelerometer</td><td>North Pillar</td><td>05/02/2022, 00:00:00</td><td>...</td></tr>
+                    <tr class="database-table-row"><td><a href="sensor.html?sensorID=2M3RCZX">#2M3RCZX</a></td><td>Extensometer</td><td>North Pillar</td><td>05/02/2022, 00:00:00</td><td>...</td></tr>
+                    <tr class="database-table-row"><td><a href="sensor.html?sensorID=CNQKRKA">#CNQKRKA</a></td><td>Accelerometer</td><td>Span</td><td>05/02/2022, 00:00:00</td><td>...</td></tr>
+                    <tr class="database-table-row"><td><a href="sensor.html?sensorID=FVCWFKX">#FVCWFKX</a></td><td>Extensometer</td><td>Span</td><td>05/02/2022, 00:00:00</td><td>...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </body>
+</html>

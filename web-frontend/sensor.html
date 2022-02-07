@@ -1,0 +1,77 @@
+<html>
+    <head>
+        <title>SHM Monitoring Dashboard</title>
+        <link href="css/stylesheet.css" rel='stylesheet' type='text/css'/>
+        <script src="js/js.js"></script>
+        <script>
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            sensorID = urlParams.get('sensorID')
+
+            if (urlParams.has('anomalyID')) {
+                anomalyExists = true
+                const anomalyID = urlParams.get('anomalyID')
+            } else { anomalyExists = false }
+
+            found = false
+            for (let i = 0; i < generatedAnomalies.length; i++) {
+                if (generatedAnomalies[i][2] == sensorID) {
+                    found = true
+                    anomalyData = generatedAnomalies[i]
+                    break
+                }
+            } 
+
+            if (found == false) {
+                sensorID = 'Not found'
+            }
+        </script>
+    </head>
+    <body>
+        <div class="navbar-div">
+            <a href="https://google.co.uk" class="profile-link"><p class="profile-name">John Smith</p><img src="images/user-pic.png" class="profile-pic"></a>
+        </div>
+        <div class="sidebar-div">
+            <div class="sidebar-icon-div">
+                <a href="dash.html"><span class="sidebar-icon-span">
+                    <img src="images/dashboard_icon.png" class="sidebar-icon-img">
+                </span></a>
+            </div>
+            <div class="sidebar-icon-div">
+                <a href="notifications.html"><span class="sidebar-icon-span">
+                    <img src="images/notifications_icon.png" class="sidebar-icon-img">
+                </span></a>
+            </div>
+            <div class="sidebar-icon-div">
+                <a href="images.html"><span class="sidebar-icon-span">
+                    <img src="images/images_icon.png" class="sidebar-icon-img">
+                </span></a>
+            </div>
+            <div class="sidebar-icon-div">
+                <a href="visualisations.html"><span class="sidebar-icon-span">
+                    <img src="images/visualisations_icon.png" class="sidebar-icon-img">
+                </span></a>
+            </div>
+            <div class="sidebar-icon-div sidebar-icon-active">
+                <a href="database.html"><span class="sidebar-icon-span">
+                    <img src="images/database_icon.png" class="sidebar-icon-img">
+                </span></a>
+            </div>
+            <div class="sidebar-icon-div">
+                <a href="code.html"><span class="sidebar-icon-span">
+                    <img src="images/code_icon.png" class="sidebar-icon-img">
+                </span></a>
+            </div>
+        </div>
+        <div class="main-content-div">
+            <h1 class="sensor-title" id="sensor-title"></h1>
+        </div>
+    </body>
+</html>
+<script>
+    if (found == true) {
+        document.getElementById('sensor-title').innerHTML = 'Inspecting: '+anomalyData[3]+' #'+sensorID
+    } else {
+        document.getElementById('sensor-title').innerHTML = 'Sensor Not Found'
+    }
+</script>
