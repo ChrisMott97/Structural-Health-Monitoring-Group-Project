@@ -3,6 +3,9 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var mysql = require('mysql')
+var cors = require('cors')
+
+
 
 db = mysql.createConnection({
     host: 'internal-database',
@@ -18,7 +21,7 @@ var dataRouter = require('./routes/data');
 var anomalyRouter = require('./routes/anomalies')
 
 var app = express();
-
+app.use(cors())
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
