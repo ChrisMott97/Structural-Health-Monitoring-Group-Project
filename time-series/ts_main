@@ -9,10 +9,11 @@ import pandas as pd
 import pymysql
 
 # load data
-###unknown database "humber_bridge", check host is correct and docker set up correctly
-dbcon = pymysql.connect(user="root", password="example", database="humber_bridge", host="localhost")
+### delete data folder from external_database folder and re-run docker to make sure database contains data
+dbcon = pymysql.connect(user="root", password="example", database="humber_bridge", host="localhost", port=33061)
 ###unify SQL query with autoencoder to make sure output is identical
-SQL_Query = pd.read_sql("select * from displacements", dbcon)
+SQL_Query = pd.read_sql("select * from displacements limit 2", dbcon)
+print(SQL_Query)
 data = pd.DataFrame(SQL_Query, columns=[])
 
 # define dataset
