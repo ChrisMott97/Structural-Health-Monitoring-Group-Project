@@ -9,22 +9,26 @@ import pandas as pd
 import pymysql
 
 # load data
-### delete data folder from external_database folder and re-run docker to make sure database contains data
 dbcon = pymysql.connect(user="root", password="example", database="humber_bridge", host="localhost", port=33061)
-###unify SQL query with autoencoder to make sure output is identical
-SQL_Query = pd.read_sql("select * from displacements limit 2", dbcon)
+### unify SQL query with autoencoder to make sure output is identical, once working remove limit
+SQL_Query = pd.read_sql("select * from summary limit 10", dbcon)
 print(SQL_Query)
 data = pd.DataFrame(SQL_Query, columns=[])
+###columns=['timestamp','TSH000ED','TSH000WD','TSH000CDT','TSH000CDB','HBB_WIH000CDS','HBB_WIH000CDD','HBB_TSH000CDA','HBB_TSH000CDG','HBB_TSH000CDS','NOAA_WIS	NOAA_WID','NOAA_TS','WIH000CDS','WIH000CDD','GPH000EDE','GPH000EDN','GPH000EDH','GPH000WDE','GPH000WDN','GPH000WDH','GPH000dDE','GPH000dDN','GPH000dDH','EXH077ED','EXH077WD','EXB077ED','EXB077WD','EXH077dD','EXB077dD','GPH000EDE_RMS','GPH000EDN_RMS','GPH000EDH_RMS','GPH000WDE_RMS','GPH000WDN_RMS','GPH000WDH_RMS','GPH000dDE_RMS','GPH000dDN_RMS','GPH000dDH_RMS','EXH077ED_RMS','EXH077WD_RMS','EXB077ED_RMS','EXB077WD_RMS','EXH077dD_RMS','EXB077dD_RMS','TSH077ED','TSH077WD','TSB077ED','TSB077WD','INH000CDN','INH000CDW','INH000CDN_RMS','INH000CDW_RMS','TSH000CDI','RMS_VE','RMS_VW','RMS_H','RMS_VM','RMS_VS1','RMS_VA1','RMS_VS2a','RMS_VS2b','RMS_VA2','RMS_VS3','RMS_TS1','RMS_VA3','RMS_VS4','RMS_TA1','RMS_VA4','RMS_VS5','RMS_TS2','RMS_VA5','RMS_LS1','RMS_LA1','RMS_LS2a','RMS_LS2b','RMS_LS2c','RMS_LA2a','RMS_LA2b','RMS_LA2c','RMS_LS2d','RMS_LS3','FREQ_VS1','FREQ_VA1','FREQ_VS2a','FREQ_VS2b','FREQ_VA2','FREQ_VS3','FREQ_TS1','FREQ_VA3','FREQ_VS4','FREQ_TA1','FREQ_VA4','FREQ_VS5','FREQ_TS2','FREQ_VA5','FREQ_LS1','FREQ_LA1','FREQ_LS2a','FREQ_LS2b','FREQ_LS2c','FREQ_LA2a','FREQ_LA2b','FREQ_LA2c','FREQ_LS2d','FREQ_LS3','DAMP_VS1','DAMP_VA1','DAMP_VS2a','DAMP_VS2b','DAMP_VA2','DAMP_VS3','DAMP_TS1','DAMP_VA3','DAMP_VS4','DAMP_TA1','DAMP_VA4','DAMP_VS5','DAMP_TS2','DAMP_VA5','DAMP_LS1','DAMP_LA1','DAMP_LS2a','DAMP_LS2b','DAMP_LS2c','DAMP_LA2a','DAMP_LA2b','DAMP_LA2c','DAMP_LS2d','DAMP_LS3','WIM_GROSS','SCADA_AIR_TEMPERATURE','SCADA_WIND_SPEED','SCADA_WIND_DIRECTION']
+###data.reset_index()
 
 # define dataset
 max_encoder_length = 36
 max_prediction_length = 6
-### day for cutoff, final date in training set? i.e. 2020-12-31 or 2021-01-01 (check for time as well)
-training_cutoff = "YYYY-MM-DD"
+### change timestamp when limit removed from query
+### current timestamp should be id=6 (0-based so entry 7)
+training_cutoff = 63428497200000
 
 training = TimeSeriesDataSet(
-    data[lambda x: x.date < training_cutoff],
-    ### needs research, optional parameters(?) but could improve efficiency/accuracy if set
+    ###'DataFrame' object has no attribute 'timestamp'
+    ###possibly create new function that gathers training data from pd before training_cutoff
+    data[lambda x: x.timestamp < training_cutoff],
+    ### optional parameters but could improve efficiency/accuracy if set
     """time_idx= ...,
     target= ...,
     # weight="weight",
