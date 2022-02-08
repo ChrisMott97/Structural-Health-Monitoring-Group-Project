@@ -14,8 +14,8 @@ def OrdinalToDatetime(ordinal):
     date_time = datetime.datetime.combine(plaindate, datetime.datetime.min.time())
     return date_time + datetime.timedelta(days=ordinal-int(ordinal))
 
-# engine = create_engine('mysql+pymysql://root:example@localhost:33062/humber_bridge', echo=True, future=True)
-engine = create_engine('mysql+pymysql://root:example@localhost:33062/humber_bridge', echo=False, future=True)
+engine = create_engine('mysql+pymysql://root:example@localhost:33062/humber_bridge', echo=True, future=True)
+# engine = create_engine('mysql+pymysql://root:example@localhost:33062/humber_bridge', echo=False, future=True)
 # user : password @ host : port / database
 metadata = MetaData()
 
@@ -105,7 +105,8 @@ for i in range(len(data_import)-1):
         measured_data.append({
             "time": OrdinalToDatetime(data_import.iloc[i].name/((24*3600*1000))), 
             "value": data_import.iloc[i][s], 
-            "sensor_id": s
+            "sensor_id": s,
+            "anomaly_id": None
             })
 
 data_indices = random.sample(range(len(measured_data)), 10)
@@ -131,8 +132,8 @@ with engine.connect() as conn:
     users_res = conn.execute(users.insert(), users_data)
     sensors_res = conn.execute(sensors.insert(), sensors_data)
     related_res = conn.execute(related.insert(), related_data)
-    measured_data_res = conn.execute(data.insert(), measured_data)
     anomaly_data_res = conn.execute(anomalies.insert(), anomaly_data)
+    measured_data_res = conn.execute(data.insert(), measured_data)
     conn.commit()
 
 

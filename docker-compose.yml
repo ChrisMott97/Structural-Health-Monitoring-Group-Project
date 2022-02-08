@@ -38,7 +38,7 @@ services:
       context: ./api-gateway
       target: dev
     volumes:
-      - .:/home/node/app
+      - ./api-gateway:/home/node/app
       - node_modules:/home/node/app/node_modules
     command: npm run start:dev
     ports:
