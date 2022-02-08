@@ -1,7 +1,10 @@
 from sqlalchemy import DateTime, Float, create_engine, ForeignKey, MetaData, Table, Column, Integer, String
 import pandas as pd
 import datetime
+import random
 from sqlalchemy.dialects import mysql
+from faker import Faker
+fake = Faker()
 
 def OrdinalToDatetime(ordinal):
     try:
@@ -13,7 +16,7 @@ def OrdinalToDatetime(ordinal):
 
 # engine = create_engine('mysql+pymysql://root:example@localhost:33062/humber_bridge', echo=True, future=True)
 engine = create_engine('mysql+pymysql://root:example@localhost:33062/humber_bridge', echo=False, future=True)
-
+# user : password @ host : port / database
 metadata = MetaData()
 
 sensors = Table(
@@ -40,7 +43,7 @@ anomalies = Table(
     metadata,
     Column("id", Integer, primary_key=True, autoincrement=True),
     Column("status", Integer, nullable=False),
-    Column("confidence", Integer, nullable=False),
+    Column("confidence", Float, nullable=False),
     Column("modified_at", DateTime),
     Column("notes", String(30)),
     Column("user_id",ForeignKey('users.id'), nullable=False)
@@ -64,12 +67,13 @@ related = Table(
 metadata.drop_all(engine) #not a drop-in replacement for migrations - see Alembic
 metadata.create_all(engine)
 
-users_data = [
-    {"name": "Chris Mott", "permission": 1, "password": "password1"},
-    {"name": "Callum Evans", "permission": 1, "password": "password2"},
-    {"name": "Daniel Belfield", "permission": 1, "password": "password3"},
-    {"name": "Daniel Tighe", "permission": 1, "password": "password4"}
-]
+# users_data = [
+#     {"name": "Chris Mott", "permission": 1, "password": "password1"},
+#     {"name": "Callum Evans", "permission": 1, "password": "password2"},
+#     {"name": "Daniel Belfield", "permission": 1, "password": "password3"},
+#     {"name": "Daniel Tighe", "permission": 1, "password": "password4"}
+# ]
+users_data = [{"id": i+1, "name": fake.name(), "permission": random.randint(1,5), "password": fake.password(10)} for i in range(4)]
 sensors_data = [
     {"id": "GPH000EDE","type": "GPS", "subtype": "Longitude", "location": "East Antenna", "unit": "degrees"},
     {"id": "GPH000EDN","type": "GPS", "subtype": "Latitude", "location": "East Antenna", "unit": "degrees"},
@@ -79,6 +83,8 @@ sensors_data = [
     {"id": "GPH000WDH","type": "GPS", "subtype": "Height", "location": "West Antenna", "unit": "metre"}
 ]
 related_data = []
+measured_data = []
+anomaly_data = []
 
 # matches related sensors by location
 for sensor in sensors_data:
@@ -94,23 +100,39 @@ data_import = pd.read_csv(
     index_col="timestamp",
     header=0
 )
-
-measured_data = []
-
 for i in range(len(data_import)-1):
     for s in data_import.columns:
-        print(OrdinalToDatetime(data_import.iloc[i].name/((24*3600*1000))))
         measured_data.append({
             "time": OrdinalToDatetime(data_import.iloc[i].name/((24*3600*1000))), 
             "value": data_import.iloc[i][s], 
             "sensor_id": s
             })
 
+data_indices = random.sample(range(len(measured_data)), 10)
+for ind, i in enumerate(data_indices):
+    # id = random.uniform(1,100)*random.uniform(1,100)
+    id = ind+1
+    status = random.randint(1,5)
+    confidence = random.uniform(1,100)/100
+    modified_at = fake.date_this_month()
+    notes = "This is a fake anomoly."
+    user_id = random.choice(users_data)["id"]
+    measured_data[i]["anomaly_id"] = id
+    anomaly_data.append({
+        "id": id,
+        "status": status,
+        "confidence": confidence,
+        "modified_at": modified_at,
+        "notes": notes,
+        "user_id": user_id
+    })
+
 with engine.connect() as conn:
     users_res = conn.execute(users.insert(), users_data)
     sensors_res = conn.execute(sensors.insert(), sensors_data)
     related_res = conn.execute(related.insert(), related_data)
     measured_data_res = conn.execute(data.insert(), measured_data)
+    anomaly_data_res = conn.execute(anomalies.insert(), anomaly_data)
     conn.commit()
 
 
