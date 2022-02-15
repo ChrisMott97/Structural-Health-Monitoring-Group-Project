@@ -15,7 +15,13 @@ services:
     volumes:
       - ./external-database/data:/var/lib/mysql
       - ./external-database/init:/docker-entrypoint-initdb.d
-  
+  web-frontend:
+    build:
+      context: ./web-frontend
+    volumes:
+    - ./web-frontend:/usr/share/nginx/html
+    ports:
+    - "80:80"
   internal-database:
     image: mariadb
     environment:

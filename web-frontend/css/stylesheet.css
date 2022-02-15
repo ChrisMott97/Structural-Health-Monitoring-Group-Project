@@ -68,22 +68,24 @@ body {
 }
 
 .sidebar-div {
-    width: 80px;
+    width: 60px;
     height: calc(100% - 80px);
     background-color: white;
     position: fixed;
     top: 80px;
     left: 0;
+    box-shadow: -19px 1px 20px 2px rgb(0 0 0 / 75%);
 }
 
 .sidebar-icon-div {
-    height: 80px;
+    height: 60px;
     width: 100%;
-    transition: 0.3s;
+    transition: 0.2s;
+    margin-top: 10px;
 }
 
 .sidebar-icon-div:hover:not(.sidebar-icon-active) {
-    background-color: #ebebeb;
+    background-color: #F2F2F2;
 }
 
 .sidebar-icon-active{
@@ -92,8 +94,8 @@ body {
 
 .sidebar-icon-span {
     position: absolute;
-    height: 80px;
-    width: 80px;
+    height: 60px;
+    width: 100%;
 }
 
 .sidebar-icon-img {
@@ -102,14 +104,14 @@ body {
     transition: 0.3s;
 }
 
-.sidebar-icon-div:hover:not(.sidebar-icon-active) .sidebar-icon-img {
+.sidebar-icon-div:hover .sidebar-icon-img {
     opacity: 0.5;
 }
 
 .main-content-div {
-    width: calc(100% - 200px);
+    width: calc(100% - 180px);
     top: 80px;
-    left: 80px;
+    left: 60px;
     position: absolute;
     margin: 60px;
 }
@@ -210,20 +212,17 @@ a .dashboard-title:hover {
 }
 
 .sensor-title {
-    margin-top: 0;
     text-align: center;
     font-size: 1.5em;
+    margin: 0 0 30px;
 }
 
 .database-main-content-div {
-    width: calc(100% - 280px);
-    top: 80px;
-    left: 80px;
-    position: absolute;
-    margin: 60px;
+    width: calc(100% - 80px);
     padding: 40px;
     background-color: white;
     box-shadow: 2px 2px 6px rgb(0 0 0 / 10%);
+    margin-bottom: 40px;
 }
 
 .database-table {
@@ -234,11 +233,11 @@ a .dashboard-title:hover {
 }
 
 .database-table-row {
-    border: solid 1px black;
+    border: solid 1px #bdbdbd;
     transition: 0.2s;
 }
 
-.database-table-row:hover {
+.database-table-row:not(.anomalous-value):hover {
     background-color: #F2F2F2;
 }
 
@@ -253,10 +252,11 @@ a .dashboard-title:hover {
 .database-table-row td {
     padding: 5px 0;
     text-align: center;
+    color: #7e7e7e;
 }
 
 .database-table-row td a {
-    color: black;
+    color: #7e7e7e;
 }
 
 .database-table-row td a:hover {
@@ -264,7 +264,7 @@ a .dashboard-title:hover {
 }
 
 .database-table-row td a:visited {
-    color: black;
+    color: #7e7e7e;
 }
 
 .database-search-table {
@@ -289,4 +289,34 @@ a .dashboard-title:hover {
     height: 16px;
     transform: translate(-23px, 7px);
     position: absolute;
+}
+
+#no-unread {
+    text-align: center;
+    color: #7e7e7e;
+}
+
+#anomaly-info {
+    display: none;
+}
+
+.anomalous-value {
+    background-color: rgba(255, 0, 0, 0.2);
+    color: rgb(255, 0, 0);
+}
+
+#humber-diagram {
+    width: 100%;
+}
+
+#sensor-location {
+    height: auto;
+}
+
+#sensor-info {
+    height: auto;
+}
+
+#database-search-table {
+    display: none;
 }

@@ -116,7 +116,7 @@ for ind, i in enumerate(data_indices):
     status = random.randint(1,5)
     confidence = random.uniform(1,100)/100
     modified_at = fake.date_this_month()
-    notes = "This is a fake anomoly."
+    notes = "This is a fake anomaly."
     user_id = random.choice(users_data)["id"]
     measured_data[i]["anomaly_id"] = id
     anomaly_data.append({

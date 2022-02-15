@@ -2,17 +2,24 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-var mysql = require('mysql')
 var cors = require('cors')
-
-
-
-db = mysql.createConnection({
-    host: 'internal-database',
-    user: 'root',
-    password: 'example',
-    database: 'humber_bridge'
-  })
+const knexConfig = require('./database/knexfile');
+// db = mysql.createConnection({
+//     host: 'internal-database',
+//     user: 'root',
+//     password: 'example',
+//     database: 'humber_bridge'
+//   })
+const db = require('knex')({
+  client: 'mysql2',
+  connection: {
+    host : 'internal-database',
+    port : 3306,
+    user : 'root',
+    password : 'example',
+    database : 'humber_bridge'
+  }
+  });
 
 var indexRouter = require('./routes/index');
 var sensorsRouter = require('./routes/sensors');
