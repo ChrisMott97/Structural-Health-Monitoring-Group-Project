@@ -3,6 +3,7 @@
         <title>SHM Monitoring Dashboard</title>
         <link href="css/stylesheet.css" rel='stylesheet' type='text/css'/>
         <script src="js/js.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     </head>
     <body>
         <div class="navbar-div">
@@ -75,30 +76,28 @@
         </div>
     </body>
 </html>
-<script>    
-    for (let i = 0; i < 6; i++) {
+<script>  
+    axios.get('http://localhost:3030/anomalies')
+            .then(function (response) {
+                // handle success
+                //document.getElementById("database-search-table").style.display = "block"
+                console.log(response.data.data)
+                response.data.data.reverse().slice(0, 6).forEach(item => {
+                    if (item.confidence > 0.8) {
+                        anomalyClass = "confidence-red"
+                    } else if (item.confidence > 0.6) {
+                        anomalyClass = "confidence-orange"
+                    } else {
+                        anomalyClass = "confidence-green"
+                    }
 
-        anomaly = generatedAnomalies[i]
-        tr = document.createElement("tr")
-        tr.classList.add("anomaly-table-row")
-        td = document.createElement("td")
-        td.classList.add("anomaly-table-element")
+                    rowString = formatDateString(item.time) + ": Sensor #"+item.sensor_id
 
-        if (anomaly[4] > 80) {
-            td.classList.add("confidence-red")
-        } else if (anomaly[4] > 60) {
-            td.classList.add("confidence-orange")
-        } else {
-            td.classList.add("confidence-green")
-        }
-        rowString = document.createTextNode(anomaly[1].toLocaleString() + ": "+anomaly[3]+" #"+anomaly[2])
-        link = document.createElement('a')
-        link.href="sensor.html?anomalyID="+anomaly[0]+"&sensorID="+anomaly[2]
-        link.appendChild(rowString)
-    
-        td.appendChild(link)
-        tr.appendChild(td)
-
-        document.getElementById("anomaly-table").appendChild(tr)
-    }
+                    document.getElementById("anomaly-table").innerHTML += `
+                    <tr class="anomaly-table-row">
+                    <td class="anomaly-table-element ${anomalyClass}"><a href="sensor.html?sensorID=${item.sensor_id}&anomalyID=${item.anomaly_id}">${rowString}</a></td>
+                    </tr>
+                    `;
+                });
+            })
 </script>

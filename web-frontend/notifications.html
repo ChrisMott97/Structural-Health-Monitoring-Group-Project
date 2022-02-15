@@ -3,6 +3,7 @@
         <title>SHM Monitoring Dashboard</title>
         <link href="css/stylesheet.css" rel='stylesheet' type='text/css'/>
         <script src="js/js.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     </head>
     <body>
         <div class="navbar-div">
@@ -42,37 +43,91 @@
         </div>
         <!-- Reports section -->
         <!-- "Unread notifications" section displaying pending anomalies -->
-        <div class="database-main-content-div">
-            <h1 class="dashboard-title">Detected Anomalies</h1>
-            <form>
-                <table class="database-search-table">
-                    <tbody>
-                        <tr>
-                            <td class="database-search-table-td">
-                                <input id="sensorID" name="sensorID" type="text" placeholder="Search Sensors"><img class="search-icon" src="images/search.png"></td>
-                            <td class="database-search-table-td">Sort By: <select>
-                                                                                <option value="updated-newest">Updated Last</option>
-                                                                                <option value="updated-oldest">Updated Earliest</option>
-                                                                                <option value="sensor-type">Sensor Type</option>
-                                                                                <option value="sensor-location">Sensor Location</option>
-                                                                          </select></td>
-                        </tr>
+        <div class="main-content-div">
+            <div class="database-main-content-div">
+                <h1 class="dashboard-title">Unread Notifications</h1>
+                <p id="no-unread">No new anomalies have been detected.</p>
+            </div>
+            <div class="database-main-content-div">
+                <h1 class="dashboard-title">Detected Anomalies</h1>
+                <form>
+                    <table class="database-search-table" id="database-search-table">
+                        <tbody>
+                            <tr>
+                                <td class="database-search-table-td">
+                                    <input id="sensorID" name="sensorID" type="text" placeholder="Search Sensors"><img class="search-icon" src="images/search.png"></td>
+                                <td class="database-search-table-td">Sort By: <select>
+                                                                                    <option value="updated-newest">Updated Last</option>
+                                                                                    <option value="updated-oldest">Updated Earliest</option>
+                                                                                    <option value="sensor-type">Sensor Type</option>
+                                                                                    <option value="sensor-location">Sensor Location</option>
+                                                                            </select></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </form>
+                <table class="database-table">
+                    <tbody id="anomaly-table">
+                        <tr><td>Loading...</td></tr>
                     </tbody>
                 </table>
-            </form>
-            <table class="database-table">
-                <tbody>
-                    <tr class="database-table-row"><th width="15%"></th><th width="15%"></th><th width="20%"></th><th width="20%"></th><th width="30%"></th></tr>
-                    <tr class="database-table-row"><td></td><td></td><td></td><td></td><td></td></tr>
-                </tbody>
-            </table>
-        <!--<a href="https://www.flaticon.com/free-icons/dashboard" title="dashboard icons">Dashboard icons created by Those Icons - Flaticon</a>
-            <a href="https://www.flaticon.com/free-icons/email" title="email icons">Email icons created by Those Icons - Flaticon</a>
-            <a href="https://www.flaticon.com/free-icons/picture" title="picture icons">Picture icons created by Pixel perfect - Flaticon</a>
-            <a href="https://www.flaticon.com/free-icons/graph" title="graph icons">Graph icons created by ibrandify - Flaticon</a>
-            <a href="https://www.flaticon.com/free-icons/database" title="database icons">Database icons created by Pixel perfect - Flaticon</a>
-            <a href="https://www.flaticon.com/free-icons/code" title="code icons">Code icons created by Stockio - Flaticon</a>-->
+            <!--<a href="https://www.flaticon.com/free-icons/dashboard" title="dashboard icons">Dashboard icons created by Those Icons - Flaticon</a>
+                <a href="https://www.flaticon.com/free-icons/email" title="email icons">Email icons created by Those Icons - Flaticon</a>
+                <a href="https://www.flaticon.com/free-icons/picture" title="picture icons">Picture icons created by Pixel perfect - Flaticon</a>
+                <a href="https://www.flaticon.com/free-icons/graph" title="graph icons">Graph icons created by ibrandify - Flaticon</a>
+                <a href="https://www.flaticon.com/free-icons/database" title="database icons">Database icons created by Pixel perfect - Flaticon</a>
+                <a href="https://www.flaticon.com/free-icons/code" title="code icons">Code icons created by Stockio - Flaticon</a>-->
+            </div>
+            <div class="database-main-content-div">
+                <h1 class="dashboard-title">Generated Reports</h1>
+                <form>
+                    <table class="database-search-table">
+                        <tbody>
+                            <tr>
+                                <td class="database-search-table-td">
+                                    <input id="sensorID" name="sensorID" type="text" placeholder="Search Reports"><img class="search-icon" src="images/search.png"></td>
+                                <td class="database-search-table-td">Sort By: <select>
+                                                                                    <option value="updated-newest">Newest First</option>
+                                                                                    <option value="updated-oldest">Oldest First</option>
+                                                                            </select></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </form>
+                <table class="database-table">
+                    <tbody>
+                        <tr class="database-table-row"><th width="15%"></th><th width="15%"></th><th width="20%"></th><th width="20%"></th><th width="30%"></th></tr>
+                        <tr class="database-table-row"><td></td><td></td><td></td><td></td><td></td></tr>
+                    </tbody>
+                </table>
+            <!--<a href="https://www.flaticon.com/free-icons/dashboard" title="dashboard icons">Dashboard icons created by Those Icons - Flaticon</a>
+                <a href="https://www.flaticon.com/free-icons/email" title="email icons">Email icons created by Those Icons - Flaticon</a>
+                <a href="https://www.flaticon.com/free-icons/picture" title="picture icons">Picture icons created by Pixel perfect - Flaticon</a>
+                <a href="https://www.flaticon.com/free-icons/graph" title="graph icons">Graph icons created by ibrandify - Flaticon</a>
+                <a href="https://www.flaticon.com/free-icons/database" title="database icons">Database icons created by Pixel perfect - Flaticon</a>
+                <a href="https://www.flaticon.com/free-icons/code" title="code icons">Code icons created by Stockio - Flaticon</a>-->
+            </div>
         </div>
-        
     </body>
 </html>
+<script>
+    axios.get('http://localhost:3030/anomalies')
+            .then(function (response) {
+                // handle success
+                document.getElementById("database-search-table").style.display = "block"
+                document.getElementById("anomaly-table").innerHTML = `<tr class="database-table-row"><th>Anomaly ID</th><th>Confidence</th><th>Sensor ID</th><th>Date & Time</th><th>Status</th><th>Last Update</th></tr>`
+                console.log(response.data.data)
+                response.data.data.forEach(item => {
+                    document.getElementById("anomaly-table").innerHTML += `
+                    <tr class="database-table-row">
+                    <td><a href="sensor.html?sensorID=${item.sensor_id}">#${item.anomaly_id}</a></td>
+                    <td>${(item.confidence*100).toFixed(3)}%</td>
+                    <td>${item.sensor_id}</td>
+                    <td>${formatDateString(item.time)}</td>
+                    <td>${item.status}</td>
+                    <td>${formatDateString(item.modified_at)}</td>
+                    </tr>
+                    `;
+                });
+            })
+</script>

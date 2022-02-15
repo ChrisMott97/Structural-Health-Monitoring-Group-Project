@@ -3,6 +3,7 @@
         <title>SHM Monitoring Dashboard</title>
         <link href="css/stylesheet.css" rel='stylesheet' type='text/css'/>
         <script src="js/js.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
         <script>
             const queryString = window.location.search;
             const urlParams = new URLSearchParams(queryString);
@@ -13,18 +14,28 @@
                 const anomalyID = urlParams.get('anomalyID')
             } else { anomalyExists = false }
 
-            found = false
+            anomalyFound = false
             for (let i = 0; i < generatedAnomalies.length; i++) {
                 if (generatedAnomalies[i][2] == sensorID) {
-                    found = true
+                    anomalyFound = true
                     anomalyData = generatedAnomalies[i]
                     break
                 }
-            } 
+            }
 
-            if (found == false) {
+            sensorFound = false
+            for (let i = 0; i < sensors.length; i++) {
+                if (sensors[i][0] == sensorID) {
+                    sensorFound = true
+                    sensorDetails = sensors[i]
+                    break
+                }
+            }
+
+            if (sensorFound == false) {
                 sensorID = 'Not found'
             }
+            
         </script>
     </head>
     <body>
@@ -65,13 +76,79 @@
         </div>
         <div class="main-content-div">
             <h1 class="sensor-title" id="sensor-title"></h1>
+            <div class="dashboard-tile-parent">
+                <div class="dashboard-tile-div" id="sensor-info">
+                    <h1 class="dashboard-title">Sensor Details</h1>
+                </div>
+                <div class="dashboard-tile-div" id="sensor-location">
+                    <h1 class="dashboard-title">Sensor Location</h1>
+                    <img src="images/humber_diagram.png" id="humber-diagram">
+                </div>
+            </div>
+            <div class="database-main-content-div" id="anomaly-info"></div>
+            <div class="database-main-content-div">
+                <h1 class="dashboard-title">Sensor Database</h1>
+                <form>
+                    <table class="database-search-table">
+                        <tbody>
+                            <tr>
+                                <td class="database-search-table-td">
+                                    <input id="sensorID" name="sensorID" type="text" placeholder="Search Values"><img class="search-icon" src="images/search.png"></td>
+                                <td class="database-search-table-td">Sort By: <select>
+                                                                                    <option value="updated-newest">Newest Values First</option>
+                                                                                    <option value="updated-oldest">Oldest Values First</option>
+                                                                            </select></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </form>
+                <table class="database-table">
+                    <tbody id="sensor-data">
+                        <tr class="database-table-row"><th>Date</th><th>Time</th><th>x_value</th><th>y_value</th><th>z_value</th></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </body>
 </html>
 <script>
-    if (found == true) {
-        document.getElementById('sensor-title').innerHTML = 'Inspecting: '+anomalyData[3]+' #'+sensorID
+    if (sensorFound == true) {
+        document.getElementById('sensor-title').innerHTML = 'Inspecting: '+sensorDetails[1]+' #'+sensorID
     } else {
         document.getElementById('sensor-title').innerHTML = 'Sensor Not Found'
     }
+
+    no_vals = 40
+    if (anomalyExists == true) {
+        anomalyInfo = document.getElementById("anomaly-info")
+        anomalyInfo.style.display = "block"
+        anomalyText = "An anomaly was detected by this sensor at "+anomalyData[1].toLocaleString()+" with a confidence of "+anomalyData[4].toFixed(2)+"%. The status of this anomaly was marked as '"+anomalyData[5]+"' by "+anomalyData[6]+" at "+anomalyData[7].toLocaleString()+"."
+        anomalyInfo.appendChild(document.createTextNode(anomalyText))
+        anomalousVal = Math.floor(Math.random() * (6))
+    }
+
+    sensorData = generate_random_sensor_data(no_vals)
+    for (let i = 0; i < sensorData.length; i++ ) {
+        tr = document.createElement("tr")
+        tr.classList.add("database-table-row")
+        if (anomalyExists == true){ if (i == anomalousVal) { tr.classList.add("anomalous-value"); sensorData[i][2] *= (10) } }
+        td = document.createElement("td")
+        td.appendChild(document.createTextNode(sensorData[i][0].getDate()+"/"+sensorData[i][0].getMonth()+"/"+sensorData[i][0].getUTCFullYear()))
+        tr.appendChild(td)
+        td = document.createElement("td")
+        td.appendChild(document.createTextNode(sensorData[i][0].toLocaleTimeString()))
+        tr.appendChild(td)
+
+        for (let j = 1; j < 4; j++) {
+            td = document.createElement("td")
+            td.appendChild(document.createTextNode(sensorData[i][j]))
+            tr.appendChild(td)
+        }
+        document.getElementById("sensor-data").appendChild(tr)
+    }
+
+    details = document.createElement("p")
+    details.innerHTML = "Sensor ID: <i>#"+sensorDetails[0]+"</i><br>Sensor Type: <i>"+sensorDetails[1]+"</i><br>Location: <i>"+sensorDetails[2]+"</i><br>Last Updated: <i>"+sensorDetails[3].toLocaleString()+"</i><br>Last Detected Anomaly: <i>"+sensorDetails[4].toLocaleString()+"</i>"
+    document.getElementById("sensor-info").appendChild(details)
+
 </script>
