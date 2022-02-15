@@ -1,6 +1,6 @@
-### sktime, pyts, PYTORCH!!!!
-# run simpler tests ie: mean, variance, standard variation
+# run simpler tests ie: mean, variance, standard deviation
 # overlaping windows between classifiers
+# artificial anomaly incorporation (ramp/spike/hill)/(gaussian/sigmoid differentiation)
 
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks import EarlyStopping, LearningRateMonitor
@@ -21,6 +21,7 @@ max_prediction_length = 6
 ### current timestamp should be id=4 (0-based so entry 5)
 training_cutoff = 63428493600000
 
+###training set may need to be changed to align with autoencoders, should work for now though
 ###'<' not supported between instances of 'NoneType' and 'NoneType'
 training = TimeSeriesDataSet(
     data=ts_data.loc[ts_data["timestamp"] <= training_cutoff],
@@ -29,10 +30,10 @@ training = TimeSeriesDataSet(
     ### target should be column or list of columns denoting the categorical/continous target (???)
     target=ts_data.columns.tolist()[1:],
     ### group_ids should be list of column names identifying a time series (with time_idx should denote a sample)
-    group_ids=ts_data.columns.tolist()[1:]
+    group_ids=ts_data.columns.tolist()[1:],
+    max_encoder_length=max_encoder_length,
+    max_prediction_length=max_prediction_length
 )
-
-###training set may need to be changed to align with autoencoders, should work for now though
 
 # create validation and training dataset
 validation = TimeSeriesDataSet.from_dataset(training, ts_data, min_prediction_idx=training.index.time.max() + 1, stop_randomization=True)
@@ -79,5 +80,3 @@ fig.show()
 trainer.fit(
     tft, train_dataloader=train_dataloader, val_dataloaders=val_dataloader,
 )
-
-###artificial anomaly incorporation (ramp, spike, hill) (gaussian/sigmoid differentiation)
