@@ -12,7 +12,7 @@ CMD [ "node", "./bin/www" ]
 
 FROM base as dev
 ENV NODE_ENV=development
-RUN npm install -g nodemon && npm install
+RUN npm install -g nodemon knex && npm install
 COPY --chown=node:node . .
 CMD [ "nodemon", "./bin/www"]
 USER node
