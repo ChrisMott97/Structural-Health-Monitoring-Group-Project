@@ -26,6 +26,7 @@ training_cutoff = 63428497200000
 
 training = TimeSeriesDataSet(
     ###'DataFrame' object has no attribute 'timestamp'
+    ###pd data frame needs column headings, should show data where info under timestamp heading < cutoff
     ###possibly create new function that gathers training data from pd before training_cutoff
     data[lambda x: x.timestamp < training_cutoff],
     ### optional parameters but could improve efficiency/accuracy if set
@@ -91,3 +92,5 @@ fig.show()
 trainer.fit(
     tft, train_dataloader=train_dataloader, val_dataloaders=val_dataloader,
 )
+
+###artificial anomaly incorporation (ramp, spike, hill) (gaussian/sigmoid differentiation)
