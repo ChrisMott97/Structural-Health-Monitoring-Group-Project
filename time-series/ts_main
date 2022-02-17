@@ -5,78 +5,104 @@
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks import EarlyStopping, LearningRateMonitor
 from pytorch_forecasting import TimeSeriesDataSet, TemporalFusionTransformer
-from pytorch_forecasting.metrics import QuantileLoss
+from pytorch_forecasting.metrics import QuantileLoss, MultiLoss
 import pandas as pd
 import pymysql
 
-# load data
-dbcon = pymysql.connect(user="root", password="example", database="humber_bridge", host="localhost", port=33061)
-### unify SQL query with autoencoder to make sure output is identical, once working remove limit
-ts_data = pd.read_sql("select * from summary limit 10", dbcon)
+def load_data():
+    # load data
+    dbcon = pymysql.connect(user="root", password="example", database="humber_bridge", host="localhost", port=33061)
+    ### unify SQL query with autoencoder to make sure output is identical, once working remove limit
+    ts_data = pd.read_sql("select * from summary limit 100", dbcon)
+    ids=[]
+    for i in range(len(ts_data)):
+        ids.append(i)
+    ts_data['ID'] = ids
+    ts_data.fillna(value = 0, inplace = True)
+    ts_data.replace(1.1e308, 0, inplace = True)
+    print(ts_data)
+    return ts_data
 
-# define dataset
-max_encoder_length = 36
-max_prediction_length = 6
-### change timestamp when limit removed from query
-### current timestamp should be id=4 (0-based so entry 5)
-training_cutoff = 63428493600000
+def train_data():
+    # define dataset
+    max_encoder_length = 16
+    max_prediction_length = 3
+    ### change timestamp when limit removed from query
+    ### current timestamp should be id=4 (0-based so entry 5)
+    training_cutoff = 63428493600000
+    ###training set may need to be changed to align with autoencoders, should work for now though
+    training = TimeSeriesDataSet(
+        data=ts_data.loc[ts_data["timestamp"] <= training_cutoff],
+        time_idx="ID",
+        ### traget might have to be split into each individual sensor and timeseries ran on each individually
+        target=ts_data.columns.tolist()[1:],
+        ### group_ids should be list of column names identifying a time series (with time_idx should denote a sample)???
+        group_ids=["timestamp"],
+        min_encoder_length=0,
+        min_prediction_length=1,
+        max_encoder_length=max_encoder_length,
+        max_prediction_length=max_prediction_length
+    )
 
-###training set may need to be changed to align with autoencoders, should work for now though
-###'<' not supported between instances of 'NoneType' and 'NoneType'
-training = TimeSeriesDataSet(
-    data=ts_data.loc[ts_data["timestamp"] <= training_cutoff],
-    ### check parameters, time_idx should be integer column denoting time index
-    time_idx="timestamp",
-    ### target should be column or list of columns denoting the categorical/continous target (???)
-    target=ts_data.columns.tolist()[1:],
-    ### group_ids should be list of column names identifying a time series (with time_idx should denote a sample)
-    group_ids=ts_data.columns.tolist()[1:],
-    max_encoder_length=max_encoder_length,
-    max_prediction_length=max_prediction_length
-)
+    # create validation and training dataset
+    validation = TimeSeriesDataSet(
+        data=ts_data,
+        time_idx="ID",
+        ### traget might have to be split into each individual sensor and timeseries ran on each individually
+        target=ts_data.columns.tolist()[1:],
+        ### group_ids should be list of column names identifying a time series (with time_idx should denote a sample)???
+        group_ids=["timestamp"],
+        min_encoder_length=0,
+        min_prediction_length=1,
+        max_encoder_length=max_encoder_length,
+        max_prediction_length=max_prediction_length,
+        min_prediction_idx=training.index.time.max() + 1
+    )
+    batch_size = 128
+    train_dataloader = training.to_dataloader(train=True, batch_size=batch_size)
+    val_dataloader = validation.to_dataloader(train=False, batch_size=batch_size)
 
-# create validation and training dataset
-validation = TimeSeriesDataSet.from_dataset(training, ts_data, min_prediction_idx=training.index.time.max() + 1, stop_randomization=True)
-batch_size = 128
-train_dataloader = training.to_dataloader(train=True, batch_size=batch_size, num_workers=2)
-val_dataloader = validation.to_dataloader(train=False, batch_size=batch_size, num_workers=2)
+    # define trainer with early stopping
+    early_stop_callback = EarlyStopping(monitor="val_loss", min_delta=1e-4, patience=1, verbose=False, mode="min")
+    lr_logger = LearningRateMonitor()
+    trainer = pl.Trainer(
+        max_epochs=100,
+        gpus=0,
+        gradient_clip_val=0.1,
+        limit_train_batches=30,
+        callbacks=[lr_logger, early_stop_callback],
+    )
 
-# define trainer with early stopping
-early_stop_callback = EarlyStopping(monitor="val_loss", min_delta=1e-4, patience=1, verbose=False, mode="min")
-lr_logger = LearningRateMonitor()
-trainer = pl.Trainer(
-    max_epochs=100,
-    gpus=0,
-    gradient_clip_val=0.1,
-    limit_train_batches=30,
-    callbacks=[lr_logger, early_stop_callback],
-)
+    # create the model
+    tft = TemporalFusionTransformer.from_dataset(
+        training,
+        learning_rate=0.03,
+        hidden_size=32,
+        attention_head_size=1,
+        dropout=0.1,
+        hidden_continuous_size=16,
+        output_size=7,
+        loss=MultiLoss([QuantileLoss()]),
+        log_interval=2,
+        reduce_on_plateau_patience=4
+    )
+    print(f"Number of parameters in network: {tft.size()/1e3:.1f}k")
 
-# create the model
-tft = TemporalFusionTransformer.from_dataset(
-    training,
-    learning_rate=0.03,
-    hidden_size=32,
-    attention_head_size=1,
-    dropout=0.1,
-    hidden_continuous_size=16,
-    output_size=7,
-    loss=QuantileLoss(),
-    log_interval=2,
-    reduce_on_plateau_patience=4
-)
-print(f"Number of parameters in network: {tft.size()/1e3:.1f}k")
+    # find optimal learning rate (set limit_train_batches to 1.0 and log_interval = -1)
+    ###list index out of range? may be due to invalid data entry or encoder length mismatch? also occurs on trainer.fit below
+    res = trainer.tuner.lr_find(
+        tft, train_dataloader=train_dataloader, val_dataloaders=val_dataloader, early_stop_threshold=1000.0, max_lr=0.3,
+    )
 
-# find optimal learning rate (set limit_train_batches to 1.0 and log_interval = -1)
-res = trainer.tuner.lr_find(
-    tft, train_dataloader=train_dataloader, val_dataloaders=val_dataloader, early_stop_threshold=1000.0, max_lr=0.3,
-)
+    print(f"suggested learning rate: {res.suggestion()}")
+    fig = res.plot(show=True, suggest=True)
+    fig.show()
+    return tft, train_dataloader, val_dataloader
 
-print(f"suggested learning rate: {res.suggestion()}")
-fig = res.plot(show=True, suggest=True)
-fig.show()
-
-# fit the model
-trainer.fit(
-    tft, train_dataloader=train_dataloader, val_dataloaders=val_dataloader,
-)
+def encode_data():
+    # fit the model
+    ### should be separated from training so training only has to be ran once
+    x = trainer.fit(
+        tft, train_dataloader=train_dataloader, val_dataloaders=val_dataloader,
+    )
+    return x
