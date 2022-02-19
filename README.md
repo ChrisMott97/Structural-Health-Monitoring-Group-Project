@@ -5,6 +5,7 @@
 * Client: Prakash Kripakaran and Ki Koo
 * Department: Engineering
 
-# Table of Contents
+# Documentation - Table of Contents
 1. [Setup](./documentation/00-setup.md)
 2. [Docker](./documentation/01-docker.md)
+3. [API-Contract](./documentation/02-api.md)

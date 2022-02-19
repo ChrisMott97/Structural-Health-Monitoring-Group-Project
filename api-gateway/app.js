@@ -3,32 +3,6 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var cors = require('cors')
-const knexConfig = require('./database/knexfile');
-// db = mysql.createConnection({
-//     host: 'internal-database',
-//     user: 'root',
-//     password: 'example',
-//     database: 'humber_bridge'
-//   })
-const db = require('knex')({
-  client: 'mysql2',
-  connection: {
-    host : 'internal-database',
-    port : 3306,
-    user : 'root',
-    password : 'example',
-    database : 'humber_bridge'
-  },pool: {
-    min: 2,
-    max: 6,
-    createTimeoutMillis: 3000,
-    acquireTimeoutMillis: 30000,
-    idleTimeoutMillis: 30000,
-    reapIntervalMillis: 1000,
-    createRetryIntervalMillis: 100,
-    propagateCreateError: false // <- default is true, set to false
-  },
-  });
 
 var indexRouter = require('./routes/index');
 var sensorsRouter = require('./routes/sensors');
