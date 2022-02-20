@@ -5,15 +5,27 @@ const knex = require('knex')(knexConfig);
 
 router.get('/', function(req, res) {
   let sensor = req.query.sensor
-  if(sensor){
-    knex('data').select().where("sensor_id", sensor).then(data => {
-      res.send(data)
-    })
-  }else{
-    knex('data').select().then(data => {
-      res.send(data)
-    })
-  }
+  let from = req.query.from
+  let until = req.query.until
+
+  knex('data')
+  .select()
+  .modify((builder) => {
+    if (sensor){
+      builder.where({sensor_id: sensor})
+    }
+    if (from && until){
+      builder.whereBetween("time", [from, until])
+    }
+  })
+  .then(data => {
+    if(!data || !data.length){
+      res.status(404).json(`No data found.`)
+    }else{
+      res.json(data)
+    }
+  })
+
 });
 
 

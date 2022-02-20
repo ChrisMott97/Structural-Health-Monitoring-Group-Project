@@ -5,17 +5,22 @@ const knex = require('knex')(knexConfig);
 
 router.get('/', function(req, res) {
   knex('sensors').select().then(sensors => {
-    res.send(sensors)
+    if(!sensors || !sensors.length){
+      res.status(404).json(`No sensors found.`)
+    }else{
+      res.json(sensors)
+    }
   })
 });
 
 router.get('/:id', function(req, res) {
   let id = req.params.id
   knex('sensors').select().where({id: id}).first().then(sensor => {
-    if(sensor == null){
+    if(!sensor){
       res.status(404).json(`Sensor ${id} is not found.`)
+    }else{
+      res.json(sensor)
     }
-    res.send(sensor)
   })
 });
 

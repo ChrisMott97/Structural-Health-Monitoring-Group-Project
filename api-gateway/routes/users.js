@@ -5,8 +5,23 @@ const knex = require('knex')(knexConfig);
 
 router.get('/', function(req, res) {
   knex('users').select().then(users => {
-    res.send(users)
+    if(!users || !users.length){
+      res.status(404).json(`No users found.`)
+    }else{
+      res.json(users)
+    }
   })
 });
 
+router.get('/:id', function(req, res) {
+  let id = req.params.id
+
+  knex('users').select().where({id: id}).first().then(user => {
+    if(!user){
+      res.status(404).json(`User ${id} is not found.`)
+    }else{
+      res.json(user)
+    }
+  })
+});
 module.exports = router;
