@@ -4,6 +4,7 @@
  */
  exports.seed = async function(knex) {
     // Deletes ALL existing entries
+    await knex('comments').del()
     await knex('related').del()
     await knex('anomalies').del()
     await knex('data').del()

@@ -7,7 +7,7 @@ exports.seed = async function(knex) {
   await knex('anomalies').del()
   await knex.raw("ALTER TABLE anomalies AUTO_INCREMENT = 1")
 
-  const anomalies_count = 10
+  const anomalies_count = 20
   const status_max = 5
   let results = []
   await knex('data').select().orderByRaw('RAND()').limit(anomalies_count).then(rows => {
