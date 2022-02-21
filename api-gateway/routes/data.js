@@ -7,6 +7,7 @@ router.get('/', function(req, res) {
   let sensor = req.query.sensor
   let from = req.query.from
   let until = req.query.until
+  let limit = req.query.limit
 
   knex('data')
   .select()
@@ -16,6 +17,9 @@ router.get('/', function(req, res) {
     }
     if(from && until) {
       builder.whereBetween("time", [from, until])
+    }
+    if(limit) {
+      builder.limit(limit)
     }
   })
   .then(data => {
