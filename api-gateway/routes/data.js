@@ -11,10 +11,10 @@ router.get('/', function(req, res) {
   knex('data')
   .select()
   .modify((builder) => {
-    if (sensor){
+    if(sensor) {
       builder.where({sensor_id: sensor})
     }
-    if (from && until){
+    if(from && until) {
       builder.whereBetween("time", [from, until])
     }
   })

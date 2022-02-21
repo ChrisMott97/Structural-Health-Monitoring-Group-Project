@@ -9,6 +9,7 @@ var sensorsRouter = require('./routes/sensors');
 var usersRouter = require('./routes/users');
 var dataRouter = require('./routes/data');
 var anomalyRouter = require('./routes/anomalies')
+var commentRouter = require('./routes/comments')
 
 var app = express();
 app.use(cors())
@@ -23,5 +24,6 @@ app.use('/sensors', sensorsRouter);
 app.use('/users', usersRouter);
 app.use('/data', dataRouter);
 app.use('/anomalies', anomalyRouter);
+app.use('/comments', commentRouter);
 
 module.exports = app;

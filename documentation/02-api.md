@@ -70,3 +70,46 @@
      - ```javascript
         [{"id": Number,"time": DateTime,"value": Number,"sensor_id": String,"status": Number,"confidence": Number,"updated_at": DateTime,"notes": String,"name": String}]
         ```
+### Comments
+ - Get all comments
+   - Method: GET
+   - URI: `/comments`
+   - Response: 
+     - ```javascript
+        [{id: Number, user_id: Number, sensor_id: String, anomaly_id: Number, body: String, created_at: DateTime, updated_at: DateTime}]
+        ```
+- Get one comment by ID
+   - Method: GET
+   - URI: `/comments/1`
+   - Response: 
+     - ```javascript
+        {id: Number, user_id: Number, sensor_id: String, anomaly_id: Number, body: String, created_at: DateTime, updated_at: DateTime}
+        ```
+- Get all comments by a user ID
+   - Method: GET
+   - URI: `/comments?user-id=1`
+   - Response: 
+     - ```javascript
+        [{id: Number, user_id: Number, sensor_id: String, anomaly_id: Number, body: String, created_at: DateTime, updated_at: DateTime}]
+        ```
+   - Notes:
+     - Standard for URLs is user-id, standard for MySQL is user_id, and standard for JavaScript is userID :(
+- Get all comments by a sensor ID
+   - Method: GET
+   - URI: `/comments?sensor-id=1`
+   - Response: 
+     - ```javascript
+        [{id: Number, user_id: Number, sensor_id: String, anomaly_id: Number, body: String, created_at: DateTime, updated_at: DateTime}]
+        ```
+   - Notes:
+     - See above
+- Get all comments by a anomaly ID
+   - Method: GET
+   - URI: `/comments?anomaly-id=1`
+   - Response: 
+     - ```javascript
+        [{id: Number, user_id: Number, sensor_id: String, anomaly_id: Number, body: String, created_at: DateTime, updated_at: DateTime}]
+        ```
+   - Notes:
+     - See above
+     - Relating comments to anomalies is optional, comments can just be about sensors
