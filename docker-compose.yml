@@ -20,6 +20,7 @@ services:
       context: ./web-frontend
     volumes:
     - ./web-frontend:/usr/share/nginx/html
+    - ./web-frontend/config:/etc/nginx/conf.d
     ports:
     - "80:80"
   internal-database:

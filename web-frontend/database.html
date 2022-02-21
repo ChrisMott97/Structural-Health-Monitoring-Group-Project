@@ -76,8 +76,8 @@
                 // handle success
                 document.getElementById("database-search-table").style.display = "block"
                 document.getElementById("sensor-database").innerHTML = `<tr class="database-table-row"><th>Sensor ID</th><th>Sensor Type</th><th>Sensor Subtype</th><th>Location</th><th>Unit</th><th>Last Updated</th></tr>`
-                console.log(response.data.data)
-                response.data.data.forEach(item => {
+                console.log(response.data)
+                response.data.forEach(item => {
                     document.getElementById("sensor-database").innerHTML += `
                     <tr class="database-table-row">
                     <td><a href="sensor.html?sensorID=${item.id}">#${item.id}</</td>

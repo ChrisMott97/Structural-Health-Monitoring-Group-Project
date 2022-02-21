@@ -7,7 +7,27 @@
         <script>
             const queryString = window.location.search;
             const urlParams = new URLSearchParams(queryString);
-            sensorID = urlParams.get('sensorID')
+            let sensorID = urlParams.get('sensorID')
+
+            // All variables that reference retrieved data must be 
+            // set in the .then() part as the function is async
+
+            axios.get(`http://localhost:3030/sensors/${sensorID}`)
+            .then(function (response) {
+                let sensorDetails = response.data
+
+                // Backticks can be used with ${} for nicer variables in strings
+                document.getElementById('sensor-title').innerHTML = `Inspecting: ${sensorDetails.type} #${sensorID}`
+                let details = document.createElement("p")
+                details.innerHTML = `
+                Sensor ID: <i>#${sensorDetails.id}</i><br>
+                Sensor Type: <i>${sensorDetails.type}</i><br>
+                Location: <i>${sensorDetails.location}</i><br>
+                Last Updated: <i>${null}</i><br>
+                Last Detected Anomaly: <i>${null}</i>
+                `
+                document.getElementById("sensor-info").appendChild(details)
+            })
 
             if (urlParams.has('anomalyID')) {
                 anomalyExists = true
@@ -23,13 +43,8 @@
                 }
             }
 
-            sensorFound = false
-            for (let i = 0; i < sensors.length; i++) {
-                if (sensors[i][0] == sensorID) {
-                    sensorFound = true
-                    sensorDetails = sensors[i]
-                    break
-                }
+            if(sensorDetails){
+                sensorFound = true
             }
 
             if (sensorFound == false) {
@@ -112,12 +127,11 @@
     </body>
 </html>
 <script>
-    if (sensorFound == true) {
-        document.getElementById('sensor-title').innerHTML = 'Inspecting: '+sensorDetails[1]+' #'+sensorID
+    /* if (sensorFound == true) {
+        document.getElementById('sensor-title').innerHTML = 'Inspecting: '+sensorDetails.type+' #'+sensorID
     } else {
         document.getElementById('sensor-title').innerHTML = 'Sensor Not Found'
-    }
-
+    } */
     no_vals = 40
     if (anomalyExists == true) {
         anomalyInfo = document.getElementById("anomaly-info")
@@ -128,7 +142,33 @@
     }
 
     sensorData = generate_random_sensor_data(no_vals)
-    for (let i = 0; i < sensorData.length; i++ ) {
+    axios.get(`http://localhost:3030/data?sensor=${sensorID}`)
+    .then(function (response) {
+        let sensorData = response.data
+
+        for (let i = 0; i < sensorData.length; i++ ) {
+            tr = document.createElement("tr")
+            tr.classList.add("database-table-row")
+            //if (anomalyExists == true){ if (i == anomalousVal) { tr.classList.add("anomalous-value"); sensorData[i][2] *= (10) } }
+            td = document.createElement("td")
+            td.appendChild(document.createTextNode(sensorData[i].time))
+            tr.appendChild(td)
+            td = document.createElement("td")
+            td.appendChild(document.createTextNode(""))
+            tr.appendChild(td)
+            
+            td = document.createElement("td")
+            td.appendChild(document.createTextNode(sensorData[i].value))
+            tr.appendChild(td)
+            /*for (let j = 1; j < 4; j++) {
+                td = document.createElement("td")
+                td.appendChild(document.createTextNode(sensorData[i][j]))
+                tr.appendChild(td)
+            }*/
+            document.getElementById("sensor-data").appendChild(tr)
+        }
+    })
+    /*for (let i = 0; i < sensorData.length; i++ ) {
         tr = document.createElement("tr")
         tr.classList.add("database-table-row")
         if (anomalyExists == true){ if (i == anomalousVal) { tr.classList.add("anomalous-value"); sensorData[i][2] *= (10) } }
@@ -145,10 +185,6 @@
             tr.appendChild(td)
         }
         document.getElementById("sensor-data").appendChild(tr)
-    }
-
-    details = document.createElement("p")
-    details.innerHTML = "Sensor ID: <i>#"+sensorDetails[0]+"</i><br>Sensor Type: <i>"+sensorDetails[1]+"</i><br>Location: <i>"+sensorDetails[2]+"</i><br>Last Updated: <i>"+sensorDetails[3].toLocaleString()+"</i><br>Last Detected Anomaly: <i>"+sensorDetails[4].toLocaleString()+"</i>"
-    document.getElementById("sensor-info").appendChild(details)
-
+    }*/
+    
 </script>

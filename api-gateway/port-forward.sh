@@ -1,0 +1,2 @@
+sudo socat TCP-LISTEN:80,fork TCP:192.168.1.19:80
+sudo socat TCP-LISTEN:3030,fork TCP:192.168.1.19:3030
