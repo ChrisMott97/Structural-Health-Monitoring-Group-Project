@@ -10,7 +10,7 @@
         ```
 - Get one sensor by ID
    - Method: GET
-   - URI: `/sensors/:id`
+   - URI: `/sensors/1`
    - Response: 
      - ```javascript
         {id:String, type:String, subtype:String, location:String, unit:String}
@@ -62,6 +62,13 @@
    - Response: 
      - ```javascript
         [{"id": Number,"time": DateTime,"value": Number,"sensor_id": String,"status": Number,"confidence": Number,"updated_at": DateTime,"notes": String,"name": String}]
+        ```
+- Get anomaly by ID
+   - Method: GET
+   - URI: `/anomalies/1`
+   - Response: 
+     - ```javascript
+        {"id": Number,"time": DateTime,"value": Number,"sensor_id": String,"status": Number,"confidence": Number,"updated_at": DateTime,"notes": String,"name": String}
         ```
 - Get anomalies by status
    - Method: GET
