@@ -87,7 +87,7 @@
                 response.data.forEach(item => {
                     document.getElementById("sensor-database").innerHTML += `
                     <tr class="database-table-row">
-                    <td><a href="sensor.html?sensorID=${item.id}">#${item.id}</</td>
+                    <td><a href="/sensor?sensorID=${item.id}">#${item.id}</</td>
                     <td>${item.type}</td>
                     <td>${item.subtype}</td>
                     <td>${item.location}</td>

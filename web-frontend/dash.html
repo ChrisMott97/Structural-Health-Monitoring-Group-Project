@@ -102,7 +102,7 @@
 
                 document.getElementById("anomaly-table").innerHTML += `
                 <tr class="anomaly-table-row">
-                <td class="anomaly-table-element ${anomalyClass}"><a href="sensor.html?sensorID=${item.sensor_id}&anomalyID=${item.id}">${rowString}</a></td>
+                <td class="anomaly-table-element ${anomalyClass}"><a href="/sensor?sensorID=${item.sensor_id}&anomalyID=${item.id}">${rowString}</a></td>
                 </tr>
                 `;
             });
