@@ -44,7 +44,11 @@
         <div class="main-content-div">
             <div class="dashboard-tile-parent">
                 <div class="dashboard-tile-div" id="tile1">
-                    <h1 class="dashboard-title">Reports</h1>
+                    <a href="notifications.html" class="dashboard-title"><h1 class="dashboard-title">Reports</h1></a>
+                    <table class="anomaly-table">
+                        <tbody id="reports-table">
+                        </tbody>
+                    </table>
                 </div>
                 <div class="dashboard-tile-div" id="tile2">
                     <a href="notifications.html" class="dashboard-title"><h1 class="dashboard-title">Detected Anomalies</h1></a>
@@ -87,7 +91,6 @@
 <script>  
     axios.get('http://localhost:3030/anomalies')
         .then(function (response) {
-            console.log(response.data)
             response.data.reverse().slice(0, 6).forEach(item => {
                 if (item.confidence > 0.8) {
                     anomalyClass = "confidence-red"
@@ -107,4 +110,11 @@
                 `;
             });
         })
+
+    for (let i = 0; i < reports.length; i++ ) {
+        document.getElementById('reports-table').innerHTML += `
+        <tr class="anomaly-table-row">
+        <td class="anomaly-table-element">${reports[i][1].getFullYear()+'/'+(reports[i][1].getMonth()+1)+'/'+reports[i][1].getDate()}: ${reports[i][2]}</td>
+        </tr>`
+    }
 </script>

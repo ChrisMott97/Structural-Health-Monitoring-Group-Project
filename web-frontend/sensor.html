@@ -87,7 +87,7 @@
             </div>
             <div class="database-main-content-div">
                 <h1 class="dashboard-title">Sensor Database</h1>
-                <form action="sensor.html" method="GET" id="database-search-form">
+                <form action="/sensor" method="GET" id="database-search-form">
                     <table class="database-search-table">
                         <tbody>
                             <tr>
@@ -186,8 +186,8 @@
     axios.get(`http://localhost:3030/data?sensor=${sensorID}`)
     .then(function (response) {
         let sensorData = response.data
-        generateLineGraph('graph1-chart', sensorData.slice(0, Math.round(sensorData.length/2)))
-        generateLineGraph('graph2-chart', sensorData.slice(Math.round((sensorData.length/2)), sensorData.length))
+        generateLineGraph('graph1-chart', 'Previous 24 hours', sensorData.slice(0, Math.round(sensorData.length/2)))
+        generateLineGraph('graph2-chart', 'Previous Week', sensorData.slice(Math.round((sensorData.length/2)), sensorData.length))
     })
     
 </script>

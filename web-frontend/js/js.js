@@ -132,7 +132,7 @@ function loadAnomalyForm(div) {
 }
 
 
-function generateLineGraph(chartID, sensorData) {
+function generateLineGraph(chartID, graphTitle, sensorData) {
     labels = []
     vals = []
     for (let i = 0; i < sensorData.length; i++ ) {
@@ -145,14 +145,27 @@ function generateLineGraph(chartID, sensorData) {
     const data = {
     labels: labels,
     datasets: [{
-        label: 'Sensor Value',
+        label: graphTitle,
         data: vals,
         fill: false,
         borderColor: 'rgb(31, 69, 135)',
         tension: 0.1
     }]
     };
-    const options = {legend: {display: false}}
 
-    const myChart = new Chart(ctx, config = {type: 'line', data: data, options: options})
+    const myChart = new Chart(ctx, config = {type: 'line',
+                                             data: data,
+                                             options: {
+                                                legend: { display: false },
+                                                scales: {
+                                                    y: {
+                                                        display: true, 
+                                                        title: {
+                                                            display: true,
+                                                            text: 'Degrees',
+                                                            font: {
+                                                            size: 15,
+                                                            style: 'normal',
+                                                            lineHeight: 1.2
+                                                            }}}}}})
 }
