@@ -1,6 +1,6 @@
 const reports = [['1', new Date('2022-02-03T12:00:00'), 'West Antenna January 2022', new Date('2022-01-01T00:00:00'), new Date('2022-01-31T23:59:59'), 'Marcia Ratke'],
                  ['2', new Date('2022-02-21T12:00:00'), 'Storm Eunice Impact Report', new Date('2022-02-17T00:00:00'), new Date('2022-02-20T23:59:59'), 'Ross Kunze'],
-                 ['3', new Date('2022-02-22T12:00:00'), '2021 Report', new Date('2021-01-01T00:00:00'), new Date('2021-12-31T23:59:59'), 'Mike Rotch']]
+                 ['3', new Date('2022-02-22T12:00:00'), '2021 Report', new Date('2021-01-01T00:00:00'), new Date('2021-12-31T23:59:59'), 'Mark Evans']]
 
 const statuses = ['Fixed', 'Dismissed', 'Under Investigation']
 const userID = 1
@@ -70,15 +70,22 @@ function toggleOverlay(content) {
     div = document.getElementById('overlay-div')
     if (shadow.style.display == 'block') {
         enableScroll()
+        // Only for prototype!
+        if (content == 'reload') {window.location = window.location.href.split('&unread')[0]}
         shadow.classList.remove('overlay-fadeIn');
         div.classList.remove('overlay-slideIn');
         shadow.classList.add('overlay-fadeOut');
         div.classList.add('overlay-slideOut');
         setTimeout(function () {
             shadow.style.display = 'none';
+            div.style.width = "400px";
+            div.style.height = "75%";
         }, 750);
     } else {
+        div.style.width = "400px";
+        div.style.height = "75%";
         if (content == 'user-info') { loadUserInfo(div) }
+        else if (content == 'anomaly-form') { loadAnomalyForm(div)}
         disableScroll()
         shadow.classList.remove('overlay-fadeOut');
         div.classList.remove('overlay-slideOut');
@@ -108,6 +115,22 @@ function loadUserInfo() {
         document.getElementById('overlay-content').innerHTML = `<img id="profile-pic-large" src="images/user-pic.png"><p class="user-info-text">Hello ${response.data.name.split(' ')[0]}!</p>`
     })
 }
+
+function loadAnomalyForm(div) {
+    div.style.height = "auto";
+    document.getElementById('overlay-content').innerHTML = `<table><tbody><form action='sensor.html' method='GET'><tr>
+                        <td>Choose Status: <select>
+                            <option value="" disabled selected>Pending Status</option>
+                            <option value="status-investigating">Under Investigation</option>
+                            <option value="status-fixed">Fixed</option>
+                            <option value="status-dismissed">Dismissed</option>
+                            </select>
+                        </td></tr>
+                        <tr><td><textarea placeholder="Notes"></textarea></td></tr>
+                        <tr><td><button class="button-styling" onclick="toggleOverlay('reload')">Change Status</button></td><td><button class="button-styling" onclick='toggleOverlay()'>Cancel</button></td></tr>
+                    </form></tbody></table>`
+}
+
 
 function generateLineGraph(chartID, sensorData) {
     labels = []

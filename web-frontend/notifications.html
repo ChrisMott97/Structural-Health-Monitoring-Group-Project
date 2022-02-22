@@ -46,7 +46,12 @@
         <div class="main-content-div">
             <div class="database-main-content-div">
                 <h1 class="dashboard-title">Unread Notifications</h1>
-                <p id="no-unread">No new anomalies have been detected.</p>
+                <!--<p id="no-unread">No new anomalies have been detected.</p>-->
+                <table class="database-table">
+                    <tbody id="unread-anomaly-table">
+                        <tr><td>Loading...</td></tr>
+                    </tbody>
+                </table>
             </div>
             <div class="database-main-content-div">
                 <h1 class="dashboard-title">Detected Anomalies</h1>
@@ -62,8 +67,8 @@
                                     <option value="updated-oldest">First Detected</option>
                                     <option value="updated-newest">Last Updated</option>
                                     <option value="updated-oldest">First Updated</option></select></td>
-                                <td class="database-search-table-td"><input type="reset"></td>
-                                <td class="database-search-table-td"><input type="submit"></td>
+                                <td class="database-search-table-td"><input class="button-styling" type="reset"></td>
+                                <td class="database-search-table-td"><input class="button-styling" type="submit"></td>
                             </tr>
                         </tbody>
                     </table>
@@ -121,7 +126,9 @@
             document.getElementById("anomaly-table").innerHTML = `<tr class="database-table-row"><th>Anomaly ID</th><th>Confidence</th><th>Sensor ID</th><th>Date & Time</th><th>Status</th><th>Last Update</th></tr>`
             anomalyData = response.data
 
-            for (let i = 0; i < anomalyData.length; i++ ) {
+            // Changed for prototype! Should be let i = 0!
+            for (let i = 1; i < anomalyData.length; i++ ) {
+
                 detectedAt = formatDateString(anomalyData[i].time)
                 updatedAt = formatDateString(anomalyData[i].updated_at)
                 if (anomalyData[i].confidence > 0.8) {trafficLight = 'confidence-red'}
@@ -130,7 +137,7 @@
 
                 document.getElementById("anomaly-table").innerHTML += `
                 <tr class="database-table-row ${trafficLight}">
-                <td><a href="sensor.html?sensorID=${anomalyData[i].sensor_id}&anomalyID=${anomalyData[i].id}">#${anomalyData[i].id}</a></td>
+                <td><a href="/sensor?sensorID=${anomalyData[i].sensor_id}&anomalyID=${anomalyData[i].id}">#${anomalyData[i].id}</a></td>
                 <td>${(anomalyData[i].confidence * 100).toFixed(1)}%</td>
                 <td>${anomalyData[i].sensor_id}</td>
                 <td>${detectedAt[0]}, ${detectedAt[1]}</td>
@@ -139,6 +146,33 @@
                 </tr>
                 `;
             }
+        })
+
+    // Only for prototype! This just uses the first anomaly as the
+    // example of an unread notification
+    axios.get(`http://localhost:3030/anomalies/1`)
+        .then(function (response) {
+            // handle success
+            document.getElementById("unread-anomaly-table").innerHTML = `<tr class="database-table-row"><th>Anomaly ID</th><th>Confidence</th><th>Sensor ID</th><th>Date & Time</th><th>Status</th><th>Last Update</th></tr>`
+            anomalyData = response.data
+            console.log(anomalyData)
+
+            detectedAt = formatDateString(anomalyData.time)
+            updatedAt = formatDateString(anomalyData.updated_at)
+            if (anomalyData.confidence > 0.8) {trafficLight = 'confidence-red'}
+            else if (anomalyData.confidence > 0.6) {trafficLight = 'confidence-orange'}
+            else {trafficLight = 'confidence-green'}
+
+            document.getElementById("unread-anomaly-table").innerHTML += `
+            <tr class="database-table-row ${trafficLight}">
+            <td><a href="/sensor?sensorID=${anomalyData.sensor_id}&anomalyID=${anomalyData.id}&unread=true">#${anomalyData.id}</a></td>
+            <td>${(anomalyData.confidence * 100).toFixed(1)}%</td>
+            <td>${anomalyData.sensor_id}</td>
+            <td>${detectedAt[0]}, ${detectedAt[1]}</td>
+            <td>0</td>
+            <td>${detectedAt[0]}, ${detectedAt[1]}</td>
+            </tr>
+            `;
         })
 
     for (let i = 0; i < reports.length; i++ ) {

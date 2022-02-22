@@ -30,6 +30,22 @@ body {
     font-family: "Poppins", Calibri, sans-seif;
 }
 
+.button-styling {
+    background-color: rgba(31,69,135,1);
+    color: white;
+    padding: 10px 30px;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    box-shadow: 2px 2px 6px rgb(0 0 0 / 30%);
+    transition: 0.2s;
+}
+
+.button-styling:hover {
+    box-shadow: none;
+    opacity: 0.9;
+}
+
 @media (max-width: 600px) {
     .sidebar-div {
         display: none;
@@ -307,7 +323,7 @@ a .dashboard-title:hover {
     color: #7e7e7e;
 }
 
-#anomaly-info {
+#anomaly-info-div {
     display: none;
 }
 
@@ -390,6 +406,10 @@ a .dashboard-title:hover {
     animation: fadeOut 0.75s linear;
 }
 
+#overlay-content {
+    padding: 60px;
+}
+
 #overlay-close {
     position: absolute;
     top: 20px;
@@ -413,8 +433,8 @@ a .dashboard-title:hover {
 }
 
 #profile-pic-large {
-    width: 30%;
-    margin: 60px 35% 30px;
+    width: 40%;
+    margin: 0 30% 30px;
 }
 
 .user-info-text {

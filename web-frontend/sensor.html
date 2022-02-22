@@ -76,7 +76,7 @@
                     <img src="images/humber_diagram.png" id="humber-diagram">
                 </div>
             </div>
-            <div class="database-main-content-div" id="anomaly-info"></div>
+            <div class="database-main-content-div" id="anomaly-info-div"><p id="anomaly-info-text"></p></div>
             <div class="dashboard-tile-parent">
                 <div class="dashboard-tile-div" id="graph1-div">
                     <h1 class="dashboard-title">Sensor Data</h1>
@@ -95,8 +95,8 @@
                                 <td class="database-search-table-td"><input type="date" id="date-from" name="from"></td>
                                 <td class="database-search-table-td"><input type="date" id="date-until" name="until"></td>
                                 <td class="database-search-table-td"><select name="ordering"><option value="newest">Newest First</option><option value="oldest">Oldest First</option></select></td>
-                                <td class="database-search-table-td"><input type="reset"></td>
-                                <td class="database-search-table-td"><input type="submit"></td>
+                                <td class="database-search-table-td"><input class="button-styling" type="reset"></td>
+                                <td class="database-search-table-td"><input class="button-styling" type="submit"></td>
                             </tr>
                         </tbody>
                     </table>
@@ -130,14 +130,23 @@
             else if (response.data.confidence > 0.6) {trafficLight = 'orange'}
             else {trafficLight = 'green'}
 
-            anomalyInfo = document.getElementById("anomaly-info")
-            anomalyInfo.style.display = "block"
+            anomalyInfoDiv = document.getElementById("anomaly-info-div")
+            anomalyInfoDiv.style.display = "block"
             anomalyText = `An anomaly was detected by this sensor at ${detectedAt[0]}, ${detectedAt[1]} with a
-                           confidence of <i style="color: ${trafficLight};">${response.data.confidence * 100}%</i>. The status of this anomaly was marked
-                           as <i>${response.data.status}</i> by <i>${response.data.name}</i> at ${updatedAt[0]}, ${updatedAt[1]}.
-                           <br><br>Notes:
-                           <br>${response.data.notes}`
-            anomalyInfo.innerHTML += anomalyText
+                            confidence of <i style="color: ${trafficLight};">${(response.data.confidence * 100).toFixed(1)}%</i>.`
+
+            if (!urlParams.has('unread')) {
+                anomalyText += ` The status of this anomaly was marked
+                            as <i>${response.data.status}</i> by <i>${response.data.name}</i> at ${updatedAt[0]}, ${updatedAt[1]}.
+                            <br><br>Notes:
+                            <br>${response.data.notes}<br><br><button class="button-styling" onclick=toggleOverlay('anomaly-form')>Change Status</button> <button class="button-styling">Dismiss Anomaly</button>`
+            } else {
+                // Only for prototype! Need a different way to implement anomalies that haven't
+                // been updated yet
+                anomalyText += ` This anomaly has not yet been investigated, in order to mark as under investigation, please
+                                 use the form below.<br><br><button class="button-styling" onclick=toggleOverlay('anomaly-form')>Change Status</button> <button class="button-styling">Dismiss Anomaly</button>`
+            }
+            document.getElementById("anomaly-info-text").innerHTML += anomalyText
         })
     }
 
