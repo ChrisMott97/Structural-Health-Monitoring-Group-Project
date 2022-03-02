@@ -14,5 +14,5 @@ build:
   stage: build
   script:
     - docker-compose down
-    - docker-compose build
-    - docker-compose up api-gateway
+    - docker-compose build api-gateway internal-database web-frontend
+    - docker-compose up api-gateway internal-database web-frontend
