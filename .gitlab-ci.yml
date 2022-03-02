@@ -1,18 +1,6 @@
-
-# Official docker compose image.
-image:
-  name: docker/compose:latest
-
-services:
-  - docker:dind
-
 before_script:
-  - docker version
-  - docker-compose version
+  - docker info
 
-build:
-  stage: build
+build_image:
   script:
-    - docker-compose down
-    - docker-compose build api-gateway internal-database web-frontend
-    - docker-compose up api-gateway internal-database web-frontend
+    - docker build -t api-gateway ./api-gateway
