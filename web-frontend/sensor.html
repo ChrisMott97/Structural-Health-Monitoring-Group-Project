@@ -4,58 +4,34 @@
         <link href="css/stylesheet.css" rel='stylesheet' type='text/css'/>
         <script src="js/js.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
         <script>
             const queryString = window.location.search;
             const urlParams = new URLSearchParams(queryString);
             let sensorID = urlParams.get('sensorID')
 
-            // All variables that reference retrieved data must be 
-            // set in the .then() part as the function is async
-
             axios.get(`http://localhost:3030/sensors/${sensorID}`)
             .then(function (response) {
                 let sensorDetails = response.data
 
-                // Backticks can be used with ${} for nicer variables in strings
                 document.getElementById('sensor-title').innerHTML = `Inspecting: ${sensorDetails.type} #${sensorID}`
                 let details = document.createElement("p")
                 details.innerHTML = `
                 Sensor ID: <i>#${sensorDetails.id}</i><br>
                 Sensor Type: <i>${sensorDetails.type}</i><br>
-                Location: <i>${sensorDetails.location}</i><br>
+                Unit: <i>${sensorDetails.unit}</i><br>
+                Location: <i>${sensorDetails.location}</i><br><br>
                 Last Updated: <i>${null}</i><br>
                 Last Detected Anomaly: <i>${null}</i>
                 `
                 document.getElementById("sensor-info").appendChild(details)
             })
 
-            if (urlParams.has('anomalyID')) {
-                anomalyExists = true
-                const anomalyID = urlParams.get('anomalyID')
-            } else { anomalyExists = false }
-
-            anomalyFound = false
-            for (let i = 0; i < generatedAnomalies.length; i++) {
-                if (generatedAnomalies[i][2] == sensorID) {
-                    anomalyFound = true
-                    anomalyData = generatedAnomalies[i]
-                    break
-                }
-            }
-
-            if(sensorDetails){
-                sensorFound = true
-            }
-
-            if (sensorFound == false) {
-                sensorID = 'Not found'
-            }
-            
         </script>
     </head>
     <body>
         <div class="navbar-div">
-            <a href="https://google.co.uk" class="profile-link"><p class="profile-name">John Smith</p><img src="images/user-pic.png" class="profile-pic"></a>
+            <a href="javascript:toggleOverlay('user-info')" class="profile-link"><p class="profile-name" id="profile-name"></p><img src="images/user-pic.png" class="profile-pic"></a>
         </div>
         <div class="sidebar-div">
             <div class="sidebar-icon-div">
@@ -69,7 +45,7 @@
                 </span></a>
             </div>
             <div class="sidebar-icon-div">
-                <a href="images.html"><span class="sidebar-icon-span">
+                <a href="images_page.html"><span class="sidebar-icon-span">
                     <img src="images/images_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
@@ -100,91 +76,118 @@
                     <img src="images/humber_diagram.png" id="humber-diagram">
                 </div>
             </div>
-            <div class="database-main-content-div" id="anomaly-info"></div>
+            <div class="database-main-content-div" id="anomaly-info-div"><p id="anomaly-info-text"></p></div>
+            <div class="dashboard-tile-parent">
+                <div class="dashboard-tile-div" id="graph1-div">
+                    <h1 class="dashboard-title">Sensor Data</h1>
+                    <canvas id="graph1-chart"></canvas></div>
+                <div class="dashboard-tile-div" id="graph2-div">
+                    <h1 class="dashboard-title">Sensor Data</h1>
+                    <canvas id="graph2-chart"></canvas></div>
+            </div>
             <div class="database-main-content-div">
                 <h1 class="dashboard-title">Sensor Database</h1>
-                <form>
+                <form action="/sensor" method="GET" id="database-search-form">
                     <table class="database-search-table">
                         <tbody>
                             <tr>
-                                <td class="database-search-table-td">
-                                    <input id="sensorID" name="sensorID" type="text" placeholder="Search Values"><img class="search-icon" src="images/search.png"></td>
-                                <td class="database-search-table-td">Sort By: <select>
-                                                                                    <option value="updated-newest">Newest Values First</option>
-                                                                                    <option value="updated-oldest">Oldest Values First</option>
-                                                                            </select></td>
+                                
+                                <td class="database-search-table-td"><input type="date" id="date-from" name="from"></td>
+                                <td class="database-search-table-td"><input type="date" id="date-until" name="until"></td>
+                                <td class="database-search-table-td"><select name="ordering"><option value="newest">Newest First</option><option value="oldest">Oldest First</option></select></td>
+                                <td class="database-search-table-td"><input class="button-styling" type="reset"></td>
+                                <td class="database-search-table-td"><input class="button-styling" type="submit"></td>
                             </tr>
                         </tbody>
                     </table>
                 </form>
                 <table class="database-table">
                     <tbody id="sensor-data">
-                        <tr class="database-table-row"><th>Date</th><th>Time</th><th>x_value</th><th>y_value</th><th>z_value</th></tr>
+                        <tr class="database-table-row"><th>Date</th><th>Time</th><th>value</th></tr>
                     </tbody>
                 </table>
+            </div>
+        </div>
+        <div id="overlay-shadow">
+            <a href="javascript:toggleOverlay()"><span id="overlay-span"></span></a>
+            <div id="overlay-div">
+                <a href="javascript:toggleOverlay()"><img id="overlay-close" src="images/close.png"></a>
+                <div id="overlay-content"></div>
             </div>
         </div>
     </body>
 </html>
 <script>
-    /* if (sensorFound == true) {
-        document.getElementById('sensor-title').innerHTML = 'Inspecting: '+sensorDetails.type+' #'+sensorID
-    } else {
-        document.getElementById('sensor-title').innerHTML = 'Sensor Not Found'
-    } */
-    no_vals = 40
-    if (anomalyExists == true) {
-        anomalyInfo = document.getElementById("anomaly-info")
-        anomalyInfo.style.display = "block"
-        anomalyText = "An anomaly was detected by this sensor at "+anomalyData[1].toLocaleString()+" with a confidence of "+anomalyData[4].toFixed(2)+"%. The status of this anomaly was marked as '"+anomalyData[5]+"' by "+anomalyData[6]+" at "+anomalyData[7].toLocaleString()+"."
-        anomalyInfo.appendChild(document.createTextNode(anomalyText))
-        anomalousVal = Math.floor(Math.random() * (6))
+    if (urlParams.has('anomalyID')) {
+        const anomalyID = urlParams.get('anomalyID')
+
+        
+        axios.get(`http://localhost:3030/anomalies/${anomalyID}`)
+        .then(function (response) {
+            detectedAt = formatDateString(response.data.time)
+            updatedAt = formatDateString(response.data.updated_at)
+            if (response.data.confidence > 0.8) {trafficLight = 'red'}
+            else if (response.data.confidence > 0.6) {trafficLight = 'orange'}
+            else {trafficLight = 'green'}
+
+            anomalyInfoDiv = document.getElementById("anomaly-info-div")
+            anomalyInfoDiv.style.display = "block"
+            anomalyText = `An anomaly was detected by this sensor at ${detectedAt[0]}, ${detectedAt[1]} with a
+                            confidence of <i style="color: ${trafficLight};">${(response.data.confidence * 100).toFixed(1)}%</i>.`
+
+            if (!urlParams.has('unread')) {
+                anomalyText += ` The status of this anomaly was marked
+                            as <i>${response.data.status}</i> by <i>${response.data.name}</i> at ${updatedAt[0]}, ${updatedAt[1]}.
+                            <br><br>Notes:
+                            <br>${response.data.notes}<br><br><button class="button-styling" onclick=toggleOverlay('anomaly-form')>Change Status</button> <button class="button-styling">Dismiss Anomaly</button>`
+            } else {
+                // Only for prototype! Need a different way to implement anomalies that haven't
+                // been updated yet
+                anomalyText += ` This anomaly has not yet been investigated, in order to mark as under investigation, please
+                                 use the form below.<br><br><button class="button-styling" onclick=toggleOverlay('anomaly-form')>Change Status</button> <button class="button-styling">Dismiss Anomaly</button>`
+            }
+            document.getElementById("anomaly-info-text").innerHTML += anomalyText
+        })
     }
 
-    sensorData = generate_random_sensor_data(no_vals)
+    document.getElementById("database-search-form").innerHTML += `<input type="hidden" name="sensorID" value="${sensorID}">`
+    
+    let dataQuery = `http://localhost:3030/data?sensor=${sensorID}`
+    
+    if (urlParams.has('from')) {
+        if (urlParams.get('from') != '') {
+            document.getElementById('date-from').value = urlParams.get('from')
+            dataQuery += `&from=${urlParams.get('from')}T00:00:00`
+        }
+    }
+    if (urlParams.has('until')) {
+        if (urlParams.get('until') != '') {
+            document.getElementById('date-until').value = urlParams.get('until')
+            dataQuery += `&until=${urlParams.get('until')}T23:59:59`
+        }
+    }
+
+    axios.get(dataQuery)
+    .then(function (response) {
+        document.getElementById('sensor-data').innerHTML = `<tr class="database-table-row"><th>Date</th><th>Time</th><th>value</th></tr>`
+        let sensorData = response.data
+
+        console.log(dataQuery)
+
+        if (urlParams.get('ordering') == 'newest') {sensorData = sensorData.reverse()}
+
+        for (let i = 0; i < sensorData.length; i++ ) {
+            table = document.getElementById("sensor-data")
+            datetime = formatDateString(sensorData[i].time)
+            table.innerHTML += `<tr class="database-table-row"><td>${datetime[0]}</td><td>${datetime[1]}</td><td>${sensorData[i].value}</td></tr>`
+        }
+    })
+
     axios.get(`http://localhost:3030/data?sensor=${sensorID}`)
     .then(function (response) {
         let sensorData = response.data
-
-        for (let i = 0; i < sensorData.length; i++ ) {
-            tr = document.createElement("tr")
-            tr.classList.add("database-table-row")
-            //if (anomalyExists == true){ if (i == anomalousVal) { tr.classList.add("anomalous-value"); sensorData[i][2] *= (10) } }
-            td = document.createElement("td")
-            td.appendChild(document.createTextNode(sensorData[i].time))
-            tr.appendChild(td)
-            td = document.createElement("td")
-            td.appendChild(document.createTextNode(""))
-            tr.appendChild(td)
-            
-            td = document.createElement("td")
-            td.appendChild(document.createTextNode(sensorData[i].value))
-            tr.appendChild(td)
-            /*for (let j = 1; j < 4; j++) {
-                td = document.createElement("td")
-                td.appendChild(document.createTextNode(sensorData[i][j]))
-                tr.appendChild(td)
-            }*/
-            document.getElementById("sensor-data").appendChild(tr)
-        }
+        generateLineGraph('graph1-chart', 'Previous 24 hours', sensorData.slice(0, Math.round(sensorData.length/2)))
+        generateLineGraph('graph2-chart', 'Previous Week', sensorData.slice(Math.round((sensorData.length/2)), sensorData.length))
     })
-    /*for (let i = 0; i < sensorData.length; i++ ) {
-        tr = document.createElement("tr")
-        tr.classList.add("database-table-row")
-        if (anomalyExists == true){ if (i == anomalousVal) { tr.classList.add("anomalous-value"); sensorData[i][2] *= (10) } }
-        td = document.createElement("td")
-        td.appendChild(document.createTextNode(sensorData[i][0].getDate()+"/"+sensorData[i][0].getMonth()+"/"+sensorData[i][0].getUTCFullYear()))
-        tr.appendChild(td)
-        td = document.createElement("td")
-        td.appendChild(document.createTextNode(sensorData[i][0].toLocaleTimeString()))
-        tr.appendChild(td)
-
-        for (let j = 1; j < 4; j++) {
-            td = document.createElement("td")
-            td.appendChild(document.createTextNode(sensorData[i][j]))
-            tr.appendChild(td)
-        }
-        document.getElementById("sensor-data").appendChild(tr)
-    }*/
     
 </script>

@@ -10,7 +10,7 @@
         ```
 - Get one sensor by ID
    - Method: GET
-   - URI: `/sensors/:id`
+   - URI: `/sensors/1`
    - Response: 
      - ```javascript
         {id:String, type:String, subtype:String, location:String, unit:String}
@@ -40,6 +40,13 @@
    - Notes:
      - Date can also be used in format 2011-02-23 without time
      - Parameters such as sensor can be added to this too
+- Get data and limit amount of results
+   - Method: GET
+   - URI: `/data?limit=10`
+   - Response: 
+     - ```javascript
+        [{time: DateTime, value: Number, sensor_id: String}]
+        ```
 ### Users
  - Get all users
    - Method: GET
@@ -62,6 +69,13 @@
    - Response: 
      - ```javascript
         [{"id": Number,"time": DateTime,"value": Number,"sensor_id": String,"status": Number,"confidence": Number,"updated_at": DateTime,"notes": String,"name": String}]
+        ```
+- Get anomaly by ID
+   - Method: GET
+   - URI: `/anomalies/1`
+   - Response: 
+     - ```javascript
+        {"id": Number,"time": DateTime,"value": Number,"sensor_id": String,"status": Number,"confidence": Number,"updated_at": DateTime,"notes": String,"name": String}
         ```
 - Get anomalies by status
    - Method: GET

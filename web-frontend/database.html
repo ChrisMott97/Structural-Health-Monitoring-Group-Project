@@ -7,7 +7,7 @@
     </head>
     <body>
         <div class="navbar-div">
-            <a href="https://google.co.uk" class="profile-link"><p class="profile-name">John Smith</p><img src="images/user-pic.png" class="profile-pic"></a>
+            <a href="javascript:toggleOverlay('user-info')" class="profile-link"><p class="profile-name" id="profile-name"></p><img src="images/user-pic.png" class="profile-pic"></a>
         </div>
         <div class="sidebar-div">
             <div class="sidebar-icon-div">
@@ -21,7 +21,7 @@
                 </span></a>
             </div>
             <div class="sidebar-icon-div">
-                <a href="images.html"><span class="sidebar-icon-span">
+                <a href="images_page.html"><span class="sidebar-icon-span">
                     <img src="images/images_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
@@ -67,6 +67,13 @@
                 </table>
             </div>
         </div>
+        <div id="overlay-shadow">
+            <a href="javascript:toggleOverlay()"><span id="overlay-span"></span></a>
+            <div id="overlay-div">
+                <a href="javascript:toggleOverlay()"><img id="overlay-close" src="images/close.png"></a>
+                <div id="overlay-content"></div>
+            </div>
+        </div>
     </body>
 </html>
 
@@ -80,7 +87,7 @@
                 response.data.forEach(item => {
                     document.getElementById("sensor-database").innerHTML += `
                     <tr class="database-table-row">
-                    <td><a href="sensor.html?sensorID=${item.id}">#${item.id}</</td>
+                    <td><a href="/sensor?sensorID=${item.id}">#${item.id}</</td>
                     <td>${item.type}</td>
                     <td>${item.subtype}</td>
                     <td>${item.location}</td>

@@ -1,31 +1,17 @@
-const generatedAnomalies =  [['V89J5TL7T', new Date(2022, 2, 5, 6, 49, 50), 'VUIGS1K', 'Inclinometer', 52.318657924600885, 'Under Investigation', 'Mark Evans', new Date(2022, 2, 5, 6, 49, 50)],
-                            ['1YCRS1W4L', new Date(2022, 1, 28, 10, 39, 44), 'CNQKRKA', 'Accelerometer', 88.91018974722647, 'Dismissed', 'Mark Evans', new Date(2022, 1, 28, 10, 39, 44)],
-                            ['H5YD0ZO6I', new Date(2022, 1, 21, 7, 17, 27), 'B8911NX', 'Accelerometer', 79.53420369250034, 'Under Investigation', 'Mark Evans', new Date(2022, 1, 21, 7, 17, 27)],
-                            ['21EQ82KV3', new Date(2022, 1, 12, 11, 59, 54), 'VUIGS1K', 'Inclinometer', 85.29606844518389, 'Fixed', 'Mark Evans', new Date(2022, 1, 12, 11, 59, 54)],
-                            ['EN5GO20EG', new Date(2022, 1, 7, 10, 19, 20), '2M3RCZX', 'Extensometer', 90.56747324611004, 'Under Investigation', 'Mark Evans', new Date(2022, 1, 7, 10, 19, 20)],
-                            ['H6WNDZQ3L', new Date(2021, 12, 26, 20, 39, 30), 'FVCWFKX', 'Extensometer', 52.96116339044495, 'Under Investigation', 'Mark Evans', new Date(2021, 12, 26, 20, 39, 30)],
-                            ['J53L2WS8B', new Date(2021, 12, 24, 23, 55, 9), 'B8911NX', 'Accelerometer', 86.41151536579888, 'Fixed', 'Mark Evans', new Date(2021, 12, 24, 23, 55, 9)],
-                            ['IOV65HX9P', new Date(2022, 12, 14, 1, 2, 14), '2M3RCZX', 'Extensometer', 72.14765995289815, 'Fixed', 'Mark Evans', new Date(2022, 12, 14, 1, 2, 14)],
-                            ['UXAVNW8MR', new Date(2021, 12, 7, 6, 7, 54), 'CNQKRKA', 'Accelerometer', 90.28618782183187, 'Dismissed', 'Mark Evans', new Date(2021, 12, 7, 6, 7, 54)],
-                            ['TU2QVIBA3', new Date(2021, 12, 4, 5, 9, 38), 'FVCWFKX', 'Extensometer', 53.184152749787664, 'Dismissed', 'Mark Evans', new Date(2021, 12, 4, 5, 9, 38)],
-                            ['I7SP28UO8', new Date(2021, 11, 21, 10, 25, 19), 'B8911NX', 'Accelerometer', 68.46495905363147, 'Fixed', 'Mark Evans', new Date(2021, 11, 21, 10, 25, 19)],
-                            ['8YU0QOPSF', new Date(2021, 11, 17, 7, 38, 36), '2M3RCZX', 'Extensometer', 51.81254834613171, 'Dismissed', 'Mark Evans', new Date(2021, 11, 17, 7, 38, 36)],
-                            ['QJN1ZQ91A', new Date(2021, 11, 11, 20, 18, 17), 'VUIGS1K', 'Inclinometer', 54.81272622478832, 'Dismissed', 'Mark Evans', new Date(2021, 11, 11, 20, 18, 17)],
-                            ['R8HKXYCAX', new Date(2021, 11, 4, 9, 54, 45), 'B8911NX', 'Accelerometer', 94.22884741592765, 'Fixed', 'Mark Evans', new Date(2021, 11, 4, 9, 54, 45)],
-                            ['86GFYRZ09', new Date(2021, 10, 29, 16, 55, 5), 'CNQKRKA', 'Accelerometer', 72.33326678167943, 'Fixed', 'Mark Evans', new Date(2021, 10, 29, 16, 55, 5)],
-                            ['GCHYU0OSV', new Date(2021, 10, 19, 11, 2, 33), 'FVCWFKX', 'Extensometer', 63.06913723343247, 'Fixed', 'Mark Evans', new Date(2021, 10, 19, 11, 2, 33)],
-                            ['LTNTXYJLO', new Date(2021, 10, 13, 17, 23, 5), 'B8911NX', 'Accelerometer', 59.48450265413088, 'Dismissed', 'Mark Evans', new Date(2021, 10, 13, 17, 23, 5)],
-                            ['3S6LDI1K3', new Date(2021, 10, 4, 0, 19, 12), '2M3RCZX', 'Extensometer', 59.88859293950114, 'Fixed', 'Mark Evans', new Date(2021, 10, 4, 0, 19, 12)],
-                            ['XSC80J0QE', new Date(2021, 9, 30, 11, 8, 37), '2M3RCZX', 'Extensometer', 81.2283771019383, 'Dismissed', 'Mark Evans', new Date(2021, 9, 30, 11, 8, 37)],
-                            ['FXTYMIFW7', new Date(2021, 9, 22, 20, 17, 10), 'CNQKRKA', 'Accelerometer', 90.22293423170265, 'Fixed', 'Mark Evans', new Date(2021, 9, 22, 20, 17, 10)]]
-
-const sensors = [['VUIGS1K', 'Inclinometer', 'South Pillar', new Date(), new Date(2022, 2, 5, 6, 49, 50)],
-                 ['B8911NX', 'Accelerometer', 'South Pillar', new Date(), new Date(2022, 1, 21, 7, 17, 27)],
-                 ['2M3RCZX', 'Extensometer', 'North Pillar', new Date(), new Date(2022, 1, 7, 10, 19, 20)],
-                 ['CNQKRKA', 'Accelerometer', 'North Pillar', new Date(), new Date(2022, 1, 28, 10, 39, 44)],
-                 ['FVCWFKX', 'Extensometer', 'Span', new Date(), new Date(2021, 12, 26, 20, 39, 30)]]
+const reports = [['1', new Date('2022-02-03T12:00:00'), 'West Antenna January 2022', new Date('2022-01-01T00:00:00'), new Date('2022-01-31T23:59:59'), 'Marcia Ratke'],
+                 ['2', new Date('2022-02-21T12:00:00'), 'Storm Eunice Impact Report', new Date('2022-02-17T00:00:00'), new Date('2022-02-20T23:59:59'), 'Ross Kunze'],
+                 ['3', new Date('2022-02-22T12:00:00'), '2021 Report', new Date('2021-01-01T00:00:00'), new Date('2021-12-31T23:59:59'), 'Mark Evans']]
 
 const statuses = ['Fixed', 'Dismissed', 'Under Investigation']
+const userID = 1
+
+window.onload = (event) => {
+    axios.get(`http://localhost:3030/users/${userID}`)
+    .then(function (response) {
+        // handle success
+        document.getElementById("profile-name").innerHTML = response.data.name
+    })
+};
 
 function generate_random_anomaly(start_time, end_time) {
     sensor = sensors[Math.floor(Math.random()*sensors.length)]
@@ -76,5 +62,110 @@ function formatDateString(dateString) {
     dateArray = dateString.split("T")
     date = dateArray[0].split("-").reverse().join("/")
     time = dateArray[1].substring(0, dateArray[1].length - 2);
-    return date+", "+time
+    return [date, time]
+}
+
+function toggleOverlay(content) {
+    shadow = document.getElementById('overlay-shadow')
+    div = document.getElementById('overlay-div')
+    if (shadow.style.display == 'block') {
+        enableScroll()
+        // Only for prototype!
+        if (content == 'reload') {window.location = window.location.href.split('&unread')[0]}
+        shadow.classList.remove('overlay-fadeIn');
+        div.classList.remove('overlay-slideIn');
+        shadow.classList.add('overlay-fadeOut');
+        div.classList.add('overlay-slideOut');
+        setTimeout(function () {
+            shadow.style.display = 'none';
+            div.style.width = "400px";
+            div.style.height = "75%";
+        }, 750);
+    } else {
+        div.style.width = "400px";
+        div.style.height = "75%";
+        if (content == 'user-info') { loadUserInfo(div) }
+        else if (content == 'anomaly-form') { loadAnomalyForm(div)}
+        disableScroll()
+        shadow.classList.remove('overlay-fadeOut');
+        div.classList.remove('overlay-slideOut');
+        shadow.classList.add('overlay-fadeIn');
+        div.classList.add('overlay-slideIn');
+        shadow.style.display = 'block'
+    }
+}
+
+function disableScroll() {
+    scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    scrollLeft = window.pageXOffset || document.documentElement.scrollLeft,
+  
+        window.onscroll = function() {
+            window.scrollTo(scrollLeft, scrollTop);
+        };
+}
+  
+function enableScroll() {
+    window.onscroll = function() {};
+}
+
+function loadUserInfo() {
+    axios.get(`http://localhost:3030/users/${userID}`)
+    .then(function (response) {
+        // handle success
+        document.getElementById('overlay-content').innerHTML = `<img id="profile-pic-large" src="images/user-pic.png"><p class="user-info-text">Hello ${response.data.name.split(' ')[0]}!</p>`
+    })
+}
+
+function loadAnomalyForm(div) {
+    div.style.height = "auto";
+    document.getElementById('overlay-content').innerHTML = `<table><tbody><form action='sensor.html' method='GET'><tr>
+                        <td>Choose Status: <select>
+                            <option value="" disabled selected>Pending Status</option>
+                            <option value="status-investigating">Under Investigation</option>
+                            <option value="status-fixed">Fixed</option>
+                            <option value="status-dismissed">Dismissed</option>
+                            </select>
+                        </td></tr>
+                        <tr><td><textarea placeholder="Notes"></textarea></td></tr>
+                        <tr><td><button class="button-styling" onclick="toggleOverlay('reload')">Change Status</button></td><td><button class="button-styling" onclick='toggleOverlay()'>Cancel</button></td></tr>
+                    </form></tbody></table>`
+}
+
+
+function generateLineGraph(chartID, graphTitle, sensorData) {
+    labels = []
+    vals = []
+    for (let i = 0; i < sensorData.length; i++ ) {
+        if (sensorData[i].value < 2) {
+            labels.push(formatDateString(sensorData[i].time)[1])
+            vals.push(sensorData[i].value)
+        }
+    }
+    const ctx = document.getElementById(chartID);
+    const data = {
+    labels: labels,
+    datasets: [{
+        label: graphTitle,
+        data: vals,
+        fill: false,
+        borderColor: 'rgb(31, 69, 135)',
+        tension: 0.1
+    }]
+    };
+
+    const myChart = new Chart(ctx, config = {type: 'line',
+                                             data: data,
+                                             options: {
+                                                legend: { display: false },
+                                                scales: {
+                                                    y: {
+                                                        display: true, 
+                                                        title: {
+                                                            display: true,
+                                                            text: 'Degrees',
+                                                            font: {
+                                                            size: 15,
+                                                            style: 'normal',
+                                                            lineHeight: 1.2
+                                                            }}}}}})
 }

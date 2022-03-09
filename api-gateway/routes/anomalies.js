@@ -11,7 +11,7 @@ router.get('/', function(req, res) {
     this.on('anomalies.sensor_id', '=', 'data.sensor_id').andOn('anomalies.sensor_time', '=', 'data.time')
   })
   .join("users", "anomalies.user_id", "=", "users.id")
-  .select('anomalies.id', 'time', 'value', 'anomalies.sensor_id', 'status', 'confidence', 'updated_at', 'notes', 'name')
+  .select('anomalies.id', 'time', 'value', 'anomalies.sensor_id', 'status', 'confidence', 'updated_at', 'notes', 'name', 'user_id')
   .modify((builder) => {
     if(status){
       builder.where({status: status})
@@ -34,7 +34,7 @@ router.get('/:id', function(req, res) {
     this.on('anomalies.sensor_id', '=', 'data.sensor_id').andOn('anomalies.sensor_time', '=', 'data.time')
   })
   .join("users", "anomalies.user_id", "=", "users.id")
-  .select('anomalies.id', 'time', 'value', 'anomalies.sensor_id', 'status', 'confidence', 'updated_at', 'notes', 'name')
+  .select('anomalies.id', 'time', 'value', 'anomalies.sensor_id', 'status', 'confidence', 'updated_at', 'notes', 'name', 'user_id')
   .where({"anomalies.id": id})
   .first()
   .then(data => {
