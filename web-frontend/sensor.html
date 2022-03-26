@@ -2,32 +2,10 @@
     <head>
         <title>SHM Monitoring Dashboard</title>
         <link href="css/stylesheet.css" rel='stylesheet' type='text/css'/>
-        <script src="js/js.js"></script>
+        <script src="js/js.js" charset="UTF-8"></script>
+        <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
-        <script>
-            const queryString = window.location.search;
-            const urlParams = new URLSearchParams(queryString);
-            let sensorID = urlParams.get('sensorID')
-
-            axios.get(`http://localhost:3030/sensors/${sensorID}`)
-            .then(function (response) {
-                let sensorDetails = response.data
-
-                document.getElementById('sensor-title').innerHTML = `Inspecting: ${sensorDetails.type} #${sensorID}`
-                let details = document.createElement("p")
-                details.innerHTML = `
-                Sensor ID: <i>#${sensorDetails.id}</i><br>
-                Sensor Type: <i>${sensorDetails.type}</i><br>
-                Unit: <i>${sensorDetails.unit}</i><br>
-                Location: <i>${sensorDetails.location}</i><br><br>
-                Last Updated: <i>${null}</i><br>
-                Last Detected Anomaly: <i>${null}</i>
-                `
-                document.getElementById("sensor-info").appendChild(details)
-            })
-
-        </script>
     </head>
     <body>
         <div class="navbar-div">
@@ -72,26 +50,46 @@
                     <h1 class="dashboard-title">Sensor Details</h1>
                 </div>
                 <div class="dashboard-tile-div" id="sensor-location">
-                    <h1 class="dashboard-title">Sensor Location</h1>
-                    <img src="images/humber_diagram.png" id="humber-diagram">
+                    <h1 class="dashboard-title">Related Sensors</h1>
+                    <div id="location-graph"></div>
                 </div>
             </div>
             <div class="database-main-content-div" id="anomaly-info-div"><p id="anomaly-info-text"></p></div>
+            <div class="database-main-content-div" id="anomaly-comments-div">
+                <h1 class="dashboard-title" id="anomaly-comment-title">Anomaly Notes</h1>
+                <div class="anomaly-comment-table-div">
+                    <table>
+                        <tbody id="anomaly-comment-table">
+                            <p class="no-comments">No Comments...</p>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
             <div class="dashboard-tile-parent">
-                <div class="dashboard-tile-div" id="graph1-div">
-                    <h1 class="dashboard-title">Sensor Data</h1>
-                    <canvas id="graph1-chart"></canvas></div>
-                <div class="dashboard-tile-div" id="graph2-div">
-                    <h1 class="dashboard-title">Sensor Data</h1>
-                    <canvas id="graph2-chart"></canvas></div>
+                <div class="dashboard-tile-div" id="week-chart-div">
+                    <!--<h1 class="dashboard-title">Data - Previous Week</h1>-->
+                    <div><canvas id="week-chart"></canvas></div>
+                </div>
+                <div class="dashboard-tile-div" id="day-chart-div">
+                    <!--<h1 class="dashboard-title">Data - Previous 24 Hours</h1>-->
+                    <div><canvas id="day-chart"></canvas></div>
+                </div>
+            </div>
+            <div class="database-main-content-div" id="sensor-comments-div">
+                <h1 class="dashboard-title" id="comment-title">Sensor Comments</h1>
+                <div class="comment-table-div">
+                    <table>
+                        <tbody id="comment-table">
+                        </tbody>
+                    </table>
+                </div>
             </div>
             <div class="database-main-content-div">
-                <h1 class="dashboard-title">Sensor Database</h1>
+                <h1 class="dashboard-title">Sensor Values</h1>
                 <form action="/sensor" method="GET" id="database-search-form">
                     <table class="database-search-table">
                         <tbody>
                             <tr>
-                                
                                 <td class="database-search-table-td"><input type="date" id="date-from" name="from"></td>
                                 <td class="database-search-table-td"><input type="date" id="date-until" name="until"></td>
                                 <td class="database-search-table-td"><select name="ordering"><option value="newest">Newest First</option><option value="oldest">Oldest First</option></select></td>
@@ -118,10 +116,37 @@
     </body>
 </html>
 <script>
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    let sensorID = urlParams.get('sensorID')
+    let unit = ""
+
+    document.getElementById('comment-title').innerHTML += `<br><br><button class="button-styling" onclick="toggleOverlay('comments-form', '', 'Add comment to sensor #${sensorID}:')">Add Comment</button>`
+                    
+    axios.get(`http://localhost:3030/comments?sensor-id=${sensorID}`)
+    .then(function (response) {
+        let commentsData = response.data
+
+        commentsTable = document.getElementById("comment-table")
+        commentsTable.innerHTML = ""
+
+        for (let i = 0; i < commentsData.length; i++ ) {
+            axios.get(`http://localhost:3030/users/${commentsData[i].user_id}`)
+            .then(function (response) {
+                commentAuthor = response.data.name
+                commentTime = formatDateString(commentsData[i].created_at)
+                commentText = `<tr class="comment-table-row"><td class="comment-table-time">
+                                <i>${commentTime[0]}, ${commentTime[1].substring(0,5)}</i><br>
+                                <span class="comment-author">${commentAuthor}</span></td>
+                                <td class="comment-table-body"><i>${commentsData[i].body}</i></td></tr>`
+                commentsTable.innerHTML += commentText
+            })   
+        }
+    })
+
     if (urlParams.has('anomalyID')) {
         const anomalyID = urlParams.get('anomalyID')
 
-        
         axios.get(`http://localhost:3030/anomalies/${anomalyID}`)
         .then(function (response) {
             detectedAt = formatDateString(response.data.time)
@@ -135,18 +160,40 @@
             anomalyText = `An anomaly was detected by this sensor at ${detectedAt[0]}, ${detectedAt[1]} with a
                             confidence of <i style="color: ${trafficLight};">${(response.data.confidence * 100).toFixed(1)}%</i>.`
 
-            if (!urlParams.has('unread')) {
+            if (response.data.status != 1) {
                 anomalyText += ` The status of this anomaly was marked
                             as <i>${response.data.status}</i> by <i>${response.data.name}</i> at ${updatedAt[0]}, ${updatedAt[1]}.
                             <br><br>Notes:
-                            <br>${response.data.notes}<br><br><button class="button-styling" onclick=toggleOverlay('anomaly-form')>Change Status</button> <button class="button-styling">Dismiss Anomaly</button>`
+                            <br>${response.data.notes}<br><br><button class="button-styling" onclick="toggleOverlay('anomaly-form')">Change Status</button> <button class="button-styling">Dismiss Anomaly</button>`
             } else {
-                // Only for prototype! Need a different way to implement anomalies that haven't
-                // been updated yet
                 anomalyText += ` This anomaly has not yet been investigated, in order to mark as under investigation, please
-                                 use the form below.<br><br><button class="button-styling" onclick=toggleOverlay('anomaly-form')>Change Status</button> <button class="button-styling">Dismiss Anomaly</button>`
+                                 use the form below.<br><br><button class="button-styling" onclick="toggleOverlay('anomaly-form')">Change Status</button> <button class="button-styling">Dismiss Anomaly</button>`
             }
             document.getElementById("anomaly-info-text").innerHTML += anomalyText
+            document.getElementById("anomaly-comments-div").style.display = "block"
+            document.getElementById('anomaly-comment-title').innerHTML += `<br><br><button class="button-styling" onclick="toggleOverlay('comments-form', '', 'Add note to anomaly:')">Add Comment</button>`
+                            
+
+            axios.get(`http://localhost:3030/comments?anomaly-id=${anomalyID}`)
+            .then(function (response) {
+
+                let commentsData = response.data
+                commentsTable = document.getElementById("anomaly-comment-table")
+                commentsTable.innerHTML = ""
+
+                for (let i = 0; i < commentsData.length; i++ ) {
+                    axios.get(`http://localhost:3030/users/${commentsData[i].user_id}`)
+                    .then(function (response) {
+                        commentAuthor = response.data.name
+                        commentTime = formatDateString(commentsData[i].created_at)
+                        commentText = `<tr class="comment-table-row"><td class="comment-table-time">
+                                        <i>${commentTime[0]}, ${commentTime[1].substring(0,5)}</i><br>
+                                        <span class="comment-author">${commentAuthor}</span></td>
+                                        <td class="comment-table-body"><i>${commentsData[i].body}</i></td></tr>`
+                        commentsTable.innerHTML += commentText
+                    })   
+                }  
+            })
         })
     }
 
@@ -171,8 +218,27 @@
     .then(function (response) {
         document.getElementById('sensor-data').innerHTML = `<tr class="database-table-row"><th>Date</th><th>Time</th><th>value</th></tr>`
         let sensorData = response.data
+        lastUpdatedArray = formatDateString(sensorData[sensorData.length - 1].time)
+        lastUpdated = lastUpdatedArray[0] + ', ' + lastUpdatedArray[1]
+        console.log(lastUpdated)
 
-        console.log(dataQuery)
+        axios.get(`http://localhost:3030/sensors/${sensorID}`)
+        .then(function (response) {
+            let sensorDetails = response.data
+
+            document.getElementById('sensor-title').innerHTML = `Inspecting: ${sensorDetails.type} #${sensorID}`
+            let details = document.createElement("p")
+            unit = sensorDetails.unit
+            details.innerHTML = `
+            Sensor ID: <i>#${sensorDetails.id}</i><br>
+            Sensor Type: <i>${sensorDetails.type}</i><br>
+            Unit: <i>${formatUnitString(sensorDetails.unit)}</i><br>
+            Location: <i>${sensorDetails.location}</i><br><br>
+            Last Updated: <i>${lastUpdated}</i><br>
+            Last Detected Anomaly: <i>${null}</i>
+            `
+            document.getElementById("sensor-info").appendChild(details)
+        })
 
         if (urlParams.get('ordering') == 'newest') {sensorData = sensorData.reverse()}
 
@@ -186,8 +252,41 @@
     axios.get(`http://localhost:3030/data?sensor=${sensorID}`)
     .then(function (response) {
         let sensorData = response.data
-        generateLineGraph('graph1-chart', 'Previous 24 hours', sensorData.slice(0, Math.round(sensorData.length/2)))
-        generateLineGraph('graph2-chart', 'Previous Week', sensorData.slice(Math.round((sensorData.length/2)), sensorData.length))
+        
+        currentDay = formatDateString(sensorData[0].time)[0]
+        dayTotal = 0
+        numVals = 0
+        labels = [currentDay]
+        dayLabels = []
+        dayVals = []
+        vals = []
+        for (let i = 0; i < sensorData.length; i++) {
+            
+            if (formatDateString(sensorData[i].time)[0] == currentDay) {
+                if (sensorData[i].value < 1000) {
+                    dayTotal += sensorData[i].value
+                    numVals += 1
+                }
+            } else {
+                vals.push(dayTotal / numVals)
+                dayTotal = sensorData[i].value
+                numVals = 1
+                currentDay = formatDateString(sensorData[i].time)[0]
+                labels.push(currentDay)
+                dayLabels = []
+                dayVals = []
+            }
+            dayLabels.push(formatDateString(sensorData[i].time)[1].slice(0, -3))
+            dayVals.push(sensorData[i].value)
+        }
+        vals.push(dayTotal / numVals)
+
+        generateLineGraph('week-chart', 'Data - Previous Week', vals, labels, unit)
+        generateLineGraph('day-chart', 'Data - Previous 24 hours', dayVals, dayLabels, unit)
     })
+
+    connectedSensors = ['GPH000EDE', 'GPH000EDH', 'GPH000EDN', 'GPH000WDE', 'GPH000WDH', 'GPH000WDN']
+    for (var i = connectedSensors.length; i--;) { if (connectedSensors[i] === sensorID) connectedSensors.splice(i, 1); }
+    generateLocationGraph('location-graph', sensorID, connectedSensors)
     
 </script>

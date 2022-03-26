@@ -65,7 +65,7 @@ function formatDateString(dateString) {
     return [date, time]
 }
 
-function toggleOverlay(content) {
+function toggleOverlay(content, userID, formText) {
     shadow = document.getElementById('overlay-shadow')
     div = document.getElementById('overlay-div')
     if (shadow.style.display == 'block') {
@@ -86,6 +86,7 @@ function toggleOverlay(content) {
         div.style.height = "75%";
         if (content == 'user-info') { loadUserInfo(div) }
         else if (content == 'anomaly-form') { loadAnomalyForm(div)}
+        else if (content == 'comments-form') { loadCommentsForm(div, userID, formText)}
         disableScroll()
         shadow.classList.remove('overlay-fadeOut');
         div.classList.remove('overlay-slideOut');
@@ -118,37 +119,48 @@ function loadUserInfo() {
 
 function loadAnomalyForm(div) {
     div.style.height = "auto";
-    document.getElementById('overlay-content').innerHTML = `<table><tbody><form action='sensor.html' method='GET'><tr>
-                        <td>Choose Status: <select>
+    document.getElementById('overlay-content').innerHTML = `<table><tbody style="text-align: center;"><form action='sensor.html' method='GET'><tr>
+                        <td>Choose Status: <select class="overlay-select">
                             <option value="" disabled selected>Pending Status</option>
                             <option value="status-investigating">Under Investigation</option>
                             <option value="status-fixed">Fixed</option>
                             <option value="status-dismissed">Dismissed</option>
                             </select>
                         </td></tr>
-                        <tr><td><textarea placeholder="Notes"></textarea></td></tr>
-                        <tr><td><button class="button-styling" onclick="toggleOverlay('reload')">Change Status</button></td><td><button class="button-styling" onclick='toggleOverlay()'>Cancel</button></td></tr>
+                        <tr><td><textarea class="overlay-textarea" placeholder="Notes"></textarea></td></tr>
+                        <tr><td><button class="button-styling" onclick="toggleOverlay('reload')">Change Status</button> <button class="button-styling" onclick='toggleOverlay()'>Cancel</button></td></tr>
                     </form></tbody></table>`
 }
 
+function loadCommentsForm(div, userID, formText) {
+    div.style.height = "auto";
+    div.style.width = "60%";
+    document.getElementById('overlay-content').innerHTML = `<table style="width: 100%;"><tbody style="text-align: center;"><form action='sensor.html' method='GET'><tr>
+                        <td>${formText}</td></tr>
+                        <tr><td><textarea class="overlay-textarea" placeholder="Notes" style="height: 100px"></textarea></td></tr>
+                        <tr><td><button class="button-styling" onclick="toggleOverlay('reload')">Comment</button> <button class="button-styling" onclick='toggleOverlay()'>Cancel</button></td></tr>
+                    </form></tbody></table>`
+}
 
-function generateLineGraph(chartID, graphTitle, sensorData) {
-    labels = []
-    vals = []
-    for (let i = 0; i < sensorData.length; i++ ) {
-        if (sensorData[i].value < 2) {
-            labels.push(formatDateString(sensorData[i].time)[1])
-            vals.push(sensorData[i].value)
-        }
+function formatUnitString(unit) {
+    if (unit == 'metre') {
+        return 'Metres (m)'
+    } else if (unit == 'degrees') {
+        return 'Degrees (°)'
     }
+}
+
+function generateLineGraph(chartID, graphTitle, vals, labels, unit) {
+    unit = formatUnitString(unit)
     const ctx = document.getElementById(chartID);
+    ctx.style.height = '100%';
     const data = {
     labels: labels,
     datasets: [{
-        label: graphTitle,
         data: vals,
-        fill: false,
+        fill: true,
         borderColor: 'rgb(31, 69, 135)',
+        legend: { display: false},
         tension: 0.1
     }]
     };
@@ -156,16 +168,66 @@ function generateLineGraph(chartID, graphTitle, sensorData) {
     const myChart = new Chart(ctx, config = {type: 'line',
                                              data: data,
                                              options: {
-                                                legend: { display: false },
+                                                maintainAspectRatio: false,
+                                                plugins: { legend: { display: false },
+                                                title: {
+                                                    display: true,
+                                                    text: graphTitle,
+                                                    color: 'rgb(0, 0, 0)',
+                                                    padding: {
+                                                        top: 10,
+                                                        bottom: 30
+                                                    },
+                                                    font: {
+                                                        size: 16
+                                                    }
+                                                }},
                                                 scales: {
                                                     y: {
                                                         display: true, 
                                                         title: {
                                                             display: true,
-                                                            text: 'Degrees',
+                                                            text: unit,
                                                             font: {
                                                             size: 15,
                                                             style: 'normal',
                                                             lineHeight: 1.2
                                                             }}}}}})
+                                                            
+}
+
+function generateLocationGraph(graphContainerID, sensorID, connectedSensors) {
+
+    edgeList = []
+    nodeList = [{id: 0, label: '#'+sensorID,
+                 color: '#1f4587',
+                 font: {size: 20, color: "red", face: 'arial', strokeWidth: 20}}]
+    for (let i = 0; i < connectedSensors.length; i++) {
+        nodeList.push({id: i+1, label: '#'+connectedSensors[i],
+                       color: '#F2F2F2',
+                       url: 'http://localhost/sensor?sensorID='+connectedSensors[i],
+                       font: {size: 15, color: "red", face: 'arial', strokeWidth: 10}})
+        edgeList.push({from: 0, to: i+1, color:'#7e7e7e'})
+    }
+    var nodes = new vis.DataSet(nodeList)
+    var edges = new vis.DataSet(edgeList)
+    var container = document.getElementById(graphContainerID);
+
+    var data = { nodes: nodes, edges: edges};
+    var options = {
+        nodes: {
+          shape: "dot",
+          size: 10,
+        },
+      };
+    
+    var network = new vis.Network(container, data, options);
+    network.on("doubleClick", function (params) {
+        if (params.nodes.length === 1) {
+            var node = nodes.get(params.nodes[0]);
+            if(node.url != null) {
+                window.location.href = node.url;
+            }
+         }
+      });
 }

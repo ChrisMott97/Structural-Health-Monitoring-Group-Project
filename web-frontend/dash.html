@@ -3,6 +3,7 @@
         <title>SHM Monitoring Dashboard</title>
         <link href="css/stylesheet.css" rel='stylesheet' type='text/css'/>
         <script src="js/js.js"></script>
+        <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     </head>
     <body>
@@ -43,12 +44,9 @@
         </div>
         <div class="main-content-div">
             <div class="dashboard-tile-parent">
-                <div class="dashboard-tile-div" id="tile1">
-                    <a href="notifications.html" class="dashboard-title"><h1 class="dashboard-title">Reports</h1></a>
-                    <table class="anomaly-table">
-                        <tbody id="reports-table">
-                        </tbody>
-                    </table>
+                <div class="dashboard-tile-div" id="tile4">
+                    <h1 class="dashboard-title">Sensors</h1>
+                    <div id="location-graph"></div>
                 </div>
                 <div class="dashboard-tile-div" id="tile2">
                     <a href="notifications.html" class="dashboard-title"><h1 class="dashboard-title">Detected Anomalies</h1></a>
@@ -63,8 +61,12 @@
                         !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}}(document,'script','weatherwidget-io-js');
                     </script>
                 </div>
-                <div class="dashboard-tile-div" id="tile4">
-                    <h1 class="dashboard-title">More Content</h1>
+                <div class="dashboard-tile-div" id="tile1">
+                    <a href="notifications.html" class="dashboard-title"><h1 class="dashboard-title">Reports</h1></a>
+                    <table class="anomaly-table">
+                        <tbody id="reports-table">
+                        </tbody>
+                    </table>
                 </div>
                 <div class="dashboard-tile-div" id="tile5">
                     <h1 class="dashboard-title">Even More Content</h1>
@@ -117,4 +119,10 @@
         <td class="anomaly-table-element">${reports[i][1].getFullYear()+'/'+(reports[i][1].getMonth()+1)+'/'+reports[i][1].getDate()}: ${reports[i][2]}</td>
         </tr>`
     }
+
+    sensorID = 'GPH000WDN'
+    connectedSensors = ['GPH000EDE', 'GPH000EDH', 'GPH000EDN', 'GPH000WDE', 'GPH000WDH', 'GPH000WDN']
+    for (var i = connectedSensors.length; i--;) { if (connectedSensors[i] === sensorID) connectedSensors.splice(i, 1); }
+    generateLocationGraph('location-graph', sensorID, connectedSensors)
+    
 </script>

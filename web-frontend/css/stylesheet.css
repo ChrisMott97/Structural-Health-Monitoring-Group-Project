@@ -51,7 +51,8 @@ body {
         display: none;
     }
     .main-content-div {
-        width: calc(100% - 120px);
+        width: 94% !important;
+        margin: 3% !important;
         left: 0 !important;
     }
 }
@@ -180,12 +181,14 @@ a .dashboard-title:hover {
     font-family: "Poppins", Calibri, sans-seif;
     font-size: 1rem;
 }
-
+#tile1 {
+    height: auto;
+}
 #tile3 {
     height: 220px;
 }
 #tile4 {
-    height: 220px;
+    height: auto;
 }
 
 .anomaly-table {
@@ -269,7 +272,7 @@ a .dashboard-title:hover {
 }
 
 .database-table-row th{
-    background-color: rgba(31,69,135,1);
+    background-color: #1f4587;
     color: white;
     font-weight: normal;
     padding: 5px 0;
@@ -440,4 +443,54 @@ a .dashboard-title:hover {
 .user-info-text {
     text-align: center;
     margin: 0 10%;
+}
+
+.overlay-select {
+    font-family: 'Poppins';
+    margin: 10px auto;
+    text-align: center;
+}
+
+.overlay-textarea {
+    width: 100%;
+    font-family: 'Poppins';
+    height: 100px;
+    margin: 10 0 20px;
+    padding: 5px;
+}
+
+.comment-table-time {
+    width: 20%;
+    text-align: center;
+}
+
+.comment-author {
+    font-weight: bold;
+}
+
+.comment-table-row {
+    color: #7e7e7e;
+}
+
+.comment-table-body {
+    padding-left: 50px;
+}
+
+.comment-table-div {
+    max-height: 200px;
+    overflow: scroll;
+    padding: 10px;
+}
+
+#anomaly-comments-div {
+    display: none;
+}
+
+#location-graph {
+    /*background-image: url('../images/humber_diagram.png');*/
+    background-position: center; /* Center the image */
+    background-repeat: no-repeat; /* Do not repeat the image */
+    background-size: 100% auto; /* Resize the background image to cover the entire container */
+    height: 200px;
+    cursor: pointer;
 }
