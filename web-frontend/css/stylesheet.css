@@ -1,33 +1,42 @@
 @font-face {
-    font-family: "Poppins";
-    src: url('fonts/Poppins/Poppins-Regular.ttf');
+    font-family: "Noto Sans Mono";
+    src: url('fonts/Noto_Sans_Mono/static/NotoSansMono-Regular.ttf');
     font-weight: normal;
     font-style: normal;
 }
+
 @font-face {
-    font-family: "Poppins";
-    src: url('fonts/Poppins/Poppins-Italic.ttf');
+    font-family: "Open Sans";
+    src: url('fonts/Open_Sans/static/OpenSans-Regular.ttf');
     font-weight: normal;
-    font-style: italic;
+    font-style: normal;
 }
+
 @font-face {
-    font-family: "Poppins";
-    src: url('fonts/Poppins/Poppins-Bold.ttf');
+    font-family: "Open Sans";
+    src: url('fonts/Open_Sans/static/OpenSans-Bold.ttf');
     font-weight: bold;
     font-style: normal;
 }
 
 @font-face {
-    font-family: "Roboto Mono";
-    src: url('fonts/Roboto_Mono/RobotoMono-VariableFont_wght.ttf');
+    font-family: "Open Sans";
+    src: url('fonts/Open_Sans/static/OpenSans-Italic.ttf');
     font-weight: normal;
-    font-style: normal;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: "Open Sans";
+    src: url('fonts/Open_Sans/static/OpenSans-Bold.ttf');
+    font-weight: bold;
+    font-style: italic;
 }
 
 body {
     margin: 0;
     background-color: #F2F2F2;
-    font-family: "Poppins", Calibri, sans-seif;
+    font-family: "Open Sans", Calibri, sans-seif;
 }
 
 .button-styling {
@@ -46,14 +55,38 @@ body {
     opacity: 0.9;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 700px) {
     .sidebar-div {
         display: none;
     }
+    .mobile-nav-div {
+        display: block !important;
+    }
+    .navbar-div {
+        display: none;
+    }
     .main-content-div {
-        width: 94% !important;
-        margin: 3% !important;
+        width: 100% !important;
+        margin: 0% !important;
         left: 0 !important;
+        top: 5vh !important;
+        padding-bottom: 12vh !important;
+    }
+    .database-main-content-div {
+        margin-bottom: 15px !important;
+        width: calc(100% - 40px) !important;
+        padding: 20px !important;
+    }
+
+    .dashboard-tile-parent {
+        grid-gap: 15px !important;
+        padding-bottom: 15px !important;
+    }
+    #overlay-content {
+        padding: 40px 20px !important;
+    }
+    #overlay-div {
+        width: 100% !important;
     }
 }
 
@@ -62,7 +95,7 @@ body {
     width: 100%;
     background: linear-gradient(108deg, rgba(31,69,135,1) 0%, rgba(39,70,125,1) 100%);
     position: fixed;
-    z-index: 10;
+    z-index: 9;
     top: 0;
     left: 0;
     box-shadow: 0px -20px 20px 20px rgba(0, 0, 0, 0.5);
@@ -178,7 +211,7 @@ a .dashboard-title:hover {
 }
 
 #weatherWidget {
-    font-family: "Poppins", Calibri, sans-seif;
+    font-family: "Open Sans", Calibri, sans-seif;
     font-size: 1rem;
 }
 #tile1 {
@@ -264,7 +297,7 @@ a .dashboard-title:hover {
 }
 
 .database-table-row:not(th) {
-    font-family: 'Roboto Mono';
+    font-family: 'Noto Sans Mono';
 }
 
 .database-table-row:not(*:is(.confidence-red, .confidence-orange, .confidence-green)):hover {
@@ -297,22 +330,10 @@ a .dashboard-title:hover {
     color: #7e7e7e;
 }
 
-.database-search-table {
-    width: 60%;
+#database-search-form {
     text-align: center;
-    margin: 20px auto;
-}
-
-.database-search-table-td input{ 
-    width: 100%;
-    padding: 4px;
-    font-size: 1em;
-    height: 30px;
-}
-.database-search-table-td select{ 
-    padding: 4px;
-    font-size: 1em;
-    height: 30px;
+    text-align: center;
+    line-height: 3em;
 }
 
 .search-icon {
@@ -345,10 +366,6 @@ a .dashboard-title:hover {
 
 #sensor-info {
     height: auto;
-}
-
-#database-search-table {
-    display: none;
 }
 
 #overlay-shadow {
@@ -446,14 +463,14 @@ a .dashboard-title:hover {
 }
 
 .overlay-select {
-    font-family: 'Poppins';
+    font-family: 'Open Sans';
     margin: 10px auto;
     text-align: center;
 }
 
 .overlay-textarea {
     width: 100%;
-    font-family: 'Poppins';
+    font-family: 'Open Sans';
     height: 100px;
     margin: 10 0 20px;
     padding: 5px;
@@ -473,24 +490,77 @@ a .dashboard-title:hover {
 }
 
 .comment-table-body {
-    padding-left: 50px;
+    padding-bottom: 20px;
+    font-size: 0.9em;
 }
 
 .comment-table-div {
+    border-top: solid 1px #7e7e7e;
+    border-bottom: solid 1px #7e7e7e;
     max-height: 200px;
     overflow: scroll;
-    padding: 10px;
+    padding: 15px 30px 15px 15px;
+    box-shadow: inset 6px 0 9px -7px rgb(0 0 0 / 10%), inset -6px 0 9px -7px rgb(0 0 0 / 10%);
+    background-color: #fdfdfd;
 }
 
+.add-note-icon {
+    height: 1em;
+    margin-left: 0.5em;
+    transition: 0.2s;
+}
+
+.add-note-icon:hover {
+    opacity: 0.8;
+}
+
+#anomaly-comments-title {
+    padding-top: 20px;
+}
 #anomaly-comments-div {
     display: none;
 }
 
 #location-graph {
     /*background-image: url('../images/humber_diagram.png');*/
-    background-position: center; /* Center the image */
-    background-repeat: no-repeat; /* Do not repeat the image */
-    background-size: 100% auto; /* Resize the background image to cover the entire container */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 100% auto;
     height: 200px;
     cursor: pointer;
+}
+
+.mobile-nav-div {
+    position: fixed;
+    z-index: 9;
+    width: 100%;
+    height: 12vh;
+    bottom: 0;
+    background: linear-gradient(108deg, rgba(31,69,135,1) 0%, rgba(39,70,125,1) 100%);
+    box-shadow: 0px -2px 6px rgb(0 0 0 / 10%);
+    display: none;
+}
+
+.mobile-nav-table {
+    width: 100%;
+}
+.mobile-nav-table-row {
+    width: 100%;
+    height: 100%;
+}
+.mobile-nav-table-td {
+    width: calc(100% / 7);
+    position: relative;
+    
+}
+.mobile-nav-icon-img {
+    width: 30%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, 50%);
+    transition: 0.2s;
+}
+.mobile-nav-icon-img:hover {
+    opacity: 0.8;
 }

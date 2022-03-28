@@ -2,6 +2,7 @@
     <head>
         <title>SHM Monitoring Dashboard</title>
         <link href="css/stylesheet.css" rel='stylesheet' type='text/css'/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script src="js/js.js" charset="UTF-8"></script>
         <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
@@ -9,7 +10,7 @@
     </head>
     <body>
         <div class="navbar-div">
-            <a href="javascript:toggleOverlay('user-info')" class="profile-link"><p class="profile-name" id="profile-name"></p><img src="images/user-pic.png" class="profile-pic"></a>
+            <a href="javascript:toggleOverlay('user-info')" class="profile-link"><p class="profile-name" id="profile-name"></p><img src="images/user_pic.png" class="profile-pic"></a>
         </div>
         <div class="sidebar-div">
             <div class="sidebar-icon-div">
@@ -54,13 +55,12 @@
                     <div id="location-graph"></div>
                 </div>
             </div>
-            <div class="database-main-content-div" id="anomaly-info-div"><p id="anomaly-info-text"></p></div>
-            <div class="database-main-content-div" id="anomaly-comments-div">
-                <h1 class="dashboard-title" id="anomaly-comment-title">Anomaly Notes</h1>
-                <div class="anomaly-comment-table-div">
+            <div class="database-main-content-div" id="anomaly-info-div">
+                <h1 class="dashboard-title" id="anomaly-title">Anomaly</h1>
+                <p id="anomaly-info-text"></p>
+                <div class="comment-table-div">
                     <table>
                         <tbody id="anomaly-comment-table">
-                            <p class="no-comments">No Comments...</p>
                         </tbody>
                     </table>
                 </div>
@@ -76,7 +76,7 @@
                 </div>
             </div>
             <div class="database-main-content-div" id="sensor-comments-div">
-                <h1 class="dashboard-title" id="comment-title">Sensor Comments</h1>
+                <h1 class="dashboard-title" id="comment-title">Notes</h1>
                 <div class="comment-table-div">
                     <table>
                         <tbody id="comment-table">
@@ -87,17 +87,11 @@
             <div class="database-main-content-div">
                 <h1 class="dashboard-title">Sensor Values</h1>
                 <form action="/sensor" method="GET" id="database-search-form">
-                    <table class="database-search-table">
-                        <tbody>
-                            <tr>
-                                <td class="database-search-table-td"><input type="date" id="date-from" name="from"></td>
-                                <td class="database-search-table-td"><input type="date" id="date-until" name="until"></td>
-                                <td class="database-search-table-td"><select name="ordering"><option value="newest">Newest First</option><option value="oldest">Oldest First</option></select></td>
-                                <td class="database-search-table-td"><input class="button-styling" type="reset"></td>
-                                <td class="database-search-table-td"><input class="button-styling" type="submit"></td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <input type="date" id="date-from" name="from">
+                    <input type="date" id="date-until" name="until">
+                    <select name="ordering"><option value="newest">Newest First</option><option value="oldest">Oldest First</option></select><br>
+                    <input class="button-styling" type="reset">
+                    <input class="button-styling" type="submit" value="Search">
                 </form>
                 <table class="database-table">
                     <tbody id="sensor-data">
@@ -106,6 +100,21 @@
                 </table>
             </div>
         </div>
+        <div class="mobile-nav-div">
+            <table class="mobile-nav-table">
+                <tbody>
+                    <tr class="mobile-nav-table-row">
+                        <td class="mobile-nav-table-td"><a href="dash.html"><img src="images/dashboard_icon_white.png" class="mobile-nav-icon-img"></a></td>
+                        <td class="mobile-nav-table-td"><a href="notifications.html"><img src="images/notifications_icon_white.png" class="mobile-nav-icon-img"></a></td>
+                        <td class="mobile-nav-table-td"><a href="images.html"><img src="images/images_icon_white.png" class="mobile-nav-icon-img"></a></td>
+                        <td class="mobile-nav-table-td"><a href="visualisations.html"><img src="images/visualisations_icon_white.png" class="mobile-nav-icon-img"></a></td>
+                        <td class="mobile-nav-table-td"><a href="database.html"><img src="images/database_icon_white.png" class="mobile-nav-icon-img"></a></td>
+                        <td class="mobile-nav-table-td"><a href="code.html"><img src="images/code_icon_white.png" class="mobile-nav-icon-img"></a></td>
+                        <td class="mobile-nav-table-td"><a href="javascript:toggleOverlay('user-info')"><img src="images/user_pic_white.png" class="mobile-nav-icon-img"></a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
         <div id="overlay-shadow">
             <a href="javascript:toggleOverlay()"><span id="overlay-span"></span></a>
             <div id="overlay-div">
@@ -113,6 +122,7 @@
                 <div id="overlay-content"></div>
             </div>
         </div>
+        
     </body>
 </html>
 <script>
@@ -121,12 +131,13 @@
     let sensorID = urlParams.get('sensorID')
     let unit = ""
 
-    document.getElementById('comment-title').innerHTML += `<br><br><button class="button-styling" onclick="toggleOverlay('comments-form', '', 'Add comment to sensor #${sensorID}:')">Add Comment</button>`
+    //document.getElementById('comment-title').innerHTML += `<br><br><button class="button-styling" onclick="toggleOverlay('comments-form', '', 'Add note to sensor #${sensorID}:')">Add Comment</button>`
                     
     axios.get(`http://localhost:3030/comments?sensor-id=${sensorID}`)
     .then(function (response) {
         let commentsData = response.data
 
+        document.getElementById('comment-title').innerHTML += ` <a href="javascript:toggleOverlay('comments-form', '', 'Add note to sensor #${sensorID}:')"><img class="add-note-icon" src="images/edit_icon.png"></a>`
         commentsTable = document.getElementById("comment-table")
         commentsTable.innerHTML = ""
 
@@ -134,11 +145,11 @@
             axios.get(`http://localhost:3030/users/${commentsData[i].user_id}`)
             .then(function (response) {
                 commentAuthor = response.data.name
-                commentTime = formatDateString(commentsData[i].created_at)
-                commentText = `<tr class="comment-table-row"><td class="comment-table-time">
-                                <i>${commentTime[0]}, ${commentTime[1].substring(0,5)}</i><br>
-                                <span class="comment-author">${commentAuthor}</span></td>
-                                <td class="comment-table-body"><i>${commentsData[i].body}</i></td></tr>`
+                commentText = `<tr class="comment-table-row">
+                                <td class="comment-table-body">
+                                    <span class="comment-author">${commentAuthor}</span><i> ${formatCommentDateString(commentsData[i].created_at)}</i><br>
+                                    ${commentsData[i].body}
+                                </td></tr>`
                 commentsTable.innerHTML += commentText
             })   
         }
@@ -162,17 +173,13 @@
 
             if (response.data.status != 1) {
                 anomalyText += ` The status of this anomaly was marked
-                            as <i>${response.data.status}</i> by <i>${response.data.name}</i> at ${updatedAt[0]}, ${updatedAt[1]}.
-                            <br><br>Notes:
-                            <br>${response.data.notes}<br><br><button class="button-styling" onclick="toggleOverlay('anomaly-form')">Change Status</button> <button class="button-styling">Dismiss Anomaly</button>`
+                            as <i>${response.data.status}</i> by <i>${response.data.name}</i> at ${updatedAt[0]}, ${updatedAt[1]}.`
             } else {
-                anomalyText += ` This anomaly has not yet been investigated, in order to mark as under investigation, please
-                                 use the form below.<br><br><button class="button-styling" onclick="toggleOverlay('anomaly-form')">Change Status</button> <button class="button-styling">Dismiss Anomaly</button>`
+                anomalyText += ` This anomaly has not yet been investigated. Once the anomaly is under investigation, change the status using the edit icon above.`
             }
-            document.getElementById("anomaly-info-text").innerHTML += anomalyText
-            document.getElementById("anomaly-comments-div").style.display = "block"
-            document.getElementById('anomaly-comment-title').innerHTML += `<br><br><button class="button-styling" onclick="toggleOverlay('comments-form', '', 'Add note to anomaly:')">Add Comment</button>`
-                            
+
+            document.getElementById("anomaly-info-text").innerHTML += anomalyText+ `<h1 class="dashboard-title" id="anomaly-comments-title">Notes <a href="javascript:toggleOverlay('comments-form', '', 'Add note to anomaly #${anomalyID}:')"><img class="add-note-icon" src="images/edit_icon.png"></a></h1>`
+            document.getElementById("anomaly-title").innerHTML = `Anomaly #${anomalyID} (Under Investigation) <a href="javascript:toggleOverlay('anomaly-form')"><img class="add-note-icon" src="images/edit_icon.png"></a>`
 
             axios.get(`http://localhost:3030/comments?anomaly-id=${anomalyID}`)
             .then(function (response) {
@@ -185,11 +192,12 @@
                     axios.get(`http://localhost:3030/users/${commentsData[i].user_id}`)
                     .then(function (response) {
                         commentAuthor = response.data.name
-                        commentTime = formatDateString(commentsData[i].created_at)
-                        commentText = `<tr class="comment-table-row"><td class="comment-table-time">
-                                        <i>${commentTime[0]}, ${commentTime[1].substring(0,5)}</i><br>
-                                        <span class="comment-author">${commentAuthor}</span></td>
-                                        <td class="comment-table-body"><i>${commentsData[i].body}</i></td></tr>`
+                        commentTime = formatCommentDateString(commentsData[i].created_at)
+                        commentText = `<tr class="comment-table-row">
+                                        <td class="comment-table-body">
+                                            <span class="comment-author">${commentAuthor}</span><i> ${formatCommentDateString(commentsData[i].created_at)}</i><br>
+                                            ${commentsData[i].body}
+                                        </td></tr>`
                         commentsTable.innerHTML += commentText
                     })   
                 }  
@@ -220,7 +228,6 @@
         let sensorData = response.data
         lastUpdatedArray = formatDateString(sensorData[sensorData.length - 1].time)
         lastUpdated = lastUpdatedArray[0] + ', ' + lastUpdatedArray[1]
-        console.log(lastUpdated)
 
         axios.get(`http://localhost:3030/sensors/${sensorID}`)
         .then(function (response) {
@@ -245,7 +252,7 @@
         for (let i = 0; i < sensorData.length; i++ ) {
             table = document.getElementById("sensor-data")
             datetime = formatDateString(sensorData[i].time)
-            table.innerHTML += `<tr class="database-table-row"><td>${datetime[0]}</td><td>${datetime[1]}</td><td>${sensorData[i].value}</td></tr>`
+            if (sensorData[i].value < 1000) {table.innerHTML += `<tr class="database-table-row"><td>${datetime[0]}</td><td>${datetime[1]}</td><td>${sensorData[i].value.toFixed(8)}</td></tr>` }
         }
     })
 

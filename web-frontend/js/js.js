@@ -13,51 +13,6 @@ window.onload = (event) => {
     })
 };
 
-function generate_random_anomaly(start_time, end_time) {
-    sensor = sensors[Math.floor(Math.random()*sensors.length)]
-    sensorID = sensors[0]
-    sensorType = sensors[1]
-    anomalyID = Math.random().toString(36).substring(2,11).toUpperCase()
-    
-    engineer = engineers[Math.floor(Math.random()*engineers.length)]
-    anomaly_status = statuses[Math.floor(Math.random()*statuses.length)]
-
-    confidence = Math.random() * (100 - 50) + 50
-
-    anomaly_date = randomDate(start_time, end_time)
-    status_date = randomDate(anomaly_date, new Date())
-
-    anomaly = [anomalyID, anomaly_date, sensorID, sensorType, confidence, [anomaly_status, 'Mark Evans', status_date]]
-
-    return anomaly
-}
-
-function randomDate(start, end) { return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime())); }
-
-function generate_random_anomalies(no_anomalies) {
-    anomalies = []
-    const week = 604800000
-    end_date = new Date()
-    start_date = new Date(end_date - (week))
-
-    for (let i = 0; i < no_anomalies; i++) {
-        anomalies.push(generate_random_anomaly(start_date, end_date))
-        end_date = start_date
-        start_date = new Date(end_date - (week))
-    }
-    return anomalies
-}
-
-function generate_random_sensor_data(no_vals) {
-    sensorData = []
-    currentDate = new Date()
-    for (let i = 0; i < no_vals; i++) {
-        sensorData.push([currentDate, (Math.random() * 4) - (Math.random() * 4), (Math.random() * 4) - (Math.random() * 4), (Math.random() * 4) - (Math.random() * 4)])
-        currentDate = new Date(currentDate - 10000)
-    }
-    return sensorData
-}
-
 function formatDateString(dateString) {
     dateArray = dateString.split("T")
     date = dateArray[0].split("-").reverse().join("/")
@@ -113,7 +68,7 @@ function loadUserInfo() {
     axios.get(`http://localhost:3030/users/${userID}`)
     .then(function (response) {
         // handle success
-        document.getElementById('overlay-content').innerHTML = `<img id="profile-pic-large" src="images/user-pic.png"><p class="user-info-text">Hello ${response.data.name.split(' ')[0]}!</p>`
+        document.getElementById('overlay-content').innerHTML = `<img id="profile-pic-large" src="images/user_pic.png"><p class="user-info-text">Hello ${response.data.name.split(' ')[0]}!</p>`
     })
 }
 
@@ -138,8 +93,48 @@ function loadCommentsForm(div, userID, formText) {
     document.getElementById('overlay-content').innerHTML = `<table style="width: 100%;"><tbody style="text-align: center;"><form action='sensor.html' method='GET'><tr>
                         <td>${formText}</td></tr>
                         <tr><td><textarea class="overlay-textarea" placeholder="Notes" style="height: 100px"></textarea></td></tr>
-                        <tr><td><button class="button-styling" onclick="toggleOverlay('reload')">Comment</button> <button class="button-styling" onclick='toggleOverlay()'>Cancel</button></td></tr>
+                        <tr><td><button class="button-styling" onclick="toggleOverlay('reload')">Add Note</button> <button class="button-styling" onclick='toggleOverlay()'>Cancel</button></td></tr>
                     </form></tbody></table>`
+}
+
+function formatCommentDateString(dateString) {
+    commentDate = new Date(dateString)
+    currentDate = new Date()
+    timeAgo = parseInt((currentDate - commentDate) / 1000)
+
+    if (timeAgo < 10) {
+        return 'Just now'
+    } else if (timeAgo < 60) {
+        timeUnit = 'second'
+    } else {
+        timeAgo = parseInt(timeAgo / 60)
+        if (timeAgo < 60) {
+            timeUnit = 'minute'
+        } else {
+            timeAgo = parseInt(timeAgo / 60)
+            if (timeAgo < 2) {
+                timeUnit = 'hour'
+            } else {
+                timeUnit = 'date'
+            }
+        }
+    }
+    
+    if (timeUnit != 'date') {
+        if (timeAgo != 1) {
+            timeUnit += 's'
+        }
+        return timeAgo.toString() + ' ' + timeUnit + ' ago'
+    } else {
+        commentTime = commentDate.getHours().toString()+':'+((commentDate.getMinutes() < 10 ? '0' : '') + commentDate.getMinutes())
+        if (timeAgo < 24) {
+            return commentTime
+        } else if (currentDate.getFullYear() == commentDate.getFullYear()) {
+            return commentDate.getDate()+'/'+commentDate.getMonth()+' '+commentTime
+        } else {
+            return commentDate.getDate()+'/'+commentDate.getMonth()+'/'+parseInt(commentDate.getFullYear().toString().substr(2,2), 10)+' '+commentTime
+        }
+    }
 }
 
 function formatUnitString(unit) {
