@@ -141,8 +141,8 @@ function formatUnitString(unit) {
     if (unit == 'metre') {
         return 'Metres (m)'
     } else if (unit == 'degrees') {
-        return 'Degrees (°)'
-    }
+        return 'Degrees ( ° )'
+    } else { return 'unit' }
 }
 
 function generateLineGraph(chartID, graphTitle, vals, labels, unit) {
@@ -159,7 +159,6 @@ function generateLineGraph(chartID, graphTitle, vals, labels, unit) {
         tension: 0.1
     }]
     };
-
     const myChart = new Chart(ctx, config = {type: 'line',
                                              data: data,
                                              options: {
@@ -191,17 +190,24 @@ function generateLineGraph(chartID, graphTitle, vals, labels, unit) {
                                                             
 }
 
-function generateLocationGraph(graphContainerID, sensorID, connectedSensors) {
+function generateLocationGraph(graphContainerID, sensorID, connectedSensors, connectedSensorTypes) {
 
     edgeList = []
     nodeList = [{id: 0, label: '#'+sensorID,
                  color: '#1f4587',
                  font: {size: 20, color: "red", face: 'arial', strokeWidth: 20}}]
     for (let i = 0; i < connectedSensors.length; i++) {
+        console.log(connectedSensorTypes)
+        sensorType = connectedSensorTypes[i]
+        if (sensorType == 'Longitude') { colour = 'red' }
+        else if (sensorType == 'Height') { colour = 'yellow' }
+        else if (sensorType == 'Latitude') { colour = 'green' } 
+        else { colour = '#F2F2F2' }
+        
         nodeList.push({id: i+1, label: '#'+connectedSensors[i],
-                       color: '#F2F2F2',
+                       color: colour,
                        url: 'http://localhost/sensor?sensorID='+connectedSensors[i],
-                       font: {size: 15, color: "red", face: 'arial', strokeWidth: 10}})
+                       font: {size: 15, color: "black", face: 'arial', strokeWidth: 10}})
         edgeList.push({from: 0, to: i+1, color:'#7e7e7e'})
     }
     var nodes = new vis.DataSet(nodeList)

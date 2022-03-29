@@ -138,8 +138,9 @@
     }
 
     sensorID = 'GPH000WDN'
-    connectedSensors = ['GPH000EDE', 'GPH000EDH', 'GPH000EDN', 'GPH000WDE', 'GPH000WDH', 'GPH000WDN']
+    connectedSensors = ['GPH000EDE', 'GPH000EDH', 'GPH000EDN', 'GPH000WDE', 'GPH000WDH']
+    connectedSensorTypes = ['Longitude', 'Height', 'Latitude', 'Longitude', 'Height']
     for (var i = connectedSensors.length; i--;) { if (connectedSensors[i] === sensorID) connectedSensors.splice(i, 1); }
-    generateLocationGraph('location-graph', sensorID, connectedSensors)
+    generateLocationGraph('location-graph', sensorID, connectedSensors, connectedSensorTypes)
     
 </script>

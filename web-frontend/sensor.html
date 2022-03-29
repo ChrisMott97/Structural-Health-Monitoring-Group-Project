@@ -51,7 +51,7 @@
                     <h1 class="dashboard-title">Sensor Details</h1>
                 </div>
                 <div class="dashboard-tile-div" id="sensor-location">
-                    <h1 class="dashboard-title">Related Sensors</h1>
+                    <h1 class="dashboard-title" id="location-graph-title">Related Sensors</h1>
                     <div id="location-graph"></div>
                 </div>
             </div>
@@ -129,10 +129,7 @@
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     let sensorID = urlParams.get('sensorID')
-    let unit = ""
-
-    //document.getElementById('comment-title').innerHTML += `<br><br><button class="button-styling" onclick="toggleOverlay('comments-form', '', 'Add note to sensor #${sensorID}:')">Add Comment</button>`
-                    
+                 
     axios.get(`http://localhost:3030/comments?sensor-id=${sensorID}`)
     .then(function (response) {
         let commentsData = response.data
@@ -235,7 +232,7 @@
 
             document.getElementById('sensor-title').innerHTML = `Inspecting: ${sensorDetails.type} #${sensorID}`
             let details = document.createElement("p")
-            unit = sensorDetails.unit
+            sensorUnit = sensorDetails.unit
             details.innerHTML = `
             Sensor ID: <i>#${sensorDetails.id}</i><br>
             Sensor Type: <i>${sensorDetails.type}</i><br>
@@ -245,6 +242,63 @@
             Last Detected Anomaly: <i>${null}</i>
             `
             document.getElementById("sensor-info").appendChild(details)
+
+            axios.get(`http://localhost:3030/data?sensor=${sensorID}`)
+            .then(function (response) {
+                let sensorData = response.data
+                
+                // Current day of iteration
+                currentDay = formatDateString(sensorData[0].time)[0]
+                // Current time used to get data for the preceding 24 hours
+                currentTime = new Date(sensorData[sensorData.length - 1].time)
+                
+                dayTotal = 0
+                numVals = 0
+                labels = [currentDay]
+                dayLabels = []
+                dayVals = []
+                vals = []
+                
+                for (let i = 0; i < sensorData.length; i++) {
+                    if (formatDateString(sensorData[i].time)[0] == currentDay) {
+                        if (sensorData[i].value < 1000) {
+                            dayTotal += sensorData[i].value
+                            numVals += 1
+                        }
+                    } else {
+                        vals.push(dayTotal / numVals)
+                        dayTotal = sensorData[i].value
+                        numVals = 1
+                        currentDay = formatDateString(sensorData[i].time)[0]
+                        labels.push(currentDay)
+                    }
+
+                    valueTime = new Date(sensorData[i].time)
+                    if (currentTime - valueTime < (1000 * 60 * 60 * 24)) {
+                        dayLabels.push(formatDateString(sensorData[i].time)[1].slice(0, -3))
+                        dayVals.push(sensorData[i].value)
+                    }
+                }
+                vals.push(dayTotal / numVals)
+                generateLineGraph('week-chart', 'Data - Previous Week', vals, labels, sensorUnit)
+                generateLineGraph('day-chart', 'Data - Previous 24 hours', dayVals, dayLabels, sensorUnit)
+            })
+
+            axios.get(`http://localhost:3030/sensors`)
+            .then(function (response) {
+                connectedSensors = []
+                connectedSensorTypes = []
+                let allSensors = response.data
+
+                for (let i = 0; i < allSensors.length; i++) {
+                    if (allSensors[i].id != sensorID && allSensors[i].location == sensorDetails.location) {
+                        connectedSensors.push(allSensors[i].id)
+                        connectedSensorTypes.push(allSensors[i].subtype)
+                    }
+                }
+                document.getElementById("location-graph-title").innerHTML += ' - ('+sensorDetails.location+')'
+                generateLocationGraph('location-graph', sensorID, connectedSensors, connectedSensorTypes)
+            })
         })
 
         if (urlParams.get('ordering') == 'newest') {sensorData = sensorData.reverse()}
@@ -255,45 +309,4 @@
             if (sensorData[i].value < 1000) {table.innerHTML += `<tr class="database-table-row"><td>${datetime[0]}</td><td>${datetime[1]}</td><td>${sensorData[i].value.toFixed(8)}</td></tr>` }
         }
     })
-
-    axios.get(`http://localhost:3030/data?sensor=${sensorID}`)
-    .then(function (response) {
-        let sensorData = response.data
-        
-        currentDay = formatDateString(sensorData[0].time)[0]
-        dayTotal = 0
-        numVals = 0
-        labels = [currentDay]
-        dayLabels = []
-        dayVals = []
-        vals = []
-        for (let i = 0; i < sensorData.length; i++) {
-            
-            if (formatDateString(sensorData[i].time)[0] == currentDay) {
-                if (sensorData[i].value < 1000) {
-                    dayTotal += sensorData[i].value
-                    numVals += 1
-                }
-            } else {
-                vals.push(dayTotal / numVals)
-                dayTotal = sensorData[i].value
-                numVals = 1
-                currentDay = formatDateString(sensorData[i].time)[0]
-                labels.push(currentDay)
-                dayLabels = []
-                dayVals = []
-            }
-            dayLabels.push(formatDateString(sensorData[i].time)[1].slice(0, -3))
-            dayVals.push(sensorData[i].value)
-        }
-        vals.push(dayTotal / numVals)
-
-        generateLineGraph('week-chart', 'Data - Previous Week', vals, labels, unit)
-        generateLineGraph('day-chart', 'Data - Previous 24 hours', dayVals, dayLabels, unit)
-    })
-
-    connectedSensors = ['GPH000EDE', 'GPH000EDH', 'GPH000EDN', 'GPH000WDE', 'GPH000WDH', 'GPH000WDN']
-    for (var i = connectedSensors.length; i--;) { if (connectedSensors[i] === sensorID) connectedSensors.splice(i, 1); }
-    generateLocationGraph('location-graph', sensorID, connectedSensors)
-    
 </script>
