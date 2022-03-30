@@ -145,25 +145,35 @@ function formatUnitString(unit) {
     } else { return 'unit' }
 }
 
-function generateLineGraph(chartID, graphTitle, vals, labels, unit) {
+function generateLineGraph(chartID, graphTitle, series, seriesLabels, xlabels, unit, colours, showLegend) {
     unit = formatUnitString(unit)
     const ctx = document.getElementById(chartID);
     ctx.style.height = '100%';
-    const data = {
-    labels: labels,
-    datasets: [{
-        data: vals,
-        fill: true,
-        borderColor: 'rgb(31, 69, 135)',
-        legend: { display: false},
-        tension: 0.1
-    }]
-    };
+
+    datasets = []
+    for (let i = 0; i < series.length; i++) {
+
+        if (seriesLabels[i] == 'Values') { width = 2; dash = []; displayLegend = false}
+        else { width = 1; dash = [5]; displayLegend = true }
+
+        datasets.push({
+                        label: seriesLabels[i],
+                        data: series[i],
+                        fill: false,
+                        borderColor: colours[i],
+                        legend: { display: displayLegend },
+                        tension: 0.2,
+                        borderWidth: width,
+                        borderDash: dash
+                    })
+    }
+
+    const data = { labels: xlabels, datasets: datasets };
     const myChart = new Chart(ctx, config = {type: 'line',
                                              data: data,
                                              options: {
                                                 maintainAspectRatio: false,
-                                                plugins: { legend: { display: false },
+                                                plugins: { legend: { display: showLegend },
                                                 title: {
                                                     display: true,
                                                     text: graphTitle,

@@ -258,30 +258,40 @@
                 dayLabels = []
                 dayVals = []
                 vals = []
+                maxVals = [Number.NEGATIVE_INFINITY]
+                minVals = [Number.POSITIVE_INFINITY]
                 
                 for (let i = 0; i < sensorData.length; i++) {
-                    if (formatDateString(sensorData[i].time)[0] == currentDay) {
-                        if (sensorData[i].value < 1000) {
+
+                    if (sensorData[i].value < 1000) {
+
+                        if (formatDateString(sensorData[i].time)[0] == currentDay) {
+                            
                             dayTotal += sensorData[i].value
                             numVals += 1
-                        }
-                    } else {
-                        vals.push(dayTotal / numVals)
-                        dayTotal = sensorData[i].value
-                        numVals = 1
-                        currentDay = formatDateString(sensorData[i].time)[0]
-                        labels.push(currentDay)
-                    }
 
-                    valueTime = new Date(sensorData[i].time)
-                    if (currentTime - valueTime < (1000 * 60 * 60 * 24)) {
-                        dayLabels.push(formatDateString(sensorData[i].time)[1].slice(0, -3))
-                        dayVals.push(sensorData[i].value)
+                        } else {
+                            maxVals.push(Number.NEGATIVE_INFINITY)
+                            minVals.push(Number.POSITIVE_INFINITY)
+                            vals.push(dayTotal / numVals)
+                            dayTotal = sensorData[i].value
+                            numVals = 1
+                            currentDay = formatDateString(sensorData[i].time)[0]
+                            labels.push(currentDay)
+                        }
+
+                        valueTime = new Date(sensorData[i].time)
+                        if (currentTime - valueTime < (1000 * 60 * 60 * 24)) {
+                            dayLabels.push(formatDateString(sensorData[i].time)[1].slice(0, -3))
+                            dayVals.push(sensorData[i].value)
+                        }
+                        if (sensorData[i].value > maxVals[maxVals.length - 1]) {maxVals[maxVals.length - 1] = sensorData[i].value}
+                        else if (sensorData[i].value < minVals[minVals.length - 1]) {minVals[minVals.length - 1] = sensorData[i].value}
                     }
                 }
                 vals.push(dayTotal / numVals)
-                generateLineGraph('week-chart', 'Data - Previous Week', vals, labels, sensorUnit)
-                generateLineGraph('day-chart', 'Data - Previous 24 hours', dayVals, dayLabels, sensorUnit)
+                generateLineGraph('week-chart', 'Data - Previous Week', [vals, maxVals, minVals], ['Values', 'Maximum Value', 'Minimum Value'], labels, sensorUnit, ['#1f4587', '#7e7e7e', '#7e7e7e'], true)
+                generateLineGraph('day-chart', 'Data - Previous 24 hours', [dayVals], ['Values'], dayLabels, sensorUnit, ['#1f4587', '#1f4587'], false)
             })
 
             axios.get(`http://localhost:3030/sensors`)
