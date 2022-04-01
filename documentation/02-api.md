@@ -15,6 +15,13 @@
      - ```javascript
         {id:String, type:String, subtype:String, location:String, unit:String}
         ```
+- Get list of related sensors for a given sensor by ID
+   - Method: GET
+   - URI: `/sensors/1/related`
+   - Response: 
+     - ```javascript
+        [id:String]
+        ```
 ### Data
  - Get all data
    - Method: GET

@@ -23,4 +23,15 @@ module.exports = async function (fastify, opts) {
       reply.send(sensor)
     }
   })
+
+  fastify.get('/sensors/:id/related', async function (request, reply) {
+    const id = request.params.id
+    
+    const sensors = await fastify.knex('related').select("related_id").where({sensor_id: id})
+    if(!sensors || !sensors.length){
+      reply.code(404).send(`No related sensors found.`)
+    }else{
+      reply.send(sensors.map(a => a.related_id))
+    }
+  })
 }
