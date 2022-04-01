@@ -1,6 +1,22 @@
-before_script:
-  - docker info
+stages:
+  - build
+  - test
+  - cleanup
 
-build_image:
+build-code-job:
+  stage: build
   script:
     - docker build -t api-gateway ./api-gateway
+
+test-code-job1:
+  stage: test
+  image: api-gateway
+  variables:
+    MARIADB_ROOT_PASSWORD: example
+    MARIADB_DATABASE: humber_bridge
+  services:
+    - name: mariadb
+      alias: internal-database-test
+  script:
+    - cd /home/node/app
+    - npm run test:db
