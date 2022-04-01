@@ -1,24 +1,36 @@
 {
   "name": "api-gateway",
-  "version": "0.0.0",
-  "private": true,
-  "scripts": {
-    "start": "node ./bin/www",
-    "start:dev": "npm run migrate && npm run seed && nodemon ./bin/www",
-    "migrate": "knex migrate:latest --knexfile database/knexfile.js",
-    "seed": "knex seed:run --knexfile database/knexfile.js"
+  "version": "1.0.0",
+  "description": "This project was bootstrapped with Fastify-CLI.",
+  "main": "src/app.js",
+  "directories": {
+    "test": "test"
   },
+  "scripts": {
+    "test": "tap \"test/**/*.test.js\"",
+    "test:db": "npm run test:migrate && npm run test:seed && NODE_ENV=test tap --no-coverage \"test/**/*.test.js\"",
+    "start": "fastify start -l info src/app.js",
+    "dev": "npm run migrate && npm run seed && fastify start -w -l info -P src/app.js",
+    "migrate": "knex migrate:latest --knexfile database/knexfile.js",
+    "seed": "knex seed:run --knexfile database/knexfile.js",
+    "test:migrate": "knex migrate:latest --knexfile database/knexfile.js --env test",
+    "test:seed": "knex seed:run --knexfile database/knexfile.js --env test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "dependencies": {
-    "cookie-parser": "~1.4.4",
-    "cors": "^2.8.5",
-    "csv-parser": "^3.0.0",
-    "debug": "~2.6.9",
-    "express": "~4.16.1",
-    "knex": "^1.0.3",
-    "morgan": "~1.9.1",
+    "@faker-js/faker": "^6.0.0",
+    "fastify": "^3.0.0",
+    "fastify-autoload": "^3.10.0",
+    "fastify-cli": "^2.15.0",
+    "fastify-knexjs": "^1.4.0",
+    "fastify-plugin": "^3.0.0",
+    "fastify-sensible": "^3.1.2",
+    "knex": "^1.0.4",
     "mysql2": "^2.3.3"
   },
   "devDependencies": {
-    "@faker-js/faker": "^6.0.0-alpha.6"
+    "tap": "^15.1.6"
   }
 }

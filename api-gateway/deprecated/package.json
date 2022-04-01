@@ -1,0 +1,24 @@
+{
+  "name": "api-gateway",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www",
+    "start:dev": "npm run migrate && npm run seed && nodemon ./bin/www",
+    "migrate": "knex migrate:latest --knexfile database/knexfile.js",
+    "seed": "knex seed:run --knexfile database/knexfile.js"
+  },
+  "dependencies": {
+    "cookie-parser": "~1.4.4",
+    "cors": "^2.8.5",
+    "csv-parser": "^3.0.0",
+    "debug": "~2.6.9",
+    "express": "~4.16.1",
+    "knex": "^1.0.3",
+    "morgan": "~1.9.1",
+    "mysql2": "^2.3.3"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^6.0.0-alpha.6"
+  }
+}
