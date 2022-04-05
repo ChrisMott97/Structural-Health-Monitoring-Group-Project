@@ -12,15 +12,9 @@ test-code-job1:
   stage: test
   image: api-gateway
   variables:
-<<<<<<< HEAD
-    - POSTGRES_PASSWORD=example
-    - POSTGRES_USER=root
-    - POSTGRES_DB=humber_bridge
-=======
-    POSTGRES_PASSWORD=example
-    POSTGRES_USER=root
-    POSTGRES_DB=humber_bridge
->>>>>>> f87d3e5 (Fixed CI pipeline for postgres)
+    POSTGRES_PASSWORD: example
+    POSTGRES_USER: root
+    POSTGRES_DB: humber_bridge
   services:
     - name: postgres
       alias: internal-database-test
