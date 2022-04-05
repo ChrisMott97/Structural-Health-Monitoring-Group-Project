@@ -31,7 +31,7 @@ module.exports = {
     },
   },
   test: {
-    client: 'mysql2',
+    client: 'pg',
     connection: {
       host : 'internal-database-test',
       user : 'root',

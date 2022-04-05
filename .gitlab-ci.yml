@@ -12,10 +12,17 @@ test-code-job1:
   stage: test
   image: api-gateway
   variables:
-    MARIADB_ROOT_PASSWORD: example
-    MARIADB_DATABASE: humber_bridge
+<<<<<<< HEAD
+    - POSTGRES_PASSWORD=example
+    - POSTGRES_USER=root
+    - POSTGRES_DB=humber_bridge
+=======
+    POSTGRES_PASSWORD=example
+    POSTGRES_USER=root
+    POSTGRES_DB=humber_bridge
+>>>>>>> f87d3e5 (Fixed CI pipeline for postgres)
   services:
-    - name: mariadb
+    - name: postgres
       alias: internal-database-test
   script:
     - cd /home/node/app
