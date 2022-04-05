@@ -2,7 +2,19 @@
 
 module.exports = async function (fastify, opts) {
   fastify.get('/users', async function (request, reply) {
-    const users = await fastify.knex('users').select()
+    const limit = request.query.limit
+    const offset = request.query.offset
+
+    const users = await fastify.knex('users')
+    .select('id', 'name', 'permission')
+    .modify((builder) => {
+			if(limit) {
+				builder.limit(limit)
+			}
+      if(offset) {
+				builder.offset(offset)
+			}
+		})
     if(!users || !users.length){
       reply.code(404).send(`No users found.`)
     }else{
@@ -16,7 +28,7 @@ module.exports = async function (fastify, opts) {
       reply.redirect('/users')
     }
     
-    const user = await fastify.knex('users').select().where({id: id}).first()
+    const user = await fastify.knex('users').select('id', 'name', 'permission').where({id: id}).first()
     if(!user){
       reply.code(404).send(`User ${id} is not found.`)
     }else{

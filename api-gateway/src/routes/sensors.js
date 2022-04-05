@@ -2,11 +2,65 @@
 
 module.exports = async function (fastify, opts) {
   fastify.get('/sensors', async function (request, reply) {
-    const sensors = await fastify.knex('sensors').select()
+    const limit = request.query.limit
+    const type = request.query.type
+    const subtype = request.query.subtype
+    const location = request.query.location
+    const offset = request.query.offset
+
+    const sensors = await fastify.knex('sensors')
+    .select()
+    .modify((builder)=>{
+      if(limit){
+        builder.limit(limit)
+      }
+      if(offset){
+        builder.offset(offset)
+      }
+      if(type){
+        builder.where({type: type})
+      }
+      if(subtype){
+        builder.where({subtype: subtype})
+      }
+      if(location){
+        builder.where({location: location})
+      }
+    })
     if(!sensors || !sensors.length){
       reply.code(404).send(`No sensors found.`)
     }else{
       reply.send(sensors)
+    }
+  })
+
+  fastify.get('/sensors/types', async function (request, reply) {
+    const types = await fastify.knex('sensors').distinct('type')
+
+    if(!types || !types.length){
+      reply.code(404).send(`No sensor types found.`)
+    }else{
+      reply.send(types.map(a => a.type))
+    }
+  })
+
+  fastify.get('/sensors/subtypes', async function (request, reply) {
+    const subtypes = await fastify.knex('sensors').distinct('subtype')
+
+    if(!subtypes || !subtypes.length){
+      reply.code(404).send(`No sensor subtypes found.`)
+    }else{
+      reply.send(subtypes.map(a => a.subtype))
+    }
+  })
+
+  fastify.get('/sensors/locations', async function (request, reply) {
+    const locations = await fastify.knex('sensors').distinct('location')
+
+    if(!locations || !locations.length){
+      reply.code(404).send(`No sensor locations found.`)
+    }else{
+      reply.send(locations.map(a => a.location))
     }
   })
 
