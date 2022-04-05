@@ -5,12 +5,12 @@
 exports.seed = async function(knex) {
   // Deletes ALL existing entries
   await knex('anomalies').del()
-  await knex.raw("ALTER TABLE anomalies AUTO_INCREMENT = 1")
+  await knex.raw("ALTER SEQUENCE anomalies_id_seq RESTART WITH 1")
 
   const anomalies_count = 20
   const status_max = 5
   let results = []
-  await knex('data').select().orderByRaw('RAND()').limit(anomalies_count).then(rows => {
+  await knex('data').select().orderByRaw('random()').limit(anomalies_count).then(rows => {
       rows.forEach(row => {
         res = {}
         res.status = Math.floor(Math.random() * status_max)+1;

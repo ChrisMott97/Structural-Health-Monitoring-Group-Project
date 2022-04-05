@@ -24,14 +24,13 @@ services:
     ports:
     - "80:80"
   internal-database-test:
-    image: mariadb
+    image: postgres
     environment:
-      MYSQL_ROOT_PASSWORD: example
+      - POSTGRES_PASSWORD=example
+      - POSTGRES_USER=root
+      - POSTGRES_DB=humber_bridge
     ports:
-      - "33062:3306"
-    volumes:
-      - ./internal-database/data:/var/lib/mysql
-      - ./internal-database/init:/docker-entrypoint-initdb.d
+      - "33062:5432"
 
   database-ui:
     image: adminer
@@ -51,7 +50,7 @@ services:
       - ./api-gateway/test:/home/node/app/test
       - ./api-gateway/database:/home/node/app/database
       - node_modules:/home/node/app/node_modules
-    command: npm run dev
+    command: npm run test:db
     ports:
       - "3030:3000"
       - "9229:9229"

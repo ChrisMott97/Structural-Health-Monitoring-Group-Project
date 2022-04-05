@@ -3,6 +3,11 @@
 module.exports = async function (fastify, opts) {
 	fastify.get('/anomalies', async function(request, reply){
 		const status = request.query.status
+		const limit = request.query.limit
+		const offset = request.query.offset
+		const from = request.query.from
+		const until = request.query.until
+		const sensor = request.query.sensor
 
 		const anomalies = await fastify.knex('anomalies')
 			.join("data", function() {
@@ -14,6 +19,19 @@ module.exports = async function (fastify, opts) {
 				if(status){
 					builder.where({status: status})
 				}
+				if(limit){
+					builder.limit(limit)
+				}
+				if(limit){
+					builder.offset(offset)
+				}
+				if(from && until) {
+					builder.whereBetween("time", [from, until])
+				}
+				if(sensor){
+					builder.where({"anomalies.sensor_id": sensor})
+				}
+
 			})
 
 		if(!anomalies || !anomalies.length){

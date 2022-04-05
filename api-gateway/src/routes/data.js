@@ -6,6 +6,7 @@ module.exports = async function (fastify, opts) {
 		const from = request.query.from
 		const until = request.query.until
 		const limit = request.query.limit
+		const offset = request.query.offset
 		
 		const data = await fastify.knex('data')
 		.select()
@@ -18,6 +19,9 @@ module.exports = async function (fastify, opts) {
 			}
 			if(limit) {
 				builder.limit(limit)
+			}
+			if(offset) {
+				builder.offset(offset)
 			}
 		})
 		

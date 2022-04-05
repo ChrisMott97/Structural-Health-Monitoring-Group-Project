@@ -5,7 +5,7 @@ const path = require('path');
  */
 module.exports = {
   development: {
-    client: 'mysql2',
+    client: 'pg',
     connection: {
       host : 'internal-database',
       user : 'root',
@@ -31,7 +31,7 @@ module.exports = {
     },
   },
   test: {
-    client: 'mysql2',
+    client: 'pg',
     connection: {
       host : 'internal-database-test',
       user : 'root',
