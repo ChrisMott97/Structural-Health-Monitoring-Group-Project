@@ -51,7 +51,7 @@ services:
       - ./api-gateway/test:/home/node/app/test
       - ./api-gateway/database:/home/node/app/database
       - node_modules:/home/node/app/node_modules
-    command: npm run dev
+    command: npm run test:db
     ports:
       - "3030:3000"
       - "9229:9229"

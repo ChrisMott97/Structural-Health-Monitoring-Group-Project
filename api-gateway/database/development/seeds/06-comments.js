@@ -6,12 +6,12 @@
 exports.seed = async function(knex) {
   // Deletes ALL existing entries
   await knex('comments').del()
-  await knex.raw("ALTER TABLE comments AUTO_INCREMENT = 1")
+  await knex.raw("ALTER SEQUENCE users_id_seq RESTART WITH 1")
 
   const comments_count = 10
 
   let results = []
-  await knex('anomalies').select().orderByRaw('RAND()').limit(comments_count).then(rows => {
+  await knex('anomalies').select().orderByRaw('random()').limit(comments_count).then(rows => {
       rows.forEach(row => {
         res = {}
         res.anomaly_id = row.id
