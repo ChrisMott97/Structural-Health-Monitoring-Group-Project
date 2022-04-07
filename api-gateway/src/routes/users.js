@@ -1,38 +1,54 @@
-'use strict'
+var express = require('express');
+var router = express.Router();
+const knexConfig = require('../../database/knexfile.js')['development']
+const knex = require('knex')(knexConfig);
+const { auth } = require('express-oauth2-jwt-bearer');
 
-module.exports = async function (fastify, opts) {
-  fastify.get('/users', async function (request, reply) {
-    const limit = request.query.limit
-    const offset = request.query.offset
+const checkJwt = auth({
+    audience: 'shm',
+    issuerBaseURL: `https://exetercivil.eu.auth0.com/`,
+    tokenSigningAlg: 'RS256'
+  });
 
-    const users = await fastify.knex('users')
-    .select('id', 'name', 'permission')
-    .modify((builder) => {
-			if(limit) {
-				builder.limit(limit)
-			}
-      if(offset) {
-				builder.offset(offset)
-			}
-		})
+router.get('/',checkJwt, function(req, res) {
+  const limit = req.query.limit
+  const offset = req.query.offset
+
+  knex('users')
+  .select('id', 'name', 'permission')
+  .modify((builder) => {
+    if(limit) {
+      builder.limit(limit)
+    }
+    if(offset) {
+      builder.offset(offset)
+    }
+  })
+  .then(users => {
     if(!users || !users.length){
-      reply.code(404).send(`No users found.`)
+      res.status(404).json(`No users found.`)
     }else{
-      reply.send(users)
+      res.json(users)
     }
   })
+});
 
-  fastify.get('/users/:id', async function (request, reply) {
-    const id = request.params.id
-    if(!id){
-      reply.redirect('/users')
-    }
-    
-    const user = await fastify.knex('users').select('id', 'name', 'permission').where({id: id}).first()
+router.get('/:id', function(req, res) {
+  const id = req.params.id
+  if(!id){
+    res.redirect('/users')
+  }
+
+  knex('users')
+  .select('id', 'name', 'permission')
+  .where({id: id})
+  .first()
+  .then(user => {
     if(!user){
-      reply.code(404).send(`User ${id} is not found.`)
+      res.status(404).json(`User ${id} is not found.`)
     }else{
-      reply.send(user)
+      res.json(user)
     }
   })
-}
+});
+module.exports = router;

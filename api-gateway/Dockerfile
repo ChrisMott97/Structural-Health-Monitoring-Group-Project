@@ -12,8 +12,8 @@ EXPOSE 3030
 
 FROM base as dev
 ENV NODE_ENV=development
-RUN npm install -g knex fastify-cli && npm install
+RUN npm install -g knex nodemon && npm install
 COPY --chown=node:node . .
-CMD [ "npm", "run", "dev"]
+CMD [ "npm", "run", "start:dev"]
 USER node
 

@@ -1,63 +1,66 @@
-'use strict'
+var express = require('express');
+var router = express.Router();
+const knexConfig = require('../../database/knexfile.js')['development']
+const knex = require('knex')(knexConfig);
 
-module.exports = async function (fastify, opts) {
-	fastify.get('/anomalies', async function(request, reply){
-		const status = request.query.status
-		const limit = request.query.limit
-		const offset = request.query.offset
-		const from = request.query.from
-		const until = request.query.until
-		const sensor = request.query.sensor
+router.get('/', function(req, res) {
+  const status = req.query.status
+  const limit = req.query.limit
+  const offset = req.query.offset
+  const from = req.query.from
+  const until = req.query.until
+  const sensor = req.query.sensor
 
-		const anomalies = await fastify.knex('anomalies')
-			.join("data", function() {
-				this.on('anomalies.sensor_id', '=', 'data.sensor_id').andOn('anomalies.sensor_time', '=', 'data.time')
-			})
-			.join("users", "anomalies.user_id", "=", "users.id")
-			.select('anomalies.id', 'time', 'value', 'anomalies.sensor_id', 'status', 'confidence', 'updated_at', 'notes', 'name', 'user_id')
-			.modify((builder) => {
-				if(status){
-					builder.where({status: status})
-				}
-				if(limit){
-					builder.limit(limit)
-				}
-				if(limit){
-					builder.offset(offset)
-				}
-				if(from && until) {
-					builder.whereBetween("time", [from, until])
-				}
-				if(sensor){
-					builder.where({"anomalies.sensor_id": sensor})
-				}
+  knex('anomalies')
+  .join("data", function() {
+    this.on('anomalies.sensor_id', '=', 'data.sensor_id').andOn('anomalies.sensor_time', '=', 'data.time')
+  })
+  .join("users", "anomalies.user_id", "=", "users.id")
+  .select('anomalies.id', 'time', 'value', 'anomalies.sensor_id', 'status', 'confidence', 'updated_at', 'notes', 'name', 'user_id')
+  .modify((builder) => {
+    if(status){
+      builder.where({status: status})
+    }
+    if(limit){
+      builder.limit(limit)
+    }
+    if(limit){
+      builder.offset(offset)
+    }
+    if(from && until) {
+      builder.whereBetween("time", [from, until])
+    }
+    if(sensor){
+      builder.where({"anomalies.sensor_id": sensor})
+    }
+  })
+  .then(anomalies => {
+    if(!anomalies || !anomalies.length){
+      res.status(404).json(`No anomalies found.`)
+    }else{
+      res.json(anomalies)
+    }
+  })
+});
 
-			})
+router.get('/:id', function(req, res) {
+  const id = req.params.id
 
-		if(!anomalies || !anomalies.length){
-			reply.code(404).send(`No anomalies found.`)
-		}else{
-			reply.send(anomalies)
-		}
+  knex('anomalies')
+  .join("data", function() {
+    this.on('anomalies.sensor_id', '=', 'data.sensor_id').andOn('anomalies.sensor_time', '=', 'data.time')
+  })
+  .join("users", "anomalies.user_id", "=", "users.id")
+  .select('anomalies.id', 'time', 'value', 'anomalies.sensor_id', 'status', 'confidence', 'updated_at', 'notes', 'name', 'user_id')
+  .where({"anomalies.id": id})
+  .first()
+  .then(anomaly => {
+    if(!anomaly){
+      res.status(404).json(`Anomaly with ID ${id} not found.`)
+    }else{
+      res.json(anomaly)
+    }
+  })
+});
 
-	})
-
-	fastify.get('/anomalies/:id', async function(request, reply){
-		const id = request.params.id
-
-		const anomaly = fastify.knex('anomalies')
-			.join("data", function() {
-				this.on('anomalies.sensor_id', '=', 'data.sensor_id').andOn('anomalies.sensor_time', '=', 'data.time')
-			})
-			.join("users", "anomalies.user_id", "=", "users.id")
-			.select('anomalies.id', 'time', 'value', 'anomalies.sensor_id', 'status', 'confidence', 'updated_at', 'notes', 'name', 'user_id')
-			.where({"anomalies.id": id})
-			.first()
-
-		if(!anomaly){
-			reply.code(404).send(`Anomaly with ID ${id} not found.`)
-		}else{
-			reply.send(anomaly)
-		}
-	})
-}
+module.exports = router;
