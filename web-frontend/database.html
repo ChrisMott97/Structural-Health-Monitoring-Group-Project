@@ -4,6 +4,7 @@
         <link href="css/stylesheet.css" rel='stylesheet' type='text/css'/>
         <script src="js/js.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        <script src="./js/loggedin.js"></script>
     </head>
     <body>
         <div class="navbar-div">
@@ -78,7 +79,11 @@
 </html>
 
 <script>
-    axios.get('http://localhost:3030/sensors')
+    axios.get('http://localhost:3030/sensors',{
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem("access_token")}`
+                }
+            })
             .then(function (response) {
                 // handle success
                 document.getElementById("database-search-table").style.display = "block"
