@@ -3,3 +3,64 @@
 # artificial anomaly incorporation (ramp/spike/hill)/(gaussian/sigmoid differentiation)
 
 ## daily and seasonal periodicity
+
+import pymysql
+import pandas as pd
+
+# loads the data
+dbcon = pymysql.connect(user="root", password="example", database="humber_bridge", host="localhost", port=33061)
+data = pd.read_sql("select * from summary", dbcon)
+data.fillna(value = 0, inplace = True)
+data.replace(1.1e308, 0, inplace = True)
+
+# chooses a sensor and timeframe
+#sensor = input("Sensor: ")
+sensor = "RMS_VE"
+start_time = input("Start: ")
+end_time = input("End: ")
+timeframe = input("Timeframe: ")
+
+# finds the average timestamp increase for the chosen sensor
+fin_data = data.loc[data[sensor] != 0]
+time_diff = []
+for i in range(len(fin_data["timestamp"])-1):
+    time_diff.append(data["timestamp"].iloc[i+1] - data["timestamp"].iloc[i])
+time_diff = max(set(time_diff), key=time_diff.count)
+
+# collects all the valid data where information should be being recorded
+x = fin_data["timestamp"].iloc[-1]
+y = fin_data["timestamp"].iloc[0]
+timestamps = []
+while x <= y:
+    timestamps.append(x)
+    x += time_diff
+fin_data = data.loc[data["timestamp"].isin(timestamps)]
+
+# calculates the two timestamps to search between
+time_hour = 3600000
+x = end_time
+if timeframe == "hour":
+    z=time_hour
+elif timeframe == "year":
+    z=365*time_hour
+elif timeframe == "week":
+    z=24*7*time_hour
+elif timeframe == "month":
+    # Month simplified to 30 days
+    z=24*30*time_hour
+else:
+    # Defaults to 1 day
+    z=24*time_hour
+y = x-z
+
+
+# calculates the mean and standard deviation between two timestamps (y and x)
+out = []
+while y <= fin_data["timestamp"].iloc[0]:
+    mean = fin_data[sensor].loc[(fin_data["timestamp"] <= x) & (fin_data["timestamp"] >= y)].mean()
+    std = fin_data[sensor].loc[(fin_data["timestamp"] <= x) & (fin_data["timestamp"] >= y)].std()
+    median = fin_data[sensor].loc[(fin_data["timestamp"] <= x) & (fin_data["timestamp"] >= y)].median()
+    mode = fin_data[sensor].loc[(fin_data["timestamp"] <= x) & (fin_data["timestamp"] >= y)].mode()
+    out.append((mean, std, median, mode))
+    x = y
+    y = x-z
