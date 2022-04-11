@@ -1,14 +1,12 @@
 <!-- <meta http-equiv="refresh" content="time; URL=/dash" /> -->
-<body style="text-align: center;display: flex;
-justify-content: center;
-align-items: center; height: 80%; font-size: 200px;">
-    <a
-    href="https://***REMOVED***/authorize?audience=shm&scope=offline_access&response_type=code&client_id=***REMOVED***&state=humber_bridge&redirect_uri=http://localhost">
-        Login
-    </a>
-    <a href='#' onclick="logout()">
-        Logout
-    </a>
+<body style="text-align: center;display: flex;justify-content: center;align-items: center; height: 80%; font-size: 100px;">
+    <div style="width: 100%;">
+        <!-- Login button redirects to auth0 UI which then returns an Authorization Code -->
+        <a
+        href="https://***REMOVED***/authorize?audience=shm&scope=offline_access&response_type=code&client_id=***REMOVED***&state=humber_bridge&redirect_uri=http://localhost">
+            Login
+        </a> 
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="./js/auth_test.js"></script>
 </body>

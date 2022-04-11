@@ -36,9 +36,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/auth', authRouter);
 app.use('/sensors',checkJwt, sensorsRouter);
-app.use('/users', usersRouter);
-app.use('/data', dataRouter);
-app.use('/anomalies', anomalyRouter);
-app.use('/comments', commentRouter);
+app.use('/users',checkJwt, usersRouter);
+app.use('/data',checkJwt, dataRouter);
+app.use('/anomalies',checkJwt, anomalyRouter);
+app.use('/comments',checkJwt, commentRouter);
 
 module.exports = app;
