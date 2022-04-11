@@ -57,15 +57,5 @@ router.get('/loggedin',checkJwt, function(req, res, next){
   res.json("Logged in.").status(200)
 })
 
-router.get('/logout', function(req, res, next){
-  axios
-  .get('https://exetercivil.eu.auth0.com/v2/logout?client_id=KpZx7y5CcCi0fXwsR3V3EIOOGKdyAvKP')
-  .then(result => {
-    result.json('success')
-  })
-  .catch(error => {
-    res.send(error)
-  })
-})
 
 module.exports = router;
