@@ -1,14 +1,39 @@
-<!-- <meta http-equiv="refresh" content="time; URL=/dash" /> -->
-<body style="text-align: center;display: flex;
-justify-content: center;
-align-items: center; height: 80%; font-size: 200px;">
-    <a
-    href="https://exetercivil.eu.auth0.com/authorize?audience=shm&scope=offline_access&response_type=code&client_id=KpZx7y5CcCi0fXwsR3V3EIOOGKdyAvKP&state=humber_bridge&redirect_uri=http://localhost">
-        Login
-    </a>
-    <a href='#' onclick="logout()">
-        Logout
-    </a>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="./js/auth_test.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .hidden {
+            display: none;
+        }
+    </style>
+    <title>Document</title>
+</head>
+<body style="text-align: center;display: flex;justify-content: center;align-items: center; height: 80%;">
+    <div style="width: 100%;">
+        <button onclick="login()" disabled="true" id="btn-login">Login</button>
+        <button onclick="logout()" disabled="true" id="btn-logout">Logout</button>
+        <p><a href="/authenticated">Click here to see a page only accessible when logged in.</a></p>
+        <p>A breif glimpse of the unavailable page may be seen, but no sensitive data will be rendered.</p>
+        <div class="hidden" id="gated-content">
+            <p>
+              You're seeing this content because you're currently
+              <strong>logged in</strong>.
+            </p>
+            <label>
+              Access token:
+              <pre id="ipt-access-token"></pre>
+            </label>
+            <label>
+              User profile:
+              <pre id="ipt-user-profile"></pre>
+            </label>
+          </div>
+
+    </div>
+    <script src="https://cdn.auth0.com/js/auth0-spa-js/1.13/auth0-spa-js.production.js"></script>
+    <script src="./js/index.js"></script>
 </body>
+</html>
