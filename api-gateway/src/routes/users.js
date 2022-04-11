@@ -2,15 +2,19 @@ var express = require('express');
 var router = express.Router();
 const knexConfig = require('../../database/knexfile.js')['development']
 const knex = require('knex')(knexConfig);
+const axios = require('axios')
 const { auth } = require('express-oauth2-jwt-bearer');
 
-const checkJwt = auth({
-    audience: 'shm',
-    issuerBaseURL: `https://exetercivil.eu.auth0.com/`,
-    tokenSigningAlg: 'RS256'
-  });
+var ManagementClient = require('auth0').ManagementClient;
 
-router.get('/',checkJwt, function(req, res) {
+var auth0 = new ManagementClient({
+  domain: 'exetercivil.eu.auth0.com',
+  clientId: 'tF85DPCcZuSpzDsysOWgmTKwEf0YPhaj',
+  clientSecret: 'RtPAWHMpnibWTdzPAg9TrjST3fK_g1m5NpZ2F8fckxKpVtoHDPp7g9FIL6jA5tzC',
+  scope: 'read:users update:users create:users'
+});
+
+router.get('/', function(req, res) {
   const limit = req.query.limit
   const offset = req.query.offset
 
@@ -32,6 +36,26 @@ router.get('/',checkJwt, function(req, res) {
     }
   })
 });
+
+router.post('/', function(req, res) {
+  const name = req.body.name
+  const email = req.body.email
+  const password = req.body.password
+
+  auth0.createUser({
+    email: email,
+    name: name,
+    password: password,
+    connection: "Username-Password-Authentication"
+  })
+  .then(function (user) {
+    console.log(user)
+    res.json(user)
+  })
+  .catch(function (err) {
+    console.log(err)
+  });
+})
 
 router.get('/:id', function(req, res) {
   const id = req.params.id

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.auth0.com/js/auth0-spa-js/1.13/auth0-spa-js.production.js"></script>
+    <script src="./js/adduser.js"></script>
+    <title>Document</title>
+</head>
+<body style="text-align: center;display: flex;justify-content: center;align-items: center; height: 80%;">
+    <div>
+        <label for="name">Name</label><br>
+        <input type="text" name="name" id="name"><br>
+        <label for="email">Email</label><br>
+        <input type="email" name="email" id="email"><br>
+        <label for="password">Password</label><br>
+        <input type="password" name="password" id="password"><br>
+        <button onclick="add_user()">Add User</button>
+    </div>
+</body>
+</html>
