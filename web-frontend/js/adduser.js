@@ -4,7 +4,6 @@ axios.defaults.withCredentials = true;
 
 let auth0 = null;
 let isAuthenticated = false;
-
 const configureClient = async () => {
     auth0 = await createAuth0Client({
         "domain": "***REMOVED***",
@@ -25,6 +24,7 @@ window.onload = async () => {
     window.location.replace('/')
 };
 
+// Called with onclick handler on buttons in html
 const add_user = async () => {
     isAuthenticated = await auth0.isAuthenticated();
     const name = document.getElementById("name").value

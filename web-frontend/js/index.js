@@ -1,7 +1,12 @@
+
+// These are required for any authentication routes
+// They're used in any JS that is used on an authenticated page
+// Could be pulled out (exported) and imported when needed
+// see. https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export
 let auth0 = null;
 let isAuthenticated = false;
-
 const configureClient = async () => {
+  // createAuth0Client comes from the auth0-spa-js.production.js that always needs to be in <script> before these ones
 	auth0 = await createAuth0Client({
 		"domain": "***REMOVED***",
 		"client_id": "***REMOVED***",
@@ -20,16 +25,11 @@ window.onload = async () => {
     return;
   }
 
-  // check for the code and state parameters
+  // this happens when the Auth0 login page redirects back to the index page
   const query = window.location.search;
   if (query.includes("code=") && query.includes("state=")) {
-
-    // Process the login state
     await auth0.handleRedirectCallback();
-    
     updateUI();
-
-    // Use replaceState to redirect the user away and remove the querystring parameters
     window.history.replaceState({}, document.title, "/");
   }
 };
@@ -41,6 +41,7 @@ const updateUI = async () => {
   document.getElementById("btn-login").disabled = isAuthenticated;
 
 	if (isAuthenticated) {
+    // Reveals hidden content (hidden class is just "display:none" in CSS, removing class makes it visible)
     document.getElementById("gated-content").classList.remove("hidden");
 
     document.getElementById(

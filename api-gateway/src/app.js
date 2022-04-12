@@ -38,7 +38,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/sensors',checkJwt, sensorsRouter);
-app.use('/users',checkJwt, checkScopes, usersRouter);
+app.use('/users',checkJwt, usersRouter);
 app.use('/data',checkJwt, dataRouter);
 app.use('/anomalies',checkJwt, anomalyRouter);
 app.use('/comments',checkJwt, commentRouter);
