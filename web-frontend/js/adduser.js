@@ -2,29 +2,6 @@
 axios.defaults.withCredentials = true;
 // tries to send authentication header with every request
 
-const add_user = async () => {
-    isAuthenticated = await auth0.isAuthenticated();
-    let name = document.getElementById("name").value
-    let email = document.getElementById("email").value
-    let password = document.getElementById("password").value
-
-    if(isAuthenticated){
-        const token = await auth0.getTokenSilently()
-        axios.post("http://localhost:3030/users", {
-            name: name,
-            email: email,
-            password: password
-        }, {
-            headers: {
-                "Authorization": `Bearer ${token}`
-            }
-        }).then((res) => {
-            console.log(res.data)
-            console.log("User added")
-        })
-    }
-}
-
 let auth0 = null;
 let isAuthenticated = false;
 
@@ -42,21 +19,33 @@ window.onload = async () => {
     isAuthenticated = await auth0.isAuthenticated();
 
     if (isAuthenticated) {
-        const token = await auth0.getTokenSilently()
-        axios.post("http://localhost:3030/users", {},{
-            headers: {
-                "Authorization": `Bearer ${token}`
-            }
-        })
-        .then(function(response){
-            // console.log(response.data)
-            document.getElementById("data").innerText = JSON.stringify(response.data)
-        }).catch(function(error){
-            console.log("Data collection failed")
-        })
-        return;
+        return
     }
     // Redirect to / if not logged in
     window.location.replace('/')
 };
 
+const add_user = async () => {
+    isAuthenticated = await auth0.isAuthenticated();
+    const name = document.getElementById("name").value
+    const email = document.getElementById("email").value
+    const password = document.getElementById("password").value
+    const role = document.getElementById("role").value
+
+    if(isAuthenticated){
+        const token =  await auth0.getTokenSilently()
+        axios.post("http://localhost:3030/users", {
+            name: name,
+            email: email,
+            password: password,
+            role: role
+        }, {
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        }).then((res) => {
+            console.log(res.data)
+            console.log("User added")
+        })
+    }
+}

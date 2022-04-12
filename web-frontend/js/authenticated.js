@@ -21,6 +21,7 @@ window.onload = async () => {
 
     if (isAuthenticated) {
         const token = await auth0.getTokenSilently()
+        console.log(await auth0.getIdTokenClaims())
         axios.get("http://localhost:3030/sensors/GPH000EDE", {
             headers: {
                 "Authorization": `Bearer ${token}`
