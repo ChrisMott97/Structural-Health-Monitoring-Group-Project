@@ -13,6 +13,7 @@
 </head>
 <body style="text-align: center;display: flex;justify-content: center;align-items: center; height: 80%;">
     <div style="width: 100%;">
+        // Calls JS functions on click
         <button onclick="login()" disabled="true" id="btn-login">Login</button>
         <button onclick="logout()" disabled="true" id="btn-logout">Logout</button>
         <p><a href="/authenticated">Click here to see a page only accessible when logged in.</a></p>
@@ -34,6 +35,7 @@
 
     </div>
     <script src="https://cdn.auth0.com/js/auth0-spa-js/1.13/auth0-spa-js.production.js"></script>
+    <!-- Any js file with the auth0 stuff in requires the script above first ^ -->
     <script src="./js/index.js"></script>
 </body>
 </html>
