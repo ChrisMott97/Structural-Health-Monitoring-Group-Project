@@ -1,5 +1,62 @@
-# run simpler tests ie: mean, variance, standard deviation
-# overlaping windows between classifiers
-# artificial anomaly incorporation (ramp/spike/hill)/(gaussian/sigmoid differentiation)
+import pymysql
+import pandas as pd
 
-## daily and seasonal periodicity
+# loads the data
+dbcon = pymysql.connect(user="root", password="example", database="humber_bridge", host="localhost", port=33061)
+data = pd.read_sql("select * from summary", dbcon)
+data.fillna(value = 0, inplace = True)
+data.replace(1.1e308, 0, inplace = True)
+
+# chooses a sensor and timeframe
+sensor = input("Sensor: ")
+start_time = input("Start: ")
+end_time = input("End: ")
+timeframe = input("Timeframe: ")
+
+# finds the average timestamp increase for the chosen sensor
+fin_data = data.loc[data[sensor] != 0]
+time_diff = []
+for i in range(len(fin_data["timestamp"])-1):
+    time_diff.append(data["timestamp"].iloc[i+1] - data["timestamp"].iloc[i])
+time_diff = max(set(time_diff), key=time_diff.count)
+
+# collects all the valid data where information should be being recorded
+x = fin_data["timestamp"].iloc[0]
+y = fin_data["timestamp"].iloc[-1]
+timestamps = []
+while x <= y:
+    timestamps.append(x)
+    x += time_diff
+fin_data = data.loc[data["timestamp"].isin(timestamps)]
+
+# calculates the two timestamps to search between and the periodicity
+time_hour = 3600000
+if timeframe == "h":
+    z=time_hour
+elif timeframe == "y":
+    # Year simplified to 365 days
+    z=365*time_hour
+elif timeframe == "w":
+    z=24*7*time_hour
+elif timeframe == "m":
+    # Month simplified to 30 days
+    z=24*30*time_hour
+else:
+    # Defaults to 1 day
+    z=24*time_hour
+
+
+# calculates the mean and standard deviation between the two timestamps (y and x)
+out = []
+x = end_time
+y = x-z
+while y >= start_time:
+    mean = fin_data[sensor].loc[(fin_data["timestamp"] <= x) & (fin_data["timestamp"] >= y)].mean()
+    std = fin_data[sensor].loc[(fin_data["timestamp"] <= x) & (fin_data["timestamp"] >= y)].std()
+    out.append((mean, std))
+    x = y
+    y = x-z
+
+# (0.0, 0.0) is when the sensor is offline but timestamps exist
+# (nan, nan) is when no timestamps exist for the sensor in the alloted time
+print(out)

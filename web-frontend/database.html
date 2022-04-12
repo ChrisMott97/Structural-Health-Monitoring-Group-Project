@@ -2,6 +2,8 @@
     <head>
         <title>SHM Monitoring Dashboard</title>
         <link href="css/stylesheet.css" rel='stylesheet' type='text/css'/>
+        <script src="js/js.js"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
         <script>
             // Adds authorization to every request just in case it needs to be authenticated
@@ -15,7 +17,7 @@
     </head>
     <body>
         <div class="navbar-div">
-            <a href="javascript:toggleOverlay('user-info')" class="profile-link"><p class="profile-name" id="profile-name"></p><img src="images/user-pic.png" class="profile-pic"></a>
+            <a href="javascript:toggleOverlay('user-info')" class="profile-link"><p class="profile-name" id="profile-name"></p><img src="images/user_pic.png" class="profile-pic"></a>
         </div>
         <div class="sidebar-div">
             <div class="sidebar-icon-div">
@@ -52,21 +54,15 @@
         <div class="main-content-div">
             <div class="database-main-content-div">
                 <h1 class="dashboard-title">Sensor Database</h1>
-                <form id="database-search-table">
-                    <table class="database-search-table">
-                        <tbody>
-                            <tr>
-                                <td class="database-search-table-td">
-                                    <input id="sensorID" name="sensorID" type="text" placeholder="Search Sensors"><img class="search-icon" src="images/search.png"></td>
-                                <td class="database-search-table-td">Sort By: <select>
-                                                                                    <option value="updated-newest">Updated Last</option>
-                                                                                    <option value="updated-oldest">Updated Earliest</option>
-                                                                                    <option value="sensor-type">Sensor Type</option>
-                                                                                    <option value="sensor-location">Sensor Location</option>
-                                                                            </select></td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <form id="database-search-form">
+                    <input id="sensorID" name="sensorID" type="text" placeholder="Search Sensors"><img class="search-icon" src="images/search.png"></td>
+                    Sort By: <select>
+                            <option value="updated-newest">Updated Last</option>
+                            <option value="updated-oldest">Updated Earliest</option>
+                            <option value="sensor-type">Sensor Type</option>
+                            <option value="sensor-location">Sensor Location</option>
+                    </select>
+                    <input class="button-styling" type="submit" value="Search">
                 </form>
                 <table class="database-table">
                     <tbody id="sensor-database">
@@ -74,6 +70,21 @@
                     </tbody>
                 </table>
             </div>
+        </div>
+        <div class="mobile-nav-div">
+            <table class="mobile-nav-table">
+                <tbody>
+                    <tr class="mobile-nav-table-row">
+                        <td class="mobile-nav-table-td"><a href="dash.html"><img src="images/dashboard_icon_white.png" class="mobile-nav-icon-img"></a></td>
+                        <td class="mobile-nav-table-td"><a href="notifications.html"><img src="images/notifications_icon_white.png" class="mobile-nav-icon-img"></a></td>
+                        <td class="mobile-nav-table-td"><a href="images.html"><img src="images/images_icon_white.png" class="mobile-nav-icon-img"></a></td>
+                        <td class="mobile-nav-table-td"><a href="visualisations.html"><img src="images/visualisations_icon_white.png" class="mobile-nav-icon-img"></a></td>
+                        <td class="mobile-nav-table-td"><a href="database.html"><img src="images/database_icon_white.png" class="mobile-nav-icon-img"></a></td>
+                        <td class="mobile-nav-table-td"><a href="code.html"><img src="images/code_icon_white.png" class="mobile-nav-icon-img"></a></td>
+                        <td class="mobile-nav-table-td"><a href="javascript:toggleOverlay('user-info')"><img src="images/user_pic_white.png" class="mobile-nav-icon-img"></a></td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
         <div id="overlay-shadow">
             <a href="javascript:toggleOverlay()"><span id="overlay-span"></span></a>
@@ -92,7 +103,6 @@
     axios.get('http://localhost:3030/sensors')
             .then(function (response) {
                 // handle success
-                document.getElementById("database-search-table").style.display = "block"
                 document.getElementById("sensor-database").innerHTML = `<tr class="database-table-row"><th>Sensor ID</th><th>Sensor Type</th><th>Sensor Subtype</th><th>Location</th><th>Unit</th><th>Last Updated</th></tr>`
                 console.log(response.data)
                 response.data.forEach(item => {
