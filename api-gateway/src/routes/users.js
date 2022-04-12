@@ -6,7 +6,6 @@ const axios = require('axios')
 const { auth } = require('express-oauth2-jwt-bearer');
 
 var ManagementClient = require('auth0').ManagementClient;
-
 var auth0 = new ManagementClient({
   domain: 'exetercivil.eu.auth0.com',
   clientId: 'tF85DPCcZuSpzDsysOWgmTKwEf0YPhaj',
@@ -38,9 +37,16 @@ router.get('/', function(req, res) {
 });
 
 router.post('/', function(req, res) {
-  const name = req.body.name
-  const email = req.body.email
-  const password = req.body.password
+  let name = req.body.name
+  let email = req.body.email
+  let password = req.body.password
+  let role = req.body.role
+
+  console.log(name)
+  console.log(email)
+  console.log(password)
+  console.log(role)
+  console.log("Authenticated management client")
 
   auth0.createUser({
     email: email,
@@ -50,9 +56,14 @@ router.post('/', function(req, res) {
   })
   .then(function (user) {
     console.log(user)
-    res.json(user)
+    auth0.assignRolestoUser({id: user.user_id}, {roles: [role]})
+    .then(function(result){
+      console.log("Added role")
+      res.json(user)
+    })
   })
   .catch(function (err) {
+    console.log("Create user error!")
     console.log(err)
   });
 })

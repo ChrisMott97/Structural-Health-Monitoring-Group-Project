@@ -3,7 +3,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var cors = require('cors')
-const { auth } = require('express-oauth2-jwt-bearer');
+const { auth, requiredScopes } = require('express-oauth2-jwt-bearer');
 
 var indexRouter = require('./routes/index');
 var sensorsRouter = require('./routes/sensors');
@@ -25,6 +25,10 @@ const checkJwt = auth({
     issuerBaseURL: `https://exetercivil.eu.auth0.com/`,
     tokenSigningAlg: 'RS256'
 });
+
+const checkScopes = requiredScopes('read:messages');
+
+
 app.use(cors(corsOptions))
 app.use(logger('dev'));
 app.use(express.json());
@@ -34,7 +38,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/sensors',checkJwt, sensorsRouter);
-app.use('/users',checkJwt, usersRouter);
+app.use('/users',checkJwt, checkScopes, usersRouter);
 app.use('/data',checkJwt, dataRouter);
 app.use('/anomalies',checkJwt, anomalyRouter);
 app.use('/comments',checkJwt, commentRouter);
