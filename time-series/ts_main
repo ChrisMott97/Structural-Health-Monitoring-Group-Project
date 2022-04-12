@@ -34,6 +34,7 @@ time_hour = 3600000
 if timeframe == "h":
     z=time_hour
 elif timeframe == "y":
+    # Year simplified to 365 days
     z=365*time_hour
 elif timeframe == "w":
     z=24*7*time_hour
