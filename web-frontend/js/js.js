@@ -13,11 +13,15 @@ window.onload = (event) => {
     })
 };
 
-function formatDateString(dateString) {
-    dateArray = dateString.split("T")
-    date = dateArray[0].split("-").reverse().join("/")
-    time = dateArray[1].substring(0, dateArray[1].length - 2);
-    return [date, time]
+function formatDateString(date) {
+    if (typeof date === 'string') {
+        dateArray = date.split("T")
+        date = dateArray[0].split("-").reverse().join("/")
+        time = dateArray[1].substring(0, dateArray[1].length - 2);
+        return [date, time]
+    } else if (date instanceof Date) {
+        return date
+    }
 }
 
 function toggleOverlay(content, userID, formText) {
