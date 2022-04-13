@@ -1,0 +1,23 @@
+stages:
+  - build
+  - test
+  - cleanup
+
+build-code-job:
+  stage: build
+  script:
+    - docker build -t api-gateway ./api-gateway
+
+test-code-job1:
+  stage: test
+  image: api-gateway
+  variables:
+    POSTGRES_PASSWORD: example
+    POSTGRES_USER: root
+    POSTGRES_DB: humber_bridge
+  services:
+    - name: postgres
+      alias: internal-database-test
+  script:
+    - cd /home/node/app
+    - npm run test:db
