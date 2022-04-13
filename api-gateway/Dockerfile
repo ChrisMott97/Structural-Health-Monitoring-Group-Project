@@ -4,16 +4,16 @@ WORKDIR /home/node/app
 COPY --chown=node:node package*.json ./
 EXPOSE 3030
 
-FROM base as production
-ENV NODE_ENV=production
-RUN npm ci --only-production
-COPY --chown=node:node . .
-CMD [ "node", "./bin/www" ]
+# FROM base as production
+# ENV NODE_ENV=production
+# RUN npm ci --only-production
+# COPY --chown=node:node . .
+# CMD [ "node", "./dist/app.js" ]
 
 FROM base as dev
 ENV NODE_ENV=development
-RUN npm install -g nodemon knex && npm install
+RUN npm install -g knex nodemon && npm install
 COPY --chown=node:node . .
-CMD [ "nodemon", "./bin/www"]
+CMD [ "npm", "run", "start:dev"]
 USER node
 
