@@ -1,38 +1,89 @@
-'use strict'
+var express = require('express');
+var router = express.Router();
+const knexConfig = require('../../database/knexfile.js')['development']
+const knex = require('knex')(knexConfig);
+const axios = require('axios')
+const { auth } = require('express-oauth2-jwt-bearer');
 
-module.exports = async function (fastify, opts) {
-  fastify.get('/users', async function (request, reply) {
-    const limit = request.query.limit
-    const offset = request.query.offset
+var ManagementClient = require('auth0').ManagementClient;
+var auth0 = new ManagementClient({
+  domain: 'exetercivil.eu.auth0.com',
+  clientId: 'tF85DPCcZuSpzDsysOWgmTKwEf0YPhaj',
+  clientSecret: 'RtPAWHMpnibWTdzPAg9TrjST3fK_g1m5NpZ2F8fckxKpVtoHDPp7g9FIL6jA5tzC',
+  scope: 'read:users update:users create:users'
+});
 
-    const users = await fastify.knex('users')
-    .select('id', 'name', 'permission')
-    .modify((builder) => {
-			if(limit) {
-				builder.limit(limit)
-			}
-      if(offset) {
-				builder.offset(offset)
-			}
-		})
+router.get('/', function(req, res) {
+  const limit = req.query.limit
+  const offset = req.query.offset
+
+  knex('users')
+  .select('id', 'name', 'permission')
+  .modify((builder) => {
+    if(limit) {
+      builder.limit(limit)
+    }
+    if(offset) {
+      builder.offset(offset)
+    }
+  })
+  .then(users => {
     if(!users || !users.length){
-      reply.code(404).send(`No users found.`)
+      res.status(404).json(`No users found.`)
     }else{
-      reply.send(users)
+      res.json(users)
     }
   })
+});
 
-  fastify.get('/users/:id', async function (request, reply) {
-    const id = request.params.id
-    if(!id){
-      reply.redirect('/users')
-    }
-    
-    const user = await fastify.knex('users').select('id', 'name', 'permission').where({id: id}).first()
+router.post('/', function(req, res) {
+  let name = req.body.name
+  let email = req.body.email
+  let password = req.body.password
+  let role = req.body.role
+
+  console.log(name)
+  console.log(email)
+  console.log(password)
+  console.log(role)
+  console.log("Authenticated management client")
+
+  auth0.createUser({
+    email: email,
+    name: name,
+    password: password,
+    connection: "Username-Password-Authentication"
+  })
+  .then(function (user) {
+    console.log(user)
+    auth0.assignRolestoUser({id: user.user_id}, {roles: [role]})
+    .then(function(result){
+      console.log("Added role")
+      res.json(user)
+    })
+  })
+  .catch(function (err) {
+    console.log("Create user error!")
+    console.log(err)
+  });
+})
+
+router.get('/:id', function(req, res) {
+  const id = req.params.id
+  if(!id){
+    res.redirect('/users')
+  }
+
+  knex('users')
+  .select('id', 'name', 'permission')
+  .where({id: id})
+  .first()
+  .then(user => {
     if(!user){
-      reply.code(404).send(`User ${id} is not found.`)
+      res.status(404).json(`User ${id} is not found.`)
     }else{
-      reply.send(user)
+      res.json(user)
     }
   })
-}
+});
+module.exports = router;

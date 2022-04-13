@@ -1,14 +1,29 @@
-'use strict'
+var express = require('express');
+var router = express.Router();
+const knexConfig = require('../../database/knexfile.js')['development']
+const knex = require('knex')(knexConfig);
 
-module.exports = async function (fastify, opts) {
-  fastify.get('/sensors', async function (request, reply) {
-    const limit = request.query.limit
-    const type = request.query.type
-    const subtype = request.query.subtype
-    const location = request.query.location
-    const offset = request.query.offset
+router.get('/', function(req, res) {
+  const limit = req.query.limit
+  const type = req.query.type
+  const subtype = req.query.subtype
+  const location = req.query.location
+  const offset = req.query.offset
 
-    const sensors = await fastify.knex('sensors')
+  const enumerate = req.query.enumerate
+
+  if(enumerate){
+    knex('sensors')
+    .distinct(enumerate)
+    .then(enums => {
+      if(!enums || !enums.length){
+        res.status(404).json(`No sensor ${enumerate}s found.`)
+      }else{
+        res.json(enums.map(a => a[enumerate]))
+      }
+    })
+  }else{
+    knex('sensors')
     .select()
     .modify((builder)=>{
       if(limit){
@@ -27,65 +42,48 @@ module.exports = async function (fastify, opts) {
         builder.where({location: location})
       }
     })
+    .then(sensors => {
+      if(!sensors || !sensors.length){
+        res.status(404).json(`No sensors found.`)
+      }else{
+        res.json(sensors)
+      }
+    })
+  }
+
+});
+
+router.get('/:id', function(req, res) {
+  const id = req.params.id
+  if(!id){
+    res.redirect('/sensors')
+  }
+
+  knex('sensors')
+  .select()
+  .where({id: id})
+  .first()
+  .then(sensor => {
+    if(!sensor) {
+      res.status(404).json(`Sensor ${id} is not found.`)
+    }else{
+      res.json(sensor)
+    }
+  })
+});
+
+router.get('/:id/related', function(req, res) {
+  const id = req.params.id
+  knex('related')
+  .select("related_id")
+  .where({sensor_id: id})
+  .then(sensors => {
     if(!sensors || !sensors.length){
-      reply.code(404).send(`No sensors found.`)
+      res.status(404).json(`No related sensors found.`)
     }else{
-      reply.send(sensors)
+      res.json(sensors.map(a => a.related_id))
     }
   })
+})
 
-  fastify.get('/sensors/types', async function (request, reply) {
-    const types = await fastify.knex('sensors').distinct('type')
-
-    if(!types || !types.length){
-      reply.code(404).send(`No sensor types found.`)
-    }else{
-      reply.send(types.map(a => a.type))
-    }
-  })
-
-  fastify.get('/sensors/subtypes', async function (request, reply) {
-    const subtypes = await fastify.knex('sensors').distinct('subtype')
-
-    if(!subtypes || !subtypes.length){
-      reply.code(404).send(`No sensor subtypes found.`)
-    }else{
-      reply.send(subtypes.map(a => a.subtype))
-    }
-  })
-
-  fastify.get('/sensors/locations', async function (request, reply) {
-    const locations = await fastify.knex('sensors').distinct('location')
-
-    if(!locations || !locations.length){
-      reply.code(404).send(`No sensor locations found.`)
-    }else{
-      reply.send(locations.map(a => a.location))
-    }
-  })
-
-  fastify.get('/sensors/:id', async function (request, reply) {
-    const id = request.params.id
-    if(!id){
-      reply.redirect('/sensors')
-    }
-    
-    const sensor = await fastify.knex('sensors').select().where({id: id}).first()
-    if(!sensor){
-      reply.code(404).send(`Sensor ${id} is not found.`)
-    }else{
-      reply.send(sensor)
-    }
-  })
-
-  fastify.get('/sensors/:id/related', async function (request, reply) {
-    const id = request.params.id
-    
-    const sensors = await fastify.knex('related').select("related_id").where({sensor_id: id})
-    if(!sensors || !sensors.length){
-      reply.code(404).send(`No related sensors found.`)
-    }else{
-      reply.send(sensors.map(a => a.related_id))
-    }
-  })
-}
+module.exports = router;
