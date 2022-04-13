@@ -5,7 +5,7 @@ const fs = require('fs')
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.send("Successful connection!")
+  res.send('Done')
 });
 
 module.exports = router;

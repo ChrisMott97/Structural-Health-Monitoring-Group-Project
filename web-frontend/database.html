@@ -5,6 +5,15 @@
         <script src="js/js.js"></script>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        <script>
+            // Adds authorization to every request just in case it needs to be authenticated
+            // Include this on every page that has requests
+            axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem("access_token")}`;
+        </script>
+        <script src="js/js.js"></script>
+        <!-- loggedin.js checks if user is still auth'd and redirects if not -->
+        <!-- add this to every page that should be protected -->
+        <script src="./js/loggedin.js"></script>
     </head>
     <body>
         <div class="navbar-div">
@@ -82,6 +91,9 @@
             <div id="overlay-div">
                 <a href="javascript:toggleOverlay()"><img id="overlay-close" src="images/close.png"></a>
                 <div id="overlay-content"></div>
+                <div style="text-align: center;">
+                    <a href="https://***REMOVED***/v2/logout?client_id=***REMOVED***&returnTo=http://localhost/logout">Logout</a>
+                </div>
             </div>
         </div>
     </body>

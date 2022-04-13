@@ -47,12 +47,11 @@ services:
       - internal-database
     volumes:
       - ./api-gateway/src:/home/node/app/src
-      - ./api-gateway/test:/home/node/app/test
       - ./api-gateway/database:/home/node/app/database
       - node_modules:/home/node/app/node_modules
-    command: npm run dev
+    command: npm run start:dev
     ports:
-      - "3030:3000"
+      - "3030:3030"
       - "9229:9229"
     environment:
       NODE_ENV: development
