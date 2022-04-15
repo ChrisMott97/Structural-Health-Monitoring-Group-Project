@@ -14,32 +14,32 @@
         </div>
         <div class="sidebar-div">
             <div class="sidebar-icon-div">
-                <a href="dash.html"><span class="sidebar-icon-span">
+                <a href="/dash"><span class="sidebar-icon-span">
                     <img src="images/dashboard_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
             <div class="sidebar-icon-div">
-                <a href="notifications.html"><span class="sidebar-icon-span">
+                <a href="/notifications"><span class="sidebar-icon-span">
                     <img src="images/notifications_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
             <div class="sidebar-icon-div">
-                <a href="images_page.html"><span class="sidebar-icon-span">
+                <a href="/images"><span class="sidebar-icon-span">
                     <img src="images/images_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
             <div class="sidebar-icon-div">
-                <a href="visualisations.html"><span class="sidebar-icon-span">
+                <a href="/visualisations"><span class="sidebar-icon-span">
                     <img src="images/visualisations_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
             <div class="sidebar-icon-div sidebar-icon-active">
-                <a href="database.html"><span class="sidebar-icon-span">
+                <a href="/database"><span class="sidebar-icon-span">
                     <img src="images/database_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
             <div class="sidebar-icon-div">
-                <a href="code.html"><span class="sidebar-icon-span">
+                <a href="/code"><span class="sidebar-icon-span">
                     <img src="images/code_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
@@ -104,12 +104,12 @@
             <table class="mobile-nav-table">
                 <tbody>
                     <tr class="mobile-nav-table-row">
-                        <td class="mobile-nav-table-td"><a href="dash.html"><img src="images/dashboard_icon_white.png" class="mobile-nav-icon-img"></a></td>
-                        <td class="mobile-nav-table-td"><a href="notifications.html"><img src="images/notifications_icon_white.png" class="mobile-nav-icon-img"></a></td>
-                        <td class="mobile-nav-table-td"><a href="images.html"><img src="images/images_icon_white.png" class="mobile-nav-icon-img"></a></td>
-                        <td class="mobile-nav-table-td"><a href="visualisations.html"><img src="images/visualisations_icon_white.png" class="mobile-nav-icon-img"></a></td>
-                        <td class="mobile-nav-table-td"><a href="database.html"><img src="images/database_icon_white.png" class="mobile-nav-icon-img"></a></td>
-                        <td class="mobile-nav-table-td"><a href="code.html"><img src="images/code_icon_white.png" class="mobile-nav-icon-img"></a></td>
+                        <td class="mobile-nav-table-td"><a href="/dash"><img src="images/dashboard_icon_white.png" class="mobile-nav-icon-img"></a></td>
+                        <td class="mobile-nav-table-td"><a href="/notifications"><img src="images/notifications_icon_white.png" class="mobile-nav-icon-img"></a></td>
+                        <td class="mobile-nav-table-td"><a href="/images"><img src="images/images_icon_white.png" class="mobile-nav-icon-img"></a></td>
+                        <td class="mobile-nav-table-td"><a href="/visualisations"><img src="images/visualisations_icon_white.png" class="mobile-nav-icon-img"></a></td>
+                        <td class="mobile-nav-table-td"><a href="/database"><img src="images/database_icon_white.png" class="mobile-nav-icon-img"></a></td>
+                        <td class="mobile-nav-table-td"><a href="/code"><img src="images/code_icon_white.png" class="mobile-nav-icon-img"></a></td>
                         <td class="mobile-nav-table-td"><a href="javascript:toggleOverlay('user-info')"><img src="images/user_pic_white.png" class="mobile-nav-icon-img"></a></td>
                     </tr>
                 </tbody>
@@ -130,7 +130,7 @@
     const urlParams = new URLSearchParams(queryString);
     let sensorID = urlParams.get('sensorID')
                  
-    axios.get(`http://localhost:3030/comments?sensor-id=${sensorID}`)
+    axios.get(`/api/comments?sensor-id=${sensorID}`)
     .then(function (response) {
         let commentsData = response.data
 
@@ -139,7 +139,7 @@
         commentsTable.innerHTML = ""
 
         for (let i = 0; i < commentsData.length; i++ ) {
-            axios.get(`http://localhost:3030/users/${commentsData[i].user_id}`)
+            axios.get(`/api/users/${commentsData[i].user_id}`)
             .then(function (response) {
                 commentAuthor = response.data.name
                 commentText = `<tr class="comment-table-row">
@@ -155,7 +155,7 @@
     if (urlParams.has('anomalyID')) {
         const anomalyID = urlParams.get('anomalyID')
 
-        axios.get(`http://localhost:3030/anomalies/${anomalyID}`)
+        axios.get(`/api/anomalies/${anomalyID}`)
         .then(function (response) {
             detectedAt = formatDateString(response.data.time)
             updatedAt = formatDateString(response.data.updated_at)
@@ -178,7 +178,7 @@
             document.getElementById("anomaly-info-text").innerHTML += anomalyText+ `<h1 class="dashboard-title" id="anomaly-comments-title">Notes <a href="javascript:toggleOverlay('comments-form', '', 'Add note to anomaly #${anomalyID}:')"><img class="add-note-icon" src="images/edit_icon.png"></a></h1>`
             document.getElementById("anomaly-title").innerHTML = `Anomaly #${anomalyID} (Under Investigation) <a href="javascript:toggleOverlay('anomaly-form')"><img class="add-note-icon" src="images/edit_icon.png"></a>`
 
-            axios.get(`http://localhost:3030/comments?anomaly-id=${anomalyID}`)
+            axios.get(`/api/comments?anomaly-id=${anomalyID}`)
             .then(function (response) {
 
                 let commentsData = response.data
@@ -186,7 +186,7 @@
                 commentsTable.innerHTML = ""
 
                 for (let i = 0; i < commentsData.length; i++ ) {
-                    axios.get(`http://localhost:3030/users/${commentsData[i].user_id}`)
+                    axios.get(`/api/users/${commentsData[i].user_id}`)
                     .then(function (response) {
                         commentAuthor = response.data.name
                         commentTime = formatCommentDateString(commentsData[i].created_at)
@@ -204,7 +204,7 @@
 
     document.getElementById("database-search-form").innerHTML += `<input type="hidden" name="sensorID" value="${sensorID}">`
     
-    let dataQuery = `http://localhost:3030/data?sensor=${sensorID}`
+    let dataQuery = `/api/data?sensor=${sensorID}`
     
     if (urlParams.has('from')) {
         if (urlParams.get('from') != '') {
@@ -226,7 +226,7 @@
         lastUpdatedArray = formatDateString(sensorData[sensorData.length - 1].time)
         lastUpdated = lastUpdatedArray[0] + ', ' + lastUpdatedArray[1]
 
-        axios.get(`http://localhost:3030/sensors/${sensorID}`)
+        axios.get(`/api/sensors/${sensorID}`)
         .then(function (response) {
             let sensorDetails = response.data
 
@@ -243,7 +243,7 @@
             `
             document.getElementById("sensor-info").appendChild(details)
 
-            axios.get(`http://localhost:3030/data?sensor=${sensorID}`)
+            axios.get(`/api/data?sensor=${sensorID}`)
             .then(function (response) {
                 let sensorData = response.data
                 
@@ -294,7 +294,7 @@
                 generateLineGraph('day-chart', 'Data - Previous 24 hours', [dayVals], ['Values'], dayLabels, sensorUnit, ['#1f4587', '#1f4587'], false)
             })
 
-            axios.get(`http://localhost:3030/sensors`)
+            axios.get(`/api/sensors`)
             .then(function (response) {
                 connectedSensors = []
                 connectedSensorTypes = []

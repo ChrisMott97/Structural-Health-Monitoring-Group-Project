@@ -13,7 +13,7 @@
         <script src="js/js.js"></script>
         <!-- loggedin.js checks if user is still auth'd and redirects if not -->
         <!-- add this to every page that should be protected -->
-        <script src="./js/loggedin.js"></script>
+        <!-- <script src="./js/loggedin.js"></script> -->
     </head>
     <body>
         <div class="navbar-div">
@@ -75,12 +75,12 @@
             <table class="mobile-nav-table">
                 <tbody>
                     <tr class="mobile-nav-table-row">
-                        <td class="mobile-nav-table-td"><a href="dash.html"><img src="images/dashboard_icon_white.png" class="mobile-nav-icon-img"></a></td>
-                        <td class="mobile-nav-table-td"><a href="notifications.html"><img src="images/notifications_icon_white.png" class="mobile-nav-icon-img"></a></td>
-                        <td class="mobile-nav-table-td"><a href="images.html"><img src="images/images_icon_white.png" class="mobile-nav-icon-img"></a></td>
-                        <td class="mobile-nav-table-td"><a href="visualisations.html"><img src="images/visualisations_icon_white.png" class="mobile-nav-icon-img"></a></td>
-                        <td class="mobile-nav-table-td"><a href="database.html"><img src="images/database_icon_white.png" class="mobile-nav-icon-img"></a></td>
-                        <td class="mobile-nav-table-td"><a href="code.html"><img src="images/code_icon_white.png" class="mobile-nav-icon-img"></a></td>
+                        <td class="mobile-nav-table-td"><a href="/dash"><img src="images/dashboard_icon_white.png" class="mobile-nav-icon-img"></a></td>
+                        <td class="mobile-nav-table-td"><a href="/notifications"><img src="images/notifications_icon_white.png" class="mobile-nav-icon-img"></a></td>
+                        <td class="mobile-nav-table-td"><a href="/images"><img src="images/images_icon_white.png" class="mobile-nav-icon-img"></a></td>
+                        <td class="mobile-nav-table-td"><a href="/visualisations"><img src="images/visualisations_icon_white.png" class="mobile-nav-icon-img"></a></td>
+                        <td class="mobile-nav-table-td"><a href="/database"><img src="images/database_icon_white.png" class="mobile-nav-icon-img"></a></td>
+                        <td class="mobile-nav-table-td"><a href="/code"><img src="images/code_icon_white.png" class="mobile-nav-icon-img"></a></td>
                         <td class="mobile-nav-table-td"><a href="javascript:toggleOverlay('user-info')"><img src="images/user_pic_white.png" class="mobile-nav-icon-img"></a></td>
                     </tr>
                 </tbody>
@@ -100,7 +100,7 @@
 </html>
 
 <script>
-    axios.get('http://localhost:3030/sensors')
+    axios.get('/api/sensors')
             .then(function (response) {
                 // handle success
                 document.getElementById("sensor-database").innerHTML = `<tr class="database-table-row"><th>Sensor ID</th><th>Sensor Type</th><th>Sensor Subtype</th><th>Location</th><th>Unit</th><th>Last Updated</th></tr>`

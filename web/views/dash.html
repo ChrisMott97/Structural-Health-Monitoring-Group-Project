@@ -13,32 +13,32 @@
         </div>
         <div class="sidebar-div">
             <div class="sidebar-icon-div sidebar-icon-active">
-                <a href="dash.html"><span class="sidebar-icon-span">
+                <a href="/dash"><span class="sidebar-icon-span">
                     <img src="images/dashboard_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
             <div class="sidebar-icon-div">
-                <a href="notifications.html"><span class="sidebar-icon-span">
+                <a href="/notifications"><span class="sidebar-icon-span">
                     <img src="images/notifications_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
             <div class="sidebar-icon-div">
-                <a href="images_page.html"><span class="sidebar-icon-span">
+                <a href="/images"><span class="sidebar-icon-span">
                     <img src="images/images_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
             <div class="sidebar-icon-div">
-                <a href="visualisations.html"><span class="sidebar-icon-span">
+                <a href="/visualisations"><span class="sidebar-icon-span">
                     <img src="images/visualisations_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
             <div class="sidebar-icon-div">
-                <a href="database.html"><span class="sidebar-icon-span">
+                <a href="/database"><span class="sidebar-icon-span">
                     <img src="images/database_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
             <div class="sidebar-icon-div">
-                <a href="code.html"><span class="sidebar-icon-span">
+                <a href="/code"><span class="sidebar-icon-span">
                     <img src="images/code_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
@@ -50,7 +50,7 @@
                     <div id="location-graph"></div>
                 </div>
                 <div class="dashboard-tile-div" id="tile2">
-                    <a href="notifications.html" class="dashboard-title"><h1 class="dashboard-title">Detected Anomalies</h1></a>
+                    <a href="/notifications" class="dashboard-title"><h1 class="dashboard-title">Detected Anomalies</h1></a>
                     <table class="anomaly-table">
                         <tbody id="anomaly-table">
                         </tbody>
@@ -63,7 +63,7 @@
                     </script>
                 </div>
                 <div class="dashboard-tile-div" id="tile1">
-                    <a href="notifications.html" class="dashboard-title"><h1 class="dashboard-title">Reports</h1></a>
+                    <a href="/notifications" class="dashboard-title"><h1 class="dashboard-title">Reports</h1></a>
                     <table class="anomaly-table">
                         <tbody id="reports-table">
                         </tbody>
@@ -87,12 +87,12 @@
             <table class="mobile-nav-table">
                 <tbody>
                     <tr class="mobile-nav-table-row">
-                        <td class="mobile-nav-table-td"><a href="dash.html"><img src="images/dashboard_icon_white.png" class="mobile-nav-icon-img"></a></td>
-                        <td class="mobile-nav-table-td"><a href="notifications.html"><img src="images/notifications_icon_white.png" class="mobile-nav-icon-img"></a></td>
-                        <td class="mobile-nav-table-td"><a href="images.html"><img src="images/images_icon_white.png" class="mobile-nav-icon-img"></a></td>
-                        <td class="mobile-nav-table-td"><a href="visualisations.html"><img src="images/visualisations_icon_white.png" class="mobile-nav-icon-img"></a></td>
-                        <td class="mobile-nav-table-td"><a href="database.html"><img src="images/database_icon_white.png" class="mobile-nav-icon-img"></a></td>
-                        <td class="mobile-nav-table-td"><a href="code.html"><img src="images/code_icon_white.png" class="mobile-nav-icon-img"></a></td>
+                        <td class="mobile-nav-table-td"><a href="/dash"><img src="images/dashboard_icon_white.png" class="mobile-nav-icon-img"></a></td>
+                        <td class="mobile-nav-table-td"><a href="/notifications"><img src="images/notifications_icon_white.png" class="mobile-nav-icon-img"></a></td>
+                        <td class="mobile-nav-table-td"><a href="/images"><img src="images/images_icon_white.png" class="mobile-nav-icon-img"></a></td>
+                        <td class="mobile-nav-table-td"><a href="/visualisations"><img src="images/visualisations_icon_white.png" class="mobile-nav-icon-img"></a></td>
+                        <td class="mobile-nav-table-td"><a href="/database"><img src="images/database_icon_white.png" class="mobile-nav-icon-img"></a></td>
+                        <td class="mobile-nav-table-td"><a href="/code"><img src="images/code_icon_white.png" class="mobile-nav-icon-img"></a></td>
                         <td class="mobile-nav-table-td"><a href="javascript:toggleOverlay('user-info')"><img src="images/user_pic_white.png" class="mobile-nav-icon-img"></a></td>
                     </tr>
                 </tbody>
@@ -108,7 +108,7 @@
     </body>
 </html>
 <script>  
-    axios.get('http://localhost:3030/anomalies')
+    axios.get('/api/anomalies')
         .then(function (response) {
             response.data.reverse().slice(0, 6).forEach(item => {
                 if (item.confidence > 0.8) {
