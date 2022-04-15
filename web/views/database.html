@@ -1,19 +1,11 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
     <head>
         <title>SHM Monitoring Dashboard</title>
         <link href="css/stylesheet.css" rel='stylesheet' type='text/css'/>
         <script src="js/js.js"></script>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-        <script>
-            // Adds authorization to every request just in case it needs to be authenticated
-            // Include this on every page that has requests
-            axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem("access_token")}`;
-        </script>
-        <script src="js/js.js"></script>
-        <!-- loggedin.js checks if user is still auth'd and redirects if not -->
-        <!-- add this to every page that should be protected -->
-        <!-- <script src="./js/loggedin.js"></script> -->
     </head>
     <body>
         <div class="navbar-div">
@@ -21,32 +13,32 @@
         </div>
         <div class="sidebar-div">
             <div class="sidebar-icon-div">
-                <a href="dash.html"><span class="sidebar-icon-span">
+                <a href="/dash"><span class="sidebar-icon-span">
                     <img src="images/dashboard_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
             <div class="sidebar-icon-div">
-                <a href="notifications.html"><span class="sidebar-icon-span">
+                <a href="/notifications"><span class="sidebar-icon-span">
                     <img src="images/notifications_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
             <div class="sidebar-icon-div">
-                <a href="images_page.html"><span class="sidebar-icon-span">
+                <a href="/images"><span class="sidebar-icon-span">
                     <img src="images/images_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
             <div class="sidebar-icon-div">
-                <a href="visualisations.html"><span class="sidebar-icon-span">
+                <a href="/visualisations"><span class="sidebar-icon-span">
                     <img src="images/visualisations_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
             <div class="sidebar-icon-div sidebar-icon-active">
-                <a href="database.html"><span class="sidebar-icon-span">
+                <a href="/database"><span class="sidebar-icon-span">
                     <img src="images/database_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
             <div class="sidebar-icon-div">
-                <a href="code.html"><span class="sidebar-icon-span">
+                <a href="/code"><span class="sidebar-icon-span">
                     <img src="images/code_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
@@ -92,7 +84,7 @@
                 <a href="javascript:toggleOverlay()"><img id="overlay-close" src="images/close.png"></a>
                 <div id="overlay-content"></div>
                 <div style="text-align: center;">
-                    <a href="https://exetercivil.eu.auth0.com/v2/logout?client_id=KpZx7y5CcCi0fXwsR3V3EIOOGKdyAvKP&returnTo=http://localhost/logout">Logout</a>
+                    <a href="/logout">Logout</a>
                 </div>
             </div>
         </div>

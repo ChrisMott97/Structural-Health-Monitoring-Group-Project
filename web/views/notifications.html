@@ -1,4 +1,5 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
     <head>
         <title>SHM Monitoring Dashboard</title>
         <link href="css/stylesheet.css" rel='stylesheet' type='text/css'/>
@@ -12,32 +13,32 @@
         </div>
         <div class="sidebar-div">
             <div class="sidebar-icon-div">
-                <a href="dash.html"><span class="sidebar-icon-span">
+                <a href="/dash"><span class="sidebar-icon-span">
                     <img src="images/dashboard_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
             <div class="sidebar-icon-div sidebar-icon-active">
-                <a href="notifications.html"><span class="sidebar-icon-span">
+                <a href="/notifications"><span class="sidebar-icon-span">
                     <img src="images/notifications_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
             <div class="sidebar-icon-div">
-                <a href="images_page.html"><span class="sidebar-icon-span">
+                <a href="/images"><span class="sidebar-icon-span">
                     <img src="images/images_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
             <div class="sidebar-icon-div">
-                <a href="visualisations.html"><span class="sidebar-icon-span">
+                <a href="/visualisations"><span class="sidebar-icon-span">
                     <img src="images/visualisations_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
             <div class="sidebar-icon-div">
-                <a href="database.html"><span class="sidebar-icon-span">
+                <a href="/database"><span class="sidebar-icon-span">
                     <img src="images/database_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
             <div class="sidebar-icon-div">
-                <a href="code.html"><span class="sidebar-icon-span">
+                <a href="/code"><span class="sidebar-icon-span">
                     <img src="images/code_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
@@ -56,7 +57,7 @@
             </div>
             <div class="database-main-content-div">
                 <h1 class="dashboard-title">Detected Anomalies</h1>
-                <form action="notifications.html" method="GET" id="database-search-form">
+                <form action="/notifications" method="GET" id="database-search-form">
                     <input type="date" id="date-from" name="from">
                     <input type="date" id="date-until" name="until">
                                 <select name="ordering">
@@ -123,6 +124,9 @@
             <div id="overlay-div">
                 <a href="javascript:toggleOverlay()"><img id="overlay-close" src="images/close.png"></a>
                 <div id="overlay-content"></div>
+                <div style="text-align: center;">
+                    <a href="/logout">Logout</a>
+                </div>
             </div>
         </div>
     </body>
