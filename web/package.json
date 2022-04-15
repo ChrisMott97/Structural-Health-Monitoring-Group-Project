@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./src/bin/www",
-    "start:dev": "npm run migrate && npm run seed && nodemon ./src/bin/www",
+    "start": "node ./bin/www",
+    "start:dev": "npm run migrate && npm run seed && nodemon ./bin/www",
     "migrate": "knex migrate:latest --knexfile database/knexfile.js",
     "seed": "knex seed:run --knexfile database/knexfile.js"
   },

@@ -5,12 +5,12 @@ var logger = require('morgan');
 var cors = require('cors')
 const { auth, requiredScopes } = require('express-oauth2-jwt-bearer');
 
-var indexRouter = require('./routes/index');
-var sensorsRouter = require('./routes/sensors');
-var usersRouter = require('./routes/users');
-var dataRouter = require('./routes/data');
-var anomalyRouter = require('./routes/anomalies')
-var commentRouter = require('./routes/comments')
+var index = require('./controllers/index');
+var sensors = require('./controllers/sensors');
+var users = require('./controllers/users');
+var data = require('./controllers/data');
+var anomalies = require('./controllers/anomalies')
+var comments = require('./controllers/comments')
 
 var app = express();
 var corsOptions = {
@@ -36,11 +36,11 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
-app.use('/sensors',checkJwt, sensorsRouter);
-app.use('/users',checkJwt, usersRouter);
-app.use('/data',checkJwt, dataRouter);
-app.use('/anomalies',checkJwt, anomalyRouter);
-app.use('/comments',checkJwt, commentRouter);
+app.use('/', index);
+app.use('/sensors',checkJwt, sensors);
+app.use('/users',checkJwt, users);
+app.use('/data',checkJwt, data);
+app.use('/anomalies',checkJwt, anomalies);
+app.use('/comments',checkJwt, comments);
 
 module.exports = app;

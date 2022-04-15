@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-const knexConfig = require('../../database/knexfile.js')['development']
+const knexConfig = require('../database/knexfile.js')['development']
 const knex = require('knex')(knexConfig);
 const axios = require('axios')
 const { auth } = require('express-oauth2-jwt-bearer');
