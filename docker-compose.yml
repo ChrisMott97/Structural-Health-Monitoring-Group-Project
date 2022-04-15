@@ -15,14 +15,6 @@ services:
     volumes:
       - ./external-database/data:/var/lib/mysql
       - ./external-database/init:/docker-entrypoint-initdb.d
-  web-frontend:
-    build:
-      context: ./web-frontend
-    volumes:
-    - ./web-frontend:/usr/share/nginx/html
-    - ./web-frontend/config:/etc/nginx/conf.d
-    ports:
-    - "80:80"
   internal-database:
     image: postgres
     environment:
@@ -39,15 +31,15 @@ services:
     environment:
       - ADMINER_DEFAULT_SERVER=internal-database
 
-  api-gateway:
+  web:
     build:
-      context: ./api-gateway
+      context: ./web
       target: dev
     depends_on:
       - internal-database
+    init: true
     volumes:
-      - ./api-gateway/src:/home/node/app/src
-      - ./api-gateway/database:/home/node/app/database
+      - ./web:/home/node/app
       - node_modules:/home/node/app/node_modules
     command: npm run start:dev
     ports:
