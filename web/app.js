@@ -4,7 +4,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var cors = require('cors')
 var ejs = require('ejs')
-const { auth, requiredScopes } = require('express-oauth2-jwt-bearer');
+// const { auth, requiredScopes } = require('express-oauth2-jwt-bearer');
 
 var index = require('./controllers/index');
 var sensors = require('./controllers/sensors');
@@ -16,6 +16,7 @@ var comments = require('./controllers/comments')
 var app = express();
 app.set('view engine', 'html')
 app.engine('html', ejs.renderFile);
+
 var corsOptions = {
     origin: 'http://localhost',
     optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
@@ -23,13 +24,13 @@ var corsOptions = {
     allowedHeaders: ['Content-Type', 'Authorization']
 }
 
-const checkJwt = auth({
-    audience: 'shm',
-    issuerBaseURL: `https://exetercivil.eu.auth0.com/`,
-    tokenSigningAlg: 'RS256'
-});
+// const checkJwt = auth({
+//     audience: 'shm',
+//     issuerBaseURL: `https://exetercivil.eu.auth0.com/`,
+//     tokenSigningAlg: 'RS256'
+// });
 
-const checkScopes = requiredScopes('read:messages');
+// const checkScopes = requiredScopes('read:messages');
 
 
 app.use(cors(corsOptions))
@@ -40,10 +41,10 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
-app.use('/api/sensors',checkJwt, sensors);
-app.use('/api/users',checkJwt, users);
-app.use('/api/data',checkJwt, data);
-app.use('/api/anomalies',checkJwt, anomalies);
-app.use('/api/comments',checkJwt, comments);
+app.use('/api/sensors', sensors);
+app.use('/api/users', users);
+app.use('/api/data', data);
+app.use('/api/anomalies', anomalies);
+app.use('/api/comments', comments);
 
 module.exports = app;
