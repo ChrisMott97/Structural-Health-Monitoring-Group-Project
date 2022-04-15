@@ -35,7 +35,8 @@ const config = {
     secret: '***REMOVED***',
     routes:{
         login: false
-    }
+    },
+    errorOnRequiredAuth: true
   };
 
 // const checkJwt = auth({
