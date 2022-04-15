@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 const csv = require('csv-parser')
 const fs = require('fs')
-const { requiresAuth } = require('express-openid-connect');
+const { requiresAuth, claimEquals, claimIncludes  } = require('express-openid-connect');
 
 router.use(function (req, res, next) {
   // Make `user` and `authenticated` available in templates
@@ -21,7 +21,7 @@ router.get('/', function(req, res, next) {
   res.render('index')
 });
 
-router.get('/adduser', requiresAuth(), function(req, res, next) {
+router.get('/adduser', claimIncludes('http://localhost:3030/roles','Admin'), function(req, res, next) {
   res.render('adduser')
 });
 

@@ -35,7 +35,8 @@ const config = {
     secret: 'fd1480ab9a5b2ada3aedda6a827ce64448bbe2bfcb684e3fe7ae25f49804f39b',
     routes:{
         login: false
-    }
+    },
+    errorOnRequiredAuth: true
   };
 
 // const checkJwt = auth({
