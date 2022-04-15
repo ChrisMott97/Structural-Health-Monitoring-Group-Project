@@ -6,10 +6,10 @@ const statuses = ['Fixed', 'Dismissed', 'Under Investigation']
 const userID = 1
 
 window.onload = (event) => {
-    axios.get(`http://localhost:3030/users/${userID}`)
+    axios.get(`/api/users/${userID}`)
     .then(function (response) {
         // handle success
-        document.getElementById("profile-name").innerHTML = response.data.name
+        // document.getElementById("profile-name").innerHTML = response.data.name
     })
 };
 
@@ -65,10 +65,10 @@ function enableScroll() {
 }
 
 function loadUserInfo() {
-    axios.get(`http://localhost:3030/users/${userID}`)
+    axios.get(`/api/users/${userID}`)
     .then(function (response) {
         // handle success
-        document.getElementById('overlay-content').innerHTML = `<img id="profile-pic-large" src="images/user_pic.png"><p class="user-info-text">Hello ${response.data.name.split(' ')[0]}!</p>`
+        // document.getElementById('overlay-content').innerHTML = `<img id="profile-pic-large" src="images/user_pic.png"><p class="user-info-text">Hello ${response.data.name.split(' ')[0]}!</p>`
     })
 }
 
@@ -216,7 +216,7 @@ function generateLocationGraph(graphContainerID, sensorID, connectedSensors, con
         
         nodeList.push({id: i+1, label: '#'+connectedSensors[i],
                        color: colour,
-                       url: 'http://localhost/sensor?sensorID='+connectedSensors[i],
+                       url: '/sensor?sensorID='+connectedSensors[i],
                        font: {size: 15, color: "black", face: 'arial', strokeWidth: 10}})
         edgeList.push({from: 0, to: i+1, color:'#7e7e7e'})
     }

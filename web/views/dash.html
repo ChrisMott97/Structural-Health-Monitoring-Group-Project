@@ -1,4 +1,5 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
     <head>
         <title>SHM Monitoring Dashboard</title>
         <link href="css/stylesheet.css" rel='stylesheet' type='text/css'/>
@@ -9,7 +10,7 @@
     </head>
     <body>
         <div class="navbar-div">
-            <a href="javascript:toggleOverlay('user-info')" class="profile-link"><p class="profile-name" id="profile-name"></p><img src="images/user_pic.png" class="profile-pic"></a>
+            <a href="javascript:toggleOverlay('user-info')" class="profile-link"><p class="profile-name" id="profile-name"><%= user.name %></p><img src=<%= user.picture %> class="profile-pic"></a>
         </div>
         <div class="sidebar-div">
             <div class="sidebar-icon-div sidebar-icon-active">
@@ -102,7 +103,13 @@
             <a href="javascript:toggleOverlay()"><span id="overlay-span"></span></a>
             <div id="overlay-div">
                 <a href="javascript:toggleOverlay()"><img id="overlay-close" src="images/close.png"></a>
-                <div id="overlay-content"></div>
+                <div id="overlay-content">
+                    <img id="profile-pic-large" src=<%= user.picture %>>
+                    <p class="user-info-text">Hello <%= user.name %>!</p>
+                </div>
+                <div style="text-align: center;">
+                    <a href="/logout">Logout</a>
+                </div>
             </div>
         </div>
     </body>

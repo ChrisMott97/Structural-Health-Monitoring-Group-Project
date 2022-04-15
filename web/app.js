@@ -4,6 +4,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var cors = require('cors')
 var ejs = require('ejs')
+const { auth, requiresAuth } = require('express-openid-connect');
 // const { auth, requiredScopes } = require('express-oauth2-jwt-bearer');
 
 var index = require('./controllers/index');
@@ -17,12 +18,25 @@ var app = express();
 app.set('view engine', 'html')
 app.engine('html', ejs.renderFile);
 
+
 var corsOptions = {
-    origin: 'http://localhost',
+    origin: 'http://localhost:3030',
     optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization']
 }
+
+const config = {
+    authRequired: false,
+    auth0Logout: true,
+    baseURL: 'http://localhost:3030',
+    clientID: '***REMOVED***',
+    issuerBaseURL: 'https://***REMOVED***',
+    secret: '***REMOVED***',
+    routes:{
+        login: false
+    }
+  };
 
 // const checkJwt = auth({
 //     audience: 'shm',
@@ -32,7 +46,7 @@ var corsOptions = {
 
 // const checkScopes = requiredScopes('read:messages');
 
-
+app.use(auth(config));
 app.use(cors(corsOptions))
 app.use(logger('dev'));
 app.use(express.json());
@@ -41,10 +55,12 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
-app.use('/api/sensors', sensors);
-app.use('/api/users', users);
-app.use('/api/data', data);
-app.use('/api/anomalies', anomalies);
-app.use('/api/comments', comments);
+app.get('/login', (req, res) => res.oidc.login({ returnTo: '/dash' }));
+
+app.use('/api/sensors', requiresAuth(), sensors);
+app.use('/api/users', requiresAuth(), users);
+app.use('/api/data', requiresAuth(), data);
+app.use('/api/anomalies', requiresAuth(), anomalies);
+app.use('/api/comments', requiresAuth(), comments);
 
 module.exports = app;
