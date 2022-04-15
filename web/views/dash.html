@@ -140,7 +140,7 @@
     for (let i = 0; i < reports.length; i++ ) {
         document.getElementById('reports-table').innerHTML += `
         <tr class="anomaly-table-row">
-        <td class="anomaly-table-element">${reports[i][1].getFullYear()+'/'+(reports[i][1].getMonth()+1)+'/'+reports[i][1].getDate()}: ${reports[i][2]}</td>
+        <td class="anomaly-table-element"><a href="/report.html?reportID=${reports[i][0]}">${reports[i][1].getFullYear()+'/'+(reports[i][1].getMonth()+1)+'/'+reports[i][1].getDate()}: ${reports[i][2]}</a></td>
         </tr>`
     }
 
