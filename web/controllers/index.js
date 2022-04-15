@@ -41,6 +41,10 @@ router.get('/notifications', requiresAuth(), function(req, res, next) {
   res.render('notifications')
 });
 
+router.get('/report', requiresAuth(), function(req, res, next) {
+  res.render('report')
+});
+
 router.get('/sensor', requiresAuth(), function(req, res, next) {
   res.render('sensor')
 });
