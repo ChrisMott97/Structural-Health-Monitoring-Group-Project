@@ -63,4 +63,8 @@ app.use('/api/data', requiresAuth(), data);
 app.use('/api/anomalies', requiresAuth(), anomalies);
 app.use('/api/comments', requiresAuth(), comments);
 
+app.use((req, res, next) => {
+    res.status(404).render("custom_404")
+})
+
 module.exports = app;
