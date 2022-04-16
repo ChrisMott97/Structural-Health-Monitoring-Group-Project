@@ -8,6 +8,7 @@ const { auth, requiresAuth, claimIncludes } = require('express-openid-connect');
 // const { auth, requiredScopes } = require('express-oauth2-jwt-bearer');
 
 var index = require('./controllers/index');
+var admin = require('./controllers/admin');
 var sensors = require('./controllers/sensors');
 var users = require('./controllers/users');
 var data = require('./controllers/data');
@@ -47,8 +48,8 @@ const config = {
 
 // const checkScopes = requiredScopes('read:messages');
 
-app.use(auth(config));
 app.use(cors(corsOptions))
+app.use(auth(config));
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -56,10 +57,11 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
+app.use('/admin', claimIncludes('http://localhost:3030/roles','Admin'), admin);
 app.get('/login', (req, res) => res.oidc.login({ returnTo: '/dash' }));
 
 app.use('/api/sensors', requiresAuth(), sensors);
-app.use('/api/users', claimIncludes('http://localhost:3030/roles','Admin'), users);
+app.use('/api/users',claimIncludes('http://localhost:3030/roles','Admin'), users);
 app.use('/api/data', requiresAuth(), data);
 app.use('/api/anomalies', requiresAuth(), anomalies);
 app.use('/api/comments', requiresAuth(), comments);
