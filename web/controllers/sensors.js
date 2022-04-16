@@ -1,20 +1,13 @@
 var express = require('express');
 var router = express.Router();
-const knexConfig = require('../database/knexfile.js')['development']
-const knex = require('knex')(knexConfig);
+const Sensor = require('../models/Sensor')
+const Util = require('../models/Util')
 
 router.get('/', function(req, res) {
-  const limit = req.query.limit
-  const type = req.query.type
-  const subtype = req.query.subtype
-  const location = req.query.location
-  const offset = req.query.offset
-
-  const enumerate = req.query.enumerate
+  const { limit, type, subtype, location, offset, enumerate } = req.query
 
   if(enumerate){
-    knex('sensors')
-    .distinct(enumerate)
+    Util.enumerate('sensors', enumerate)
     .then(enums => {
       if(!enums || !enums.length){
         res.status(404).json(`No sensor ${enumerate}s found.`)
@@ -23,25 +16,7 @@ router.get('/', function(req, res) {
       }
     })
   }else{
-    knex('sensors')
-    .select()
-    .modify((builder)=>{
-      if(limit){
-        builder.limit(limit)
-      }
-      if(offset){
-        builder.offset(offset)
-      }
-      if(type){
-        builder.where({type: type})
-      }
-      if(subtype){
-        builder.where({subtype: subtype})
-      }
-      if(location){
-        builder.where({location: location})
-      }
-    })
+    Sensor.find(limit, offset, type, subtype, location)
     .then(sensors => {
       if(!sensors || !sensors.length){
         res.status(404).json(`No sensors found.`)
@@ -55,14 +30,8 @@ router.get('/', function(req, res) {
 
 router.get('/:id', function(req, res) {
   const id = req.params.id
-  if(!id){
-    res.redirect('/sensors')
-  }
 
-  knex('sensors')
-  .select()
-  .where({id: id})
-  .first()
+  Sensor.findOne(id)
   .then(sensor => {
     if(!sensor) {
       res.status(404).json(`Sensor ${id} is not found.`)
@@ -74,9 +43,8 @@ router.get('/:id', function(req, res) {
 
 router.get('/:id/related', function(req, res) {
   const id = req.params.id
-  knex('related')
-  .select("related_id")
-  .where({sensor_id: id})
+
+  Sensor.findRelated(id)
   .then(sensors => {
     if(!sensors || !sensors.length){
       res.status(404).json(`No related sensors found.`)
