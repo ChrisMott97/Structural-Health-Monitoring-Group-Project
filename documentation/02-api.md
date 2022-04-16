@@ -1,5 +1,6 @@
 # API Contract
 ## API Gateway
+All API routes begin with `/api`.
 ### Sensors
  - Get all sensors
    - Method: GET
@@ -115,24 +116,15 @@
    - URI: `/users`
    - Response: 
      - ```javascript
-        [{id: Number, name: String, permission: Number}]
+        [{email: String, name: String, picture: String, user_id: String, role: {id: String, name: String}}]
         ```
-- Get limited set of users
-   - Method: GET
-   - URI: `/users?limit=6`
-   - Response: 
-     - ```javascript
-        [{id: Number, name: String, permission: Number}]
-        ```
-- Get second page of users limited by 3 per page
-   - Method: GET
-   - URI: `/users?limit=3&offset=3`
-   - Response: 
-     - ```javascript
-        [{id: Number, name: String, permission: Number}]
-        ```
-   - Notes:
-     - For even pages of users, `offset` should increase in multiples of `limit`.
+- Get the first page of users with 3 users on it
+  - Method: GET
+  - URI: `/users?page=0&perPage=3`
+  - Response:
+    - ```javascript
+         [{email: String, name: String, picture: String, user_id: String, role: {id: String, name: String}}]
+      ```
 - Get one user by ID
    - Method: GET
    - URI: `/users/1`
