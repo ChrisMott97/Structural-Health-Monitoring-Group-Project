@@ -14,26 +14,25 @@ var auth0 = new ManagementClient({
 });
 
 router.get('/', function(req, res) {
-  const limit = req.query.limit
-  const offset = req.query.offset
+  const perPage = req.query.perPage
+  const page = req.query.page
 
-  knex('users')
-  .select('id', 'name', 'permission')
-  .modify((builder) => {
-    if(limit) {
-      builder.limit(limit)
-    }
-    if(offset) {
-      builder.offset(offset)
-    }
-  })
-  .then(users => {
-    if(!users || !users.length){
-      res.status(404).json(`No users found.`)
-    }else{
-      res.json(users)
+  auth0.getUsers({fields: ["user_id", "email", "picture", "name"], page: page, per_page: perPage}).then((result)=>{
+    let results = []
+
+    for (let i = 0; i < result.length; i++) {
+      let user = result[i];
+
+      auth0.getUserRoles({id: user.user_id}).then((roles)=>{
+        const role = roles[0]
+        if (roles.length != 0) user.role = {id: role.id, name: role.name}
+        results.push(user)
+
+        if (results.length === result.length) res.json(results)
+      })
     }
   })
+
 });
 
 router.post('/', function(req, res) {

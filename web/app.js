@@ -4,7 +4,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var cors = require('cors')
 var ejs = require('ejs')
-const { auth, requiresAuth } = require('express-openid-connect');
+const { auth, requiresAuth, claimIncludes } = require('express-openid-connect');
 // const { auth, requiredScopes } = require('express-oauth2-jwt-bearer');
 
 var index = require('./controllers/index');
@@ -59,7 +59,7 @@ app.use('/', index);
 app.get('/login', (req, res) => res.oidc.login({ returnTo: '/dash' }));
 
 app.use('/api/sensors', requiresAuth(), sensors);
-app.use('/api/users', requiresAuth(), users);
+app.use('/api/users', claimIncludes('http://localhost:3030/roles','Admin'), users);
 app.use('/api/data', requiresAuth(), data);
 app.use('/api/anomalies', requiresAuth(), anomalies);
 app.use('/api/comments', requiresAuth(), comments);
