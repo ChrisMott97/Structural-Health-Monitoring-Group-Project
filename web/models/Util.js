@@ -1,4 +1,4 @@
-const knex = require('../knex');
+const knex = require('../database/knex-internal');
 
 function enumerate(table, property) {
   return knex(table).distinct(property);

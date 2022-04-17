@@ -27,7 +27,7 @@ All API routes begin with `/api`.
      - For even pages of sensors, `offset` should increase in multiples of `limit`.
  - Get sensors by type, subtype or location
    - Method: GET
-   - URI: `/sensors?type=GPS&subtype=Height&Location=West%20Antenna`
+   - URI: `/sensors?type=GPS&subtype=Height&location=West%20Antenna`
    - Response: 
      - ```javascript
         [{id:String, type:String, subtype:String, location:String, unit:String}]
@@ -42,29 +42,15 @@ All API routes begin with `/api`.
      - ```javascript
         {id:String, type:String, subtype:String, location:String, unit:String}
         ```
-- Get list of related sensors for a given sensor by ID
+- Get list of related sensors for a given sensor by ID, defaults to type if `by` isn't included
    - Method: GET
-   - URI: `/sensors/1/related`
+   - URI: `/sensors/1/related?by=type`
    - Response: 
      - ```javascript
         [String]
-- Get all existing sensor types
+- Get all existing sensor types - query also works for any other table column
    - Method: GET
-   - URI: `/sensors/types`
-   - Response: 
-     - ```javascript
-        [String]
-        ```
-- Get all existing sensor subtypes
-   - Method: GET
-   - URI: `/sensors/subtypes`
-   - Response: 
-     - ```javascript
-        [String]
-        ```
-- Get all existing sensor locations
-   - Method: GET
-   - URI: `/sensors/locations`
+   - URI: `/sensors?enumerate=type`
    - Response: 
      - ```javascript
         [String]

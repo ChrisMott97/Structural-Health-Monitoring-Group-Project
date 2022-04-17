@@ -1,7 +1,7 @@
 const express = require('express');
 
 const router = express.Router();
-const knex = require('../knex');
+const knex = require('../database/knex-internal');
 
 router.get('/', (req, res) => {
   const userID = req.query['user-id'];

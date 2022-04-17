@@ -5,14 +5,15 @@ const Sensor = require('../models/Sensor');
 const Util = require('../models/Util');
 
 router.get('/', (req, res) => {
-  const { limit, type, subtype, location, offset, enumerate } = req.query;
+  const { limit, type, subtype, location, offset } = req.query;
+  const property = req.query.enumerate;
 
-  if (enumerate) {
-    Util.enumerate('sensors', enumerate).then((enums) => {
-      if (!enums || !enums.length) {
-        res.status(404).json(`No sensor ${enumerate}s found.`);
+  if (property) {
+    Util.enumerate('sensors', property).then((items) => {
+      if (!items || !items.length) {
+        res.status(404).json(`No sensor ${property}s found.`);
       } else {
-        res.json(enums.map((a) => a[enumerate]));
+        res.json(items.map((item) => item[property]));
       }
     });
   } else {
@@ -40,12 +41,13 @@ router.get('/:id', (req, res) => {
 
 router.get('/:id/related', (req, res) => {
   const { id } = req.params;
+  const { by } = req.query;
 
-  Sensor.findRelated(id).then((sensors) => {
+  Sensor.findSimilar(id, by).then((sensors) => {
     if (!sensors || !sensors.length) {
-      res.status(404).json(`No related sensors found.`);
+      res.status(404).json('No related sensors found.');
     } else {
-      res.json(sensors.map((a) => a.related_id));
+      res.json(sensors.map((sensor) => sensor.id));
     }
   });
 });
