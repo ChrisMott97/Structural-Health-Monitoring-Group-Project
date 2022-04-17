@@ -1,14 +1,13 @@
 /**
  * @param { import("knex").Knex } knex
- * @returns { Promise<void> } 
+ * @returns { Promise<void> }
  */
- exports.seed = async function(knex) {
-    // Deletes ALL existing entries
-    await knex('comments').del()
-    await knex('related').del()
-    await knex('anomalies').del()
-    await knex('data').del()
-    await knex('users').del()
-    await knex('sensors').del()   
-  };
-  
+exports.seed = async function (knex) {
+  // Deletes ALL existing entries
+  await knex("comments").del();
+  await knex("related").del();
+  await knex("anomalies").del();
+  await knex("data").del();
+  await knex("users").del();
+  await knex("sensors").del();
+};
