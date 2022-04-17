@@ -5,8 +5,8 @@
   "scripts": {
     "start": "node ./bin/www",
     "start:dev": "npm run migrate && npm run seed && nodemon ./bin/www",
-    "migrate": "knex migrate:latest --knexfile database/knexfile.js",
-    "seed": "knex seed:run --knexfile database/knexfile.js"
+    "migrate": "knex migrate:latest --knexfile database/knexfile-internal.js",
+    "seed": "knex seed:run --knexfile database/knexfile-internal.js"
   },
   "dependencies": {
     "auth0": "^2.40.0",

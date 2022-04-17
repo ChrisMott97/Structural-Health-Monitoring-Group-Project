@@ -61,12 +61,11 @@ function create(name, email, password, role) {
       connection: 'Username-Password-Authentication',
     })
     .then((user) => {
-      console.log(user);
       return auth0.assignRolestoUser({ id: user.user_id }, { roles: [role] });
     })
-    .catch((err) => {
-      console.log('Create user error!');
-      console.log(err);
+    .catch(() => {
+      // console.log('Create user error!');
+      // console.log(err);
     });
 }
 

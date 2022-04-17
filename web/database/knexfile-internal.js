@@ -1,23 +1,22 @@
 // Update with your config settings.
-const path = require("path");
 /**
  * @type { Object.<string, import("knex").Knex.Config> }
  */
 module.exports = {
   development: {
-    client: "pg",
+    client: 'pg',
     connection: {
-      host: "internal-database",
-      user: "root",
-      password: "example",
-      database: "humber_bridge",
+      host: 'internal-database',
+      user: 'root',
+      password: 'example',
+      database: 'humber_bridge',
     },
     migrations: {
-      tableName: "migrations",
-      directory: "./development/migrations",
+      tableName: 'migrations',
+      directory: './development/migrations',
     },
     seeds: {
-      directory: "./development/seeds",
+      directory: './development/seeds',
     },
     pool: {
       min: 2,
@@ -31,19 +30,19 @@ module.exports = {
     },
   },
   test: {
-    client: "pg",
+    client: 'pg',
     connection: {
-      host: "internal-database-test",
-      user: "root",
-      password: "example",
-      database: "humber_bridge",
+      host: 'internal-database-test',
+      user: 'root',
+      password: 'example',
+      database: 'humber_bridge',
     },
     migrations: {
-      tableName: "migrations",
-      directory: "./test/migrations",
+      tableName: 'migrations',
+      directory: './test/migrations',
     },
     seeds: {
-      directory: "./test/seeds",
+      directory: './test/seeds',
     },
     pool: {
       min: 2,
