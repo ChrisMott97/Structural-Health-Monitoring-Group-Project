@@ -1,13 +1,14 @@
-var express = require("express");
-var router = express.Router();
-const Sensor = require("../models/Sensor");
-const Util = require("../models/Util");
+const express = require('express');
 
-router.get("/", function (req, res) {
+const router = express.Router();
+const Sensor = require('../models/Sensor');
+const Util = require('../models/Util');
+
+router.get('/', (req, res) => {
   const { limit, type, subtype, location, offset, enumerate } = req.query;
 
   if (enumerate) {
-    Util.enumerate("sensors", enumerate).then((enums) => {
+    Util.enumerate('sensors', enumerate).then((enums) => {
       if (!enums || !enums.length) {
         res.status(404).json(`No sensor ${enumerate}s found.`);
       } else {
@@ -25,8 +26,8 @@ router.get("/", function (req, res) {
   }
 });
 
-router.get("/:id", function (req, res) {
-  const id = req.params.id;
+router.get('/:id', (req, res) => {
+  const { id } = req.params;
 
   Sensor.findOne(id).then((sensor) => {
     if (!sensor) {
@@ -37,8 +38,8 @@ router.get("/:id", function (req, res) {
   });
 });
 
-router.get("/:id/related", function (req, res) {
-  const id = req.params.id;
+router.get('/:id/related', (req, res) => {
+  const { id } = req.params;
 
   Sensor.findRelated(id).then((sensors) => {
     if (!sensors || !sensors.length) {

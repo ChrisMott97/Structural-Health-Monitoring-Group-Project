@@ -1,13 +1,14 @@
-var express = require("express");
-var router = express.Router();
-const axios = require("axios");
-const User = require("../models/User");
+const express = require('express');
+
+const router = express.Router();
+const axios = require('axios');
+const User = require('../models/User');
+
 axios.defaults.withCredentials = true;
 
-router.use(function (req, res, next) {
+router.use((req, res, next) => {
   // Make `user` and `authenticated` available in templates
   if (req.oidc.isAuthenticated()) {
-    // console.log(req.oidc.user)
     res.locals.user = req.oidc.user;
     res.locals.authenticated = true;
   } else {
@@ -17,17 +18,17 @@ router.use(function (req, res, next) {
   next();
 });
 
-router.get("/users", function (req, res, next) {
+router.get('/users', (req, res) => {
   User.find().then((users) => {
-    res.render("admin/users", { users: users });
+    res.render('admin/users', { users });
   });
 });
 
-router.post("/users", function (req, res, next) {
+router.post('/users', (req, res) => {
   const { type, name, email, password, role } = req.body;
-  if (type == "create") {
-    User.create(name, email, password, role).then((result) => {
-      res.render("admin/users", { success: true });
+  if (type === 'create') {
+    User.create(name, email, password, role).then(() => {
+      res.render('admin/users', { success: true });
     });
   }
 });
