@@ -1,5 +1,4 @@
-const knexConfig = require("../database/knexfile.js")["development"];
-const knex = require("knex")(knexConfig);
+const knex = require('../knex');
 
 function enumerate(table, property) {
   return knex(table).distinct(property);

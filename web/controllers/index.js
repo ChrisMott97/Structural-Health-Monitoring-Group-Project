@@ -1,13 +1,11 @@
-var express = require("express");
-var router = express.Router();
-const csv = require("csv-parser");
-const fs = require("fs");
-const { requiresAuth, claimIncludes } = require("express-openid-connect");
+const express = require('express');
 
-router.use(function (req, res, next) {
+const router = express.Router();
+const { requiresAuth } = require('express-openid-connect');
+
+router.use((req, res, next) => {
   // Make `user` and `authenticated` available in templates
   if (req.oidc.isAuthenticated()) {
-    console.log(req.oidc.user);
     res.locals.user = req.oidc.user;
     res.locals.authenticated = true;
   } else {
@@ -17,32 +15,32 @@ router.use(function (req, res, next) {
   next();
 });
 
-router.get("/", function (req, res, next) {
-  res.render("index");
+router.get('/', (req, res) => {
+  res.render('index');
 });
 
-router.get("/authenticated", requiresAuth(), function (req, res, next) {
-  res.render("authenticated");
+router.get('/authenticated', requiresAuth(), (req, res) => {
+  res.render('authenticated');
 });
 
-router.get("/dash", requiresAuth(), function (req, res, next) {
-  res.render("dash");
+router.get('/dash', requiresAuth(), (req, res) => {
+  res.render('dash');
 });
 
-router.get("/database", requiresAuth(), function (req, res, next) {
-  res.render("database");
+router.get('/database', requiresAuth(), (req, res) => {
+  res.render('database');
 });
 
-router.get("/notifications", requiresAuth(), function (req, res, next) {
-  res.render("notifications");
+router.get('/notifications', requiresAuth(), (req, res) => {
+  res.render('notifications');
 });
 
-router.get("/report", requiresAuth(), function (req, res, next) {
-  res.render("report");
+router.get('/report', requiresAuth(), (req, res) => {
+  res.render('report');
 });
 
-router.get("/sensor", requiresAuth(), function (req, res, next) {
-  res.render("sensor");
+router.get('/sensor', requiresAuth(), (req, res) => {
+  res.render('sensor');
 });
 
 module.exports = router;

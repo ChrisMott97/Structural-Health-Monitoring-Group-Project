@@ -1,30 +1,17 @@
-var express = require("express");
-var router = express.Router();
-const knexConfig = require("../database/knexfile.js")["development"];
-const knex = require("knex")(knexConfig);
-const User = require("../models/User");
-const axios = require("axios");
-const { auth } = require("express-oauth2-jwt-bearer");
+const express = require('express');
 
-var ManagementClient = require("auth0").ManagementClient;
-var auth0 = new ManagementClient({
-  domain: "exetercivil.eu.auth0.com",
-  clientId: "tF85DPCcZuSpzDsysOWgmTKwEf0YPhaj",
-  clientSecret:
-    "RtPAWHMpnibWTdzPAg9TrjST3fK_g1m5NpZ2F8fckxKpVtoHDPp7g9FIL6jA5tzC",
-  scope: "read:users update:users create:users",
-});
+const router = express.Router();
+const User = require('../models/User');
 
-router.get("/", function (req, res) {
-  const perPage = req.query.perPage;
-  const page = req.query.page;
+router.get('/', (req, res) => {
+  const { page, perPage } = req.query;
 
   User.find(page, perPage).then((users) => {
     res.json(users);
   });
 });
 
-router.post("/", function (req, res) {
+router.post('/', (req, res) => {
   const { name, email, password, role } = req.body;
 
   User.create(name, email, password, role).then((user) => {
@@ -32,8 +19,8 @@ router.post("/", function (req, res) {
   });
 });
 
-router.get("/:id", function (req, res) {
-  const id = req.params.id;
+router.get('/:id', (req, res) => {
+  const { id } = req.params;
 
   User.findOne(id).then((user) => {
     if (!user) {

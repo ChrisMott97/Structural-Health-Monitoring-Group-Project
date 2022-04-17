@@ -1,23 +1,22 @@
-const knexConfig = require("../database/knexfile.js")["development"];
-const knex = require("knex")(knexConfig);
+const knex = require('../knex');
 
 function find(limit, offset, type, subtype, location) {
-  return knex("sensors")
+  return knex('sensors')
     .select()
     .modify((builder) => {
-      limit && builder.limit(limit);
-      offset && builder.offset(offset);
-      type && builder.where({ type: type });
-      subtype && builder.where({ subtype: subtype });
-      location && builder.where({ location: location });
+      if (limit) builder.limit(limit);
+      if (offset) builder.offset(offset);
+      if (type) builder.where({ type });
+      if (subtype) builder.where({ subtype });
+      if (location) builder.where({ location });
     });
 }
 
 function findOne(id) {
-  return knex("sensors").select().where({ id: id }).first();
+  return knex('sensors').select().where({ id }).first();
 }
 
 function findRelated(id) {
-  return knex("related").select("related_id").where({ sensor_id: id });
+  return knex('related').select('related_id').where({ sensor_id: id });
 }
 module.exports = { find, findOne, findRelated };

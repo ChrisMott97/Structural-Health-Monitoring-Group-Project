@@ -1,33 +1,23 @@
-var express = require("express");
-var router = express.Router();
-const knexConfig = require("../database/knexfile.js")["development"];
-const knex = require("knex")(knexConfig);
+const express = require('express');
 
-router.get("/", function (req, res) {
-  const userID = req.query["user-id"];
-  const sensorID = req.query["sensor-id"];
-  const anomalyID = req.query["anomaly-id"];
-  const limit = req.query.limit;
-  const offset = req.query.offset;
+const router = express.Router();
+const knex = require('../knex');
 
-  knex("comments")
+router.get('/', (req, res) => {
+  const userID = req.query['user-id'];
+  const sensorID = req.query['sensor-id'];
+  const anomalyID = req.query['anomaly-id'];
+  const { limit } = req.query;
+  const { offset } = req.query;
+
+  knex('comments')
     .select()
     .modify((builder) => {
-      if (userID) {
-        builder.where({ user_id: userID });
-      }
-      if (sensorID) {
-        builder.where({ sensor_id: sensorID });
-      }
-      if (anomalyID) {
-        builder.where({ anomaly_id: anomalyID });
-      }
-      if (limit) {
-        builder.limit(limit);
-      }
-      if (offset) {
-        builder.offset(offset);
-      }
+      if (userID) builder.where({ user_id: userID });
+      if (sensorID) builder.where({ sensor_id: sensorID });
+      if (anomalyID) builder.where({ anomaly_id: anomalyID });
+      if (limit) builder.limit(limit);
+      if (offset) builder.offset(offset);
     })
     .then((comments) => {
       if (!comments || !comments.length) {
@@ -38,11 +28,11 @@ router.get("/", function (req, res) {
     });
 });
 
-router.get("/:id", function (req, res) {
-  const id = req.params.id;
-  knex("comments")
+router.get('/:id', (req, res) => {
+  const { id } = req.params;
+  knex('comments')
     .select()
-    .where({ id: id })
+    .where({ id })
     .first()
     .then((comment) => {
       if (!comment) {
