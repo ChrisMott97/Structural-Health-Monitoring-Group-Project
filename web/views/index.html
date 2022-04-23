@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    .hidden {
+      display: none;
+    }
+  </style>
+  <title>Document</title>
+</head>
+<body style="text-align: center;display: flex;justify-content: center;align-items: center; height: 80%;">
+  <div style="width: 100%;">
+
+    <% if (authenticated) { %>
+      <a href="/logout">Logout</a>
+    <% } else{ %> 
+      <a href="/login">Login</a>
+    <% } %>
+
+    <p><a href="/authenticated">Click here to see a page only accessible when logged in.</a></p>
+    
+    <% if (authenticated) { %>
+      <div class="hidden" id="gated-content">
+        <p>
+          You're seeing this content because you're currently
+          <strong>logged in</strong>.
+        </p>
+        <label>
+          User profile:
+          <pre id="ipt-user-profile"><%= user %></pre>
+        </label>
+      </div>
+    <% } %>
+
+  </div>
+</body>
+</html>
+      

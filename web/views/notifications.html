@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>SHM Monitoring Dashboard</title>
+        <link href="css/stylesheet.css" rel='stylesheet' type='text/css'/>
+        <script src="js/js.js"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    </head>
+    <body>
+        <div class="navbar-div">
+            <a href="javascript:toggleOverlay('user-info')" class="profile-link"><p class="profile-name" id="profile-name"></p><img src="images/user_pic.png" class="profile-pic"></a>
+        </div>
+        <div class="sidebar-div">
+            <div class="sidebar-icon-div">
+                <a href="/dash"><span class="sidebar-icon-span">
+                    <img src="images/dashboard_icon.png" class="sidebar-icon-img">
+                </span></a>
+            </div>
+            <div class="sidebar-icon-div sidebar-icon-active">
+                <a href="/notifications"><span class="sidebar-icon-span">
+                    <img src="images/notifications_icon.png" class="sidebar-icon-img">
+                </span></a>
+            </div>
+            <div class="sidebar-icon-div">
+                <a href="/images"><span class="sidebar-icon-span">
+                    <img src="images/images_icon.png" class="sidebar-icon-img">
+                </span></a>
+            </div>
+            <div class="sidebar-icon-div">
+                <a href="/visualisations"><span class="sidebar-icon-span">
+                    <img src="images/visualisations_icon.png" class="sidebar-icon-img">
+                </span></a>
+            </div>
+            <div class="sidebar-icon-div">
+                <a href="/database"><span class="sidebar-icon-span">
+                    <img src="images/database_icon.png" class="sidebar-icon-img">
+                </span></a>
+            </div>
+            <div class="sidebar-icon-div">
+                <a href="/code"><span class="sidebar-icon-span">
+                    <img src="images/code_icon.png" class="sidebar-icon-img">
+                </span></a>
+            </div>
+        </div>
+        <!-- Reports section -->
+        <!-- "Unread notifications" section displaying pending anomalies -->
+        <div class="main-content-div">
+            <div class="database-main-content-div">
+                <h1 class="dashboard-title">Unread Notifications</h1>
+                <!--<p id="no-unread">No new anomalies have been detected.</p>-->
+                <table class="database-table">
+                    <tbody id="unread-anomaly-table">
+                        <tr><td>Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="database-main-content-div">
+                <h1 class="dashboard-title">Detected Anomalies</h1>
+                <form action="/notifications" method="GET" id="database-search-form">
+                    <input type="date" id="date-from" name="from">
+                    <input type="date" id="date-until" name="until">
+                                <select name="ordering">
+                                    <option value="updated-newest">Last Detected</option>
+                                    <option value="updated-oldest">First Detected</option>
+                                    <option value="updated-newest">Last Updated</option>
+                                    <option value="updated-oldest">First Updated</option></select>
+                    <input class="button-styling" type="reset">
+                    <input class="button-styling" type="submit" value="Search">
+                </form>
+                <table class="database-table">
+                    <tbody id="anomaly-table">
+                        <tr><td>Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="database-main-content-div">
+                <h1 class="dashboard-title">Generated Reports</h1>
+                <form>
+                    <table class="database-search-table">
+                        <tbody>
+                            <tr>
+                                <td class="database-search-table-td">
+                                    <input id="sensorID" name="sensorID" type="text" placeholder="Search Reports"><img class="search-icon" src="images/search.png"></td>
+                                <td class="database-search-table-td">Sort By: <select>
+                                                                                    <option value="updated-newest">Newest First</option>
+                                                                                    <option value="updated-oldest">Oldest First</option>
+                                                                            </select></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </form>
+                <table class="database-table">
+                    <tbody id="reports-table">
+                        <tr class="database-table-row"><th>Date Generated</th><th>Title</th><th>Start Date</th><th>End Date</th><th>Author</th></tr>
+                        
+                    </tbody>
+                </table>
+            <!--<a href="https://www.flaticon.com/free-icons/dashboard" title="dashboard icons">Dashboard icons created by Those Icons - Flaticon</a>
+                <a href="https://www.flaticon.com/free-icons/email" title="email icons">Email icons created by Those Icons - Flaticon</a>
+                <a href="https://www.flaticon.com/free-icons/picture" title="picture icons">Picture icons created by Pixel perfect - Flaticon</a>
+                <a href="https://www.flaticon.com/free-icons/graph" title="graph icons">Graph icons created by ibrandify - Flaticon</a>
+                <a href="https://www.flaticon.com/free-icons/database" title="database icons">Database icons created by Pixel perfect - Flaticon</a>
+                <a href="https://www.flaticon.com/free-icons/code" title="code icons">Code icons created by Stockio - Flaticon</a>-->
+            </div>
+        </div>
+        <div class="mobile-nav-div">
+            <table class="mobile-nav-table">
+                <tbody>
+                    <tr class="mobile-nav-table-row">
+                        <td class="mobile-nav-table-td"><a href="/dash"><img src="images/dashboard_icon_white.png" class="mobile-nav-icon-img"></a></td>
+                        <td class="mobile-nav-table-td"><a href="notifications"><img src="images/notifications_icon_white.png" class="mobile-nav-icon-img"></a></td>
+                        <td class="mobile-nav-table-td"><a href="/images"><img src="images/images_icon_white.png" class="mobile-nav-icon-img"></a></td>
+                        <td class="mobile-nav-table-td"><a href="/visualisations"><img src="images/visualisations_icon_white.png" class="mobile-nav-icon-img"></a></td>
+                        <td class="mobile-nav-table-td"><a href="/database"><img src="images/database_icon_white.png" class="mobile-nav-icon-img"></a></td>
+                        <td class="mobile-nav-table-td"><a href="/code"><img src="images/code_icon_white.png" class="mobile-nav-icon-img"></a></td>
+                        <td class="mobile-nav-table-td"><a href="javascript:toggleOverlay('user-info')"><img src="images/user_pic_white.png" class="mobile-nav-icon-img"></a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div id="overlay-shadow">
+            <a href="javascript:toggleOverlay()"><span id="overlay-span"></span></a>
+            <div id="overlay-div">
+                <a href="javascript:toggleOverlay()"><img id="overlay-close" src="images/close.png"></a>
+                <div id="overlay-content"></div>
+                <div style="text-align: center;">
+                    <a href="/logout">Logout</a>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
+<script>
+    axios.get('/api/anomalies')
+        .then(function (response) {
+            // handle success
+           
+            document.getElementById("anomaly-table").innerHTML = `<tr class="database-table-row"><th>Anomaly ID</th><th>Confidence</th><th>Sensor ID</th><th>Date & Time</th><th>Status</th><th>Last Update</th></tr>`
+            anomalyData = response.data
+
+            for (let i = 0; i < anomalyData.length; i++ ) {
+                if (anomalyData[i].status != 1) {
+                    detectedAt = formatDateString(anomalyData[i].time)
+                    updatedAt = formatDateString(anomalyData[i].updated_at)
+                    if (anomalyData[i].confidence > 0.8) {trafficLight = 'confidence-red'}
+                    else if (anomalyData[i].confidence > 0.6) {trafficLight = 'confidence-orange'}
+                    else {trafficLight = 'confidence-green'}
+
+                    document.getElementById("anomaly-table").innerHTML += `
+                    <tr class="database-table-row ${trafficLight}">
+                    <td><a href="/sensor?sensorID=${anomalyData[i].sensor_id}&anomalyID=${anomalyData[i].id}">#${anomalyData[i].id}</a></td>
+                    <td>${(anomalyData[i].confidence * 100).toFixed(1)}%</td>
+                    <td>${anomalyData[i].sensor_id}</td>
+                    <td>${detectedAt[0]}, ${detectedAt[1]}</td>
+                    <td>${anomalyData[i].status}</td>
+                    <td>${updatedAt[0]}, ${updatedAt[1]}</td>
+                    </tr>
+                    `;
+                }
+            }
+        })
+
+    axios.get(`/api/anomalies?status=1`)
+        .then(function (response) {
+            // handle success
+            document.getElementById("unread-anomaly-table").innerHTML = `<tr class="database-table-row"><th>Anomaly ID</th><th>Confidence</th><th>Sensor ID</th><th>Date & Time</th><th>Status</th><th>Last Update</th></tr>`
+            anomalyData = response.data
+            console.log(anomalyData)
+            for (let i = 0; i < anomalyData.length; i++ ) {
+                detectedAt = formatDateString(anomalyData[i].time)
+                updatedAt = formatDateString(anomalyData[i].updated_at)
+                if (anomalyData[i].confidence > 0.8) {trafficLight = 'confidence-red'}
+                else if (anomalyData[i].confidence > 0.6) {trafficLight = 'confidence-orange'}
+                else {trafficLight = 'confidence-green'}
+
+                document.getElementById("unread-anomaly-table").innerHTML += `
+                <tr class="database-table-row ${trafficLight}">
+                <td><a href="/sensor?sensorID=${anomalyData[i].sensor_id}&anomalyID=${anomalyData[i].id}">#${anomalyData[i].id}</a></td>
+                <td>${(anomalyData[i].confidence * 100).toFixed(1)}%</td>
+                <td>${anomalyData[i].sensor_id}</td>
+                <td>${detectedAt[0]}, ${detectedAt[1]}</td>
+                <td>0</td>
+                <td>${detectedAt[0]}, ${detectedAt[1]}</td>
+                </tr>
+                `;
+            }
+        })
+
+    for (let i = 0; i < reports.length; i++ ) {
+        document.getElementById('reports-table').innerHTML += `
+        <tr class="database-table-row">
+        <td>${reports[i][1].getFullYear()+'/'+(reports[i][1].getMonth()+1)+'/'+reports[i][1].getDate()}</td>
+        <td>${reports[i][2]}</td>
+        <td>${reports[i][3].getFullYear()+'/'+(reports[i][3].getMonth()+1)+'/'+reports[i][3].getDate()}</td>
+        <td>${reports[i][4].getFullYear()+'/'+(reports[i][4].getMonth()+1)+'/'+reports[i][4].getDate()}</td>
+        <td>${reports[i][5]}</td>
+        </tr>`
+    }
+</script>
