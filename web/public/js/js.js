@@ -13,6 +13,7 @@ window.onload = (event) => {
     })
 };
 
+<<<<<<< HEAD:web/public/js/js.js
 function formatDateString(date) {
     if (typeof date === 'string') {
         dateArray = date.split("T")
@@ -22,6 +23,13 @@ function formatDateString(date) {
     } else if (date instanceof Date) {
         return date
     }
+=======
+function formatDateString(dateString) {
+    dateArray = dateString.split("T")
+    date = dateArray[0].split("-").reverse().join("/")
+    time = dateArray[1].substring(0, dateArray[1].length - 2);
+    return [date, time]
+>>>>>>> auto-encoder:web-frontend/js/js.js
 }
 
 function toggleOverlay(content, userID, formText) {
@@ -72,7 +80,11 @@ function loadUserInfo() {
     axios.get(`/api/users/${userID}`)
     .then(function (response) {
         // handle success
+<<<<<<< HEAD:web/public/js/js.js
         // document.getElementById('overlay-content').innerHTML = `<img id="profile-pic-large" src="images/user_pic.png"><p class="user-info-text">Hello ${response.data.name.split(' ')[0]}!</p>`
+=======
+        document.getElementById('overlay-content').innerHTML = `<img id="profile-pic-large" src="images/user_pic.png"><p class="user-info-text">Hello ${response.data.name.split(' ')[0]}!</p>`
+>>>>>>> auto-encoder:web-frontend/js/js.js
     })
 }
 
@@ -220,7 +232,11 @@ function generateLocationGraph(graphContainerID, sensorID, connectedSensors, con
         
         nodeList.push({id: i+1, label: '#'+connectedSensors[i],
                        color: colour,
+<<<<<<< HEAD:web/public/js/js.js
                        url: '/sensor?sensorID='+connectedSensors[i],
+=======
+                       url: 'http://localhost/sensor?sensorID='+connectedSensors[i],
+>>>>>>> auto-encoder:web-frontend/js/js.js
                        font: {size: 15, color: "black", face: 'arial', strokeWidth: 10}})
         edgeList.push({from: 0, to: i+1, color:'#7e7e7e'})
     }
