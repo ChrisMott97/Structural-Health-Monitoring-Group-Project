@@ -27,7 +27,11 @@ All API routes begin with `/api`.
      - For even pages of sensors, `offset` should increase in multiples of `limit`.
  - Get sensors by type, subtype or location
    - Method: GET
+<<<<<<< HEAD
    - URI: `/sensors?type=GPS&subtype=Height&location=West%20Antenna`
+=======
+   - URI: `/sensors?type=GPS&subtype=Height&Location=West%20Antenna`
+>>>>>>> auto-encoder
    - Response: 
      - ```javascript
         [{id:String, type:String, subtype:String, location:String, unit:String}]
@@ -42,6 +46,7 @@ All API routes begin with `/api`.
      - ```javascript
         {id:String, type:String, subtype:String, location:String, unit:String}
         ```
+<<<<<<< HEAD
 - Get list of related sensors for a given sensor by ID, defaults to type if `by` isn't included
    - Method: GET
    - URI: `/sensors/1/related?by=type`
@@ -51,6 +56,31 @@ All API routes begin with `/api`.
 - Get all existing sensor types - query also works for any other table column
    - Method: GET
    - URI: `/sensors?enumerate=type`
+=======
+- Get list of related sensors for a given sensor by ID
+   - Method: GET
+   - URI: `/sensors/1/related`
+   - Response: 
+     - ```javascript
+        [String]
+- Get all existing sensor types
+   - Method: GET
+   - URI: `/sensors/types`
+   - Response: 
+     - ```javascript
+        [String]
+        ```
+- Get all existing sensor subtypes
+   - Method: GET
+   - URI: `/sensors/subtypes`
+   - Response: 
+     - ```javascript
+        [String]
+        ```
+- Get all existing sensor locations
+   - Method: GET
+   - URI: `/sensors/locations`
+>>>>>>> auto-encoder
    - Response: 
      - ```javascript
         [String]
@@ -102,6 +132,7 @@ All API routes begin with `/api`.
    - URI: `/users`
    - Response: 
      - ```javascript
+<<<<<<< HEAD
         [{email: String, name: String, picture: String, user_id: String, role: {id: String, name: String}}]
         ```
 - Get the first page of users with 3 users on it
@@ -111,6 +142,26 @@ All API routes begin with `/api`.
     - ```javascript
          [{email: String, name: String, picture: String, user_id: String, role: {id: String, name: String}}]
       ```
+=======
+        [{id: Number, name: String, permission: Number}]
+        ```
+- Get limited set of users
+   - Method: GET
+   - URI: `/users?limit=6`
+   - Response: 
+     - ```javascript
+        [{id: Number, name: String, permission: Number}]
+        ```
+- Get second page of users limited by 3 per page
+   - Method: GET
+   - URI: `/users?limit=3&offset=3`
+   - Response: 
+     - ```javascript
+        [{id: Number, name: String, permission: Number}]
+        ```
+   - Notes:
+     - For even pages of users, `offset` should increase in multiples of `limit`.
+>>>>>>> auto-encoder
 - Get one user by ID
    - Method: GET
    - URI: `/users/1`
