@@ -37,15 +37,9 @@ services:
       target: dev
     depends_on:
       - internal-database
-<<<<<<< HEAD
     init: true
     volumes:
       - ./web:/home/node/app
-=======
-    volumes:
-      - ./api-gateway/src:/home/node/app/src
-      - ./api-gateway/database:/home/node/app/database
->>>>>>> auto-encoder
       - node_modules:/home/node/app/node_modules
     command: npm run start:dev
     ports:
