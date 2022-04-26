@@ -19,7 +19,6 @@ router.get('/', (req, res) => {
         'data.time'
       );
     })
-    .join('users', 'anomalies.user_id', '=', 'users.id')
     .select(
       'anomalies.id',
       'time',
@@ -29,7 +28,6 @@ router.get('/', (req, res) => {
       'confidence',
       'updated_at',
       'notes',
-      'name',
       'user_id'
     )
     .modify((builder) => {
@@ -59,7 +57,6 @@ router.get('/:id', (req, res) => {
         'data.time'
       );
     })
-    .join('users', 'anomalies.user_id', '=', 'users.id')
     .select(
       'anomalies.id',
       'time',
@@ -69,7 +66,6 @@ router.get('/:id', (req, res) => {
       'confidence',
       'updated_at',
       'notes',
-      'name',
       'user_id'
     )
     .where({ 'anomalies.id': id })

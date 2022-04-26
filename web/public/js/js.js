@@ -6,11 +6,11 @@ const statuses = ['Fixed', 'Dismissed', 'Under Investigation']
 const userID = 1
 
 window.onload = (event) => {
-    axios.get(`/api/users/${userID}`)
-    .then(function (response) {
-        // handle success
-        // document.getElementById("profile-name").innerHTML = response.data.name
-    })
+    // axios.get(`/api/users/${userID}`)
+    // .then(function (response) {
+    //     // handle success
+    //     // document.getElementById("profile-name").innerHTML = response.data.name
+    // })
 };
 
 function formatDateString(date) {
@@ -69,11 +69,11 @@ function enableScroll() {
 }
 
 function loadUserInfo() {
-    axios.get(`/api/users/${userID}`)
-    .then(function (response) {
-        // handle success
-        // document.getElementById('overlay-content').innerHTML = `<img id="profile-pic-large" src="images/user_pic.png"><p class="user-info-text">Hello ${response.data.name.split(' ')[0]}!</p>`
-    })
+    // axios.get(`/api/users/${userID}`)
+    // .then(function (response) {
+    //     // handle success
+    //     // document.getElementById('overlay-content').innerHTML = `<img id="profile-pic-large" src="images/user_pic.png"><p class="user-info-text">Hello ${response.data.name.split(' ')[0]}!</p>`
+    // })
 }
 
 function loadAnomalyForm(div) {
