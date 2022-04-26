@@ -22,15 +22,16 @@ exports.seed = async function (knex) {
         res.notes = "This is a fake anomaly";
         res.sensor_time = row.time;
         res.sensor_id = row.sensor_id;
+        res.user_id = "auth0|624db449e287a5007080932d";
         results.push(res);
       });
     });
-  await knex("users")
-    .select()
-    .then((users) => {
-      results.forEach((res) => {
-        res.user_id = users[Math.floor(Math.random() * users.length)].id;
-      });
-    });
+  // await knex("users")
+  //   .select()
+  //   .then((users) => {
+  //     results.forEach((res) => {
+  //       res.user_id = users[Math.floor(Math.random() * users.length)].id;
+  //     });
+  //   });
   await knex("anomalies").insert(results);
 };

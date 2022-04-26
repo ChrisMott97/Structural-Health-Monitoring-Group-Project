@@ -8,7 +8,7 @@ exports.up = function (knex) {
     table.integer("status").notNullable();
     table.float("confidence").notNullable();
     table.string("notes");
-    table.integer("user_id").unsigned().references("id").inTable("users");
+    table.string("user_id");
     table.timestamp("sensor_time", { precision: 0 }).notNullable();
     table.string("sensor_id").notNullable();
     table
