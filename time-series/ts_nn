@@ -1,0 +1,292 @@
+import copy
+from pathlib import Path
+import warnings
+import pickle
+import numpy as np
+import pandas as pd
+import pytorch_lightning as pl
+from pytorch_lightning.callbacks import EarlyStopping, LearningRateMonitor
+from pytorch_lightning.loggers import TensorBoardLogger
+import torch
+
+from pytorch_forecasting import Baseline, TemporalFusionTransformer, TimeSeriesDataSet
+from pytorch_forecasting.data import GroupNormalizer
+from pytorch_forecasting.metrics import SMAPE, PoissonLoss, QuantileLoss
+from pytorch_forecasting.models.temporal_fusion_transformer.tuning import optimize_hyperparameters
+
+import pymysql
+from yaml import load
+
+torch.__version__
+
+def load_data():
+    # Loads the data from the external database
+    dbcon = pymysql.connect(user="root", password="example", database="humber_bridge", host="localhost", port=33061)
+    data = pd.read_sql("select * from summary order by timestamp desc limit 2000", dbcon) # Can remove/increase limit if enough GPU memory for CUDA, will increase accuracy
+    data.fillna(value = 0, inplace = True) # Replaces NoneType values with 0
+    data.replace(1.1e308, 0, inplace = True) # Replaces infinite values with 0
+    data = data[::-1]
+    data.reset_index(inplace=True, drop=True)
+
+    # Normalizes the data for use in the encoder
+    ts_data = pd.DataFrame()
+    cols = data.columns[1:]
+    sensor = []
+    timestamp = []
+    value = []
+    time_idx = []
+    ti = 0
+    for i in range(len(data["timestamp"])):
+        for j in cols:
+            timestamp.append(data["timestamp"][i])
+            value.append(data[j][i])
+            sensor.append(j)
+            time_idx.append(ti)
+        ti += 1
+    ts_data["timestamp"] = timestamp
+    ts_data["sensor"] = sensor
+    ts_data["value"] = value
+    ts_data["time_idx"] = time_idx
+    id = []
+    for i in range(len(ts_data)):
+        id.append(i)
+    ts_data["id"] = id
+    # ts_data has 4 columns, timestamp, sensor, value, and time_idx
+    # There is a value for each sensor for each timestamp
+
+    # The below optionally removes all sensors which are inactive. This is reccomended to stop overfitting to inactive sensors which causes the predictions to ignore active ones
+    # If this is commented out, most predictions will lie at 0 as most sensors have an average value of 0 due to being inactive. Only comment this out if the majority of sensors are active
+    tmp = ts_data[ts_data["value"] != 0]
+    active_sensors = set(tmp["sensor"])
+    ts_data = ts_data[ts_data["sensor"].isin(active_sensors)]
+
+    # Sets up the initial parameters
+    max_prediction_length = int(len(ts_data)*0.4) # 60% training, 40% testing. Feel free to change this ratio if results are not as expected
+    max_encoder_length = 16
+    training_cutoff = ts_data["id"].max() - max_prediction_length
+
+    training = TimeSeriesDataSet(
+        ts_data[lambda x: x.id <= training_cutoff], # Lambda function to select all data before the cutoff
+        time_idx="time_idx",
+        target="value",
+        group_ids=["sensor"], # Required to identify rows uniquely
+        min_encoder_length=max_encoder_length//2, 
+        max_encoder_length=max_encoder_length,
+        min_prediction_length=1,
+        max_prediction_length=max_prediction_length,
+        add_relative_time_idx=True,
+        static_categoricals=["sensor"],
+        time_varying_known_reals=["time_idx"],
+        time_varying_unknown_reals=["value"],
+        allow_missing_timesteps=False # Set to False as time_idx increases steadily, if this function is edited and time_idx no longer increases steadily must be set to True
+    )
+
+    validation = TimeSeriesDataSet(
+        ts_data[lambda x: x.id > training_cutoff], # Lambda function to select all data before the cutoff
+        time_idx="time_idx",
+        target="value",
+        group_ids=["sensor"], # Required to identify rows uniquely
+        min_encoder_length=max_encoder_length//2, 
+        max_encoder_length=max_encoder_length,
+        min_prediction_length=1,
+        max_prediction_length=max_prediction_length,
+        predict_mode=True,
+        add_relative_time_idx=True,
+        static_categoricals=["sensor"],
+        time_varying_known_reals=["time_idx"],
+        time_varying_unknown_reals=["value"],
+        allow_missing_timesteps=False # Set to False as time_idx increases steadily, if this function is edited and time_idx no longer increases steadily must be set to True
+    )
+
+    # Creates dataloaders for the model
+    batch_size = 8  # higher values increase accuracy at cost of CUDA memory
+    train_dataloader = training.to_dataloader(train=True, batch_size=batch_size, num_workers=0) # Num_workers can be increased on multi-core machines
+    val_dataloader = validation.to_dataloader(train=False, batch_size=batch_size * 10, num_workers=0)
+
+    # Calculate baseline mean absolute error, i.e. predict next value as the last available value from the history
+    actuals = torch.cat([y for x, (y, weight) in iter(val_dataloader)])
+    baseline_predictions = Baseline().predict(val_dataloader)
+    print((actuals - baseline_predictions).abs().mean().item())
+
+    return ts_data, max_encoder_length, max_prediction_length, batch_size, training, validation, train_dataloader, val_dataloader, active_sensors
+
+def init_encoder(training, train_dataloader, val_dataloader):
+    # Configures the network and trainer for getting hyperparameter values
+    pl.seed_everything(42)
+    trainer = pl.Trainer(
+        gpus=torch.cuda.device_count(), # Set to the amount of GPU's you want to use
+        gradient_clip_val=0.1,
+    )
+
+    # Creates the sample prediction function
+    tft = TemporalFusionTransformer.from_dataset(
+        training,
+        learning_rate=0.03,
+        hidden_size=16, 
+        attention_head_size=1, # Can be increased up to 4 for larger datasets
+        dropout=0.1,  # Between 0.1 and 0.3 are good values
+        hidden_continuous_size=8,  # Set to <= hidden_size
+        output_size=7,  # 7 quantiles by default
+        loss=QuantileLoss(),
+        reduce_on_plateau_patience=4, # Reduce learning rate if no improvement in validation loss after x epoch
+    )
+    #print(f"Number of parameters in network: {tft.size()/1e3:.1f}k") Uncomment to show number of parameters
+
+    # Find the optimal learning rate
+    torch.cuda.empty_cache()
+    res = trainer.tuner.lr_find(
+        tft,
+        train_dataloader=train_dataloader,
+        val_dataloaders=val_dataloader,
+        max_lr=10.0,
+        min_lr=1e-6,
+    )
+    #print(f"suggested learning rate: {res.suggestion()}") Uncomment to show learning rate
+    # Plots learning rate to show optimal value
+    #fig = res.plot(show=True, suggest=True) Uncomment to plot learning rate
+
+    # Loads best study (see below)
+    try:
+        with open("test_study.pkl", "rb") as fout:
+            study = pickle.load(fout)
+    except:
+        study = opt_hyper(train_dataloader, val_dataloader)
+    keys = []
+    values = []
+    for i in study.best_trial.params.keys():
+        keys.append(i)
+    for i in study.best_trial.params.values():
+        values.append(i)
+
+    # Configures the network and trainer
+    torch.cuda.empty_cache()
+    early_stop_callback = EarlyStopping(monitor="val_loss", min_delta=1e-4, patience=10, verbose=False, mode="min")
+    lr_logger = LearningRateMonitor()  # log the learning rate
+    logger = TensorBoardLogger("lightning_logs")  # logging results to a tensorboard
+    trainer = pl.Trainer(
+        max_epochs=30,
+        gpus=1,
+        weights_summary="top",
+        gradient_clip_val=values[keys.index("gradient_clip_val")],
+        limit_train_batches=30,  # comment in for training, running valiation every 30 batches
+        # fast_dev_run=True,  # comment in to check that network or dataset has no serious bugs
+        callbacks=[lr_logger, early_stop_callback],
+        logger=logger,
+    )
+
+    # Creates the prediction function
+    torch.cuda.empty_cache()
+    tft = TemporalFusionTransformer.from_dataset(
+        training,
+        learning_rate=values[keys.index("learning_rate")],
+        hidden_size=values[keys.index("hidden_size")],
+        attention_head_size=values[keys.index("attention_head_size")],
+        dropout=values[keys.index("dropout")],
+        hidden_continuous_size=values[keys.index("hidden_continuous_size")],
+        output_size=7,
+        loss=QuantileLoss(),
+        log_interval=10,
+        reduce_on_plateau_patience=4,
+    )
+    #print(f"Number of parameters in network: {tft.size()/1e3:.1f}k") Uncomment to show number of parameters
+
+    # Fits the network
+    torch.cuda.empty_cache()
+    trainer.fit(
+        tft,
+        train_dataloader=train_dataloader,
+        val_dataloaders=val_dataloader,
+    )
+
+    return trainer, tft
+
+def opt_hyper(train_dataloader, val_dataloader):
+    # Create a study of optimized hyperparameters - Check optuna_test folder for trial logs per epoch
+    # This takes a large amount of time to run so it is only really useful when re-training the model from scratch (can be 1 hour+ to fully optimize)
+    torch.cuda.empty_cache()
+    study = optimize_hyperparameters(
+        train_dataloader,
+        val_dataloader,
+        model_path="optuna_test",
+        n_trials=200, #This can be increased to increase accuracy at the cost of execution speed
+        max_epochs=30, # This can be increased to increase accuracy at the cost of execution speed
+        gradient_clip_val_range=(0.01, 1.0),
+        hidden_size_range=(8, 128),
+        hidden_continuous_size_range=(8, 128),
+        attention_head_size_range=(1, 4),
+        learning_rate_range=(0.001, 0.1),
+        dropout_range=(0.1, 0.3),
+        trainer_kwargs=dict(limit_train_batches=30),
+        reduce_on_plateau_patience=4,
+        use_learning_rate_finder=False,  # use Optuna to find ideal learning rate or use in-built learning rate finder
+    )
+    
+    # Save study results so we can resume tuning at a later point in time
+    with open("test_study.pkl", "wb") as fout:
+        pickle.dump(study, fout)
+    
+    # Show best hyperparameters
+    print(study.best_trial.params)
+
+    return study
+
+def fit_pred(ts_data, max_encoder_length, max_prediction_length, batch_size, trainer):
+    # Load the best model according to the validation loss (given that we use early stopping, this is not necessarily the last epoch)
+    torch.cuda.empty_cache()
+    best_model_path = trainer.checkpoint_callback.best_model_path
+    best_tft = TemporalFusionTransformer.load_from_checkpoint(best_model_path)
+
+    # Calcualtes the mean absolute error on validation set
+    torch.cuda.empty_cache()
+    actuals = torch.cat([y[0] for x, y in iter(val_dataloader)])
+    predictions = best_tft.predict(val_dataloader)
+    #print((actuals - predictions).abs().mean())
+
+    # Raw predictions are a dictionary from which all kind of information including quantiles can be extracted
+    # This is the only function that needs to be ran if you don't want to update the training, simply enter the data in the best_tft.predict method replacing val_dataloader
+    validation = TimeSeriesDataSet(
+        ts_data, # No lambda function to select all data
+        time_idx="time_idx",
+        target="value",
+        group_ids=["sensor"], # Required to identify rows uniquely
+        min_encoder_length=max_encoder_length//2, 
+        max_encoder_length=max_encoder_length,
+        min_prediction_length=1,
+        max_prediction_length=max_prediction_length,
+        predict_mode=True,
+        add_relative_time_idx=True,
+        static_categoricals=["sensor"],
+        time_varying_known_reals=["time_idx"],
+        time_varying_unknown_reals=["value"],
+        allow_missing_timesteps=False # Set to False as time_idx increases steadily, if this function is edited and time_idx no longer increases steadily must be set to True
+    )
+    val_dataloader = validation.to_dataloader(train=False, batch_size=batch_size * 10, num_workers=0)
+    torch.cuda.empty_cache()
+    raw_predictions, x = best_tft.predict(val_dataloader, mode="raw", return_x=True)
+
+    return raw_predictions, x, best_tft, val_dataloader
+
+def plot_preds(active_sensors, raw_predictions, val_dataloader, best_tft):
+    for idx in range(len(active_sensors)):
+        best_tft.plot_prediction(x, raw_predictions, idx=idx, add_loss_to_title=True)
+    predictions, x = best_tft.predict(val_dataloader, return_x=True)
+    predictions_vs_actuals = best_tft.calculate_prediction_actual_by_variable(x, predictions)
+    best_tft.plot_prediction_actual_by_variable(predictions_vs_actuals)
+
+def main():
+    # This runs all neccesary functions in order to output predictions for active sensors, it is not neccesary to run this every time, as the trainer/tft will save
+    # state so can be resumed in the fit_pred function without having to run init_encoder. load_data only needs to be ran when the data in the external database changes
+    
+    # Manually running opt_hyper is reccomended when there are large changes in the data collected from the external database, as otherwise the encoder may lose accuracy,
+    # this is as data is saved and only updated when opt_hyper is called. To run automatically, delete test_study.pkl, then run init_encoder to remake it fresh
+
+    # Collects data from external_database
+    ts_data, max_encoder_length, max_prediction_length, batch_size, training, validation, train_dataloader, val_dataloader, active_sensors = load_data()
+    # Creates the trainer and temporal fusion transformer
+    trainer, tft = init_encoder(training, train_dataloader, val_dataloader)
+    # Calculates predicted values
+    raw_predictions, x, best_tft, val_dataloader = fit_pred(ts_data, max_encoder_length, max_prediction_length, batch_size, trainer)
+    # Plots predictions
+    plot_preds(active_sensors, raw_predictions, val_dataloader, best_tft)
+
+main()
