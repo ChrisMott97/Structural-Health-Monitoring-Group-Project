@@ -1,0 +1,8 @@
+matplotlib==3.5.1
+numpy==1.22.2
+pandas==1.4.0
+psycopg2==2.9.3
+PyMySQL==1.0.2
+torch==1.10.2+cu113
+pytorch_forecasting==0.10.1
+pytorch_lightning==1.5.8
