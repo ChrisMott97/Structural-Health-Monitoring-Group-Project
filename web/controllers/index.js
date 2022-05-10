@@ -52,4 +52,8 @@ router.get('/sensor', requiresAuth(), (req, res) => {
   res.render('sensor');
 });
 
+router.get('/setup', requiresAuth(), (req, res) => {
+  res.render('setup')
+})
+
 module.exports = router;

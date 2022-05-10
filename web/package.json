@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "start:dev": "npm run migrate && npm run seed && nodemon ./bin/www",
+    "start:dev":"node scripts/setup_dev.js && nodemon ./bin/www",
     "migrate": "knex migrate:latest --knexfile database/knexfile-internal.js",
     "seed": "knex seed:run --knexfile database/knexfile-internal.js"
   },

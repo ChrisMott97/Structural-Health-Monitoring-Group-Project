@@ -14,6 +14,7 @@ const users = require('./controllers/users');
 const data = require('./controllers/data');
 const anomalies = require('./controllers/anomalies');
 const comments = require('./controllers/comments');
+const reports = require('./controllers/reports');
 
 const app = express();
 app.set('view engine', 'html');
@@ -68,6 +69,7 @@ app.use(
 app.use('/api/data', requiresAuth(), data);
 app.use('/api/anomalies', requiresAuth(), anomalies);
 app.use('/api/comments', requiresAuth(), comments);
+app.use('/api/reports', requiresAuth(), reports);
 
 app.use((req, res) => {
   res.status(404).render('custom_404');
