@@ -31,8 +31,16 @@ router.get('/database', requiresAuth(), (req, res) => {
   res.render('database');
 });
 
-router.get('/notifications', requiresAuth(), (req, res) => {
-  res.render('notifications');
+router.get('/anomalies', requiresAuth(), (req, res) => {
+  res.render('anomalies');
+});
+
+router.get('/settings', requiresAuth(), (req, res) => {
+  res.render('settings');
+});
+
+router.get('/reports', requiresAuth(), (req, res) => {
+  res.render('reports');
 });
 
 router.get('/report', requiresAuth(), (req, res) => {

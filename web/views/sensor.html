@@ -1,17 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>SHM Monitoring Dashboard</title>
+        <title>SH Monitoring System | Sensor not found</title>
         <link href="css/stylesheet.css" rel='stylesheet' type='text/css'/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script src="js/js.js" charset="UTF-8"></script>
+        <link rel="icon" type="image" href="/images/favicon.png">
         <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.4.2/chroma.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
     </head>
     <body>
         <div class="navbar-div">
-            <a href="javascript:toggleOverlay('user-info')" class="profile-link"><p class="profile-name" id="profile-name"></p><img src="images/user_pic.png" class="profile-pic"></a>
+            <img src="images/uoe.png" class="exeter-logo">
+            <a href="/settings" class="profile-link"><p class="profile-name" id="profile-name"><%= user.name %></p><img src=<%= user.picture %> class="profile-pic"></a>
         </div>
         <div class="sidebar-div">
             <div class="sidebar-icon-div">
@@ -20,18 +23,13 @@
                 </span></a>
             </div>
             <div class="sidebar-icon-div">
-                <a href="/notifications"><span class="sidebar-icon-span">
-                    <img src="images/notifications_icon.png" class="sidebar-icon-img">
+                <a href="/anomalies"><span class="sidebar-icon-span">
+                    <img src="images/anomalies_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
             <div class="sidebar-icon-div">
-                <a href="/images"><span class="sidebar-icon-span">
-                    <img src="images/images_icon.png" class="sidebar-icon-img">
-                </span></a>
-            </div>
-            <div class="sidebar-icon-div">
-                <a href="/visualisations"><span class="sidebar-icon-span">
-                    <img src="images/visualisations_icon.png" class="sidebar-icon-img">
+                <a href="/reports"><span class="sidebar-icon-span">
+                    <img src="images/reports_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
             <div class="sidebar-icon-div sidebar-icon-active">
@@ -42,6 +40,11 @@
             <div class="sidebar-icon-div">
                 <a href="/code"><span class="sidebar-icon-span">
                     <img src="images/code_icon.png" class="sidebar-icon-img">
+                </span></a>
+            </div>
+            <div class="sidebar-icon-div sidebar-icon-active" id="logout-div">
+                <a href="/logout"><span class="sidebar-icon-span">
+                    <img src="images/log_out.png" class="sidebar-icon-img">
                 </span></a>
             </div>
         </div>
@@ -65,15 +68,21 @@
                         </tbody>
                     </table>
                 </div>
+                <h1 class="dashboard-title" id="timeline-title">Anomaly Timeline</h1>
+                <div id="anomaly-timeline-div-small"></div>
             </div>
             <div class="dashboard-tile-parent">
                 <div class="dashboard-tile-div" id="week-chart-div">
-                    <!--<h1 class="dashboard-title">Data - Previous Week</h1>-->
-                    <div><canvas id="week-chart"></canvas></div>
+                    <div height="100%"><canvas id="week-chart"></canvas></div>
                 </div>
                 <div class="dashboard-tile-div" id="day-chart-div">
-                    <!--<h1 class="dashboard-title">Data - Previous 24 Hours</h1>-->
-                    <div><canvas id="day-chart"></canvas></div>
+                    <div height="100%"><canvas id="day-chart"></canvas></div>
+                </div>
+            </div>
+            <div class="dashboard-tile-parent" id="anomaly-timeline-parent">
+                <div class="dashboard-tile-div" style="height: auto;">
+                    <h1 class="dashboard-title">Detected Anomalies - Previous Week</h1>
+                    <div id="anomaly-timeline-div-main"></div>
                 </div>
             </div>
             <div class="database-main-content-div" id="sensor-comments-div">
@@ -91,8 +100,10 @@
                     <input type="date" id="date-from" name="from">
                     <input type="date" id="date-until" name="until">
                     <select name="ordering"><option value="newest">Newest First</option><option value="oldest">Oldest First</option></select><br>
+                    <button class="button-styling" id="previous-data-btn" onclick="decrementData()" disabled="disabled"><</button>
                     <input class="button-styling" type="reset">
-                    <input class="button-styling" type="submit" value="Search">
+                    <input class="button-styling" type="submit" value="Search" onsubmit="reloadData()">
+                    <button class="button-styling" id="next-data-btn" onclick="incrementData()">></button>
                 </form>
                 <table class="database-table">
                     <tbody id="sensor-data">
@@ -101,28 +112,14 @@
                 </table>
             </div>
         </div>
-        <div class="mobile-nav-div">
-            <table class="mobile-nav-table">
-                <tbody>
-                    <tr class="mobile-nav-table-row">
-                        <td class="mobile-nav-table-td"><a href="/dash"><img src="images/dashboard_icon_white.png" class="mobile-nav-icon-img"></a></td>
-                        <td class="mobile-nav-table-td"><a href="/notifications"><img src="images/notifications_icon_white.png" class="mobile-nav-icon-img"></a></td>
-                        <td class="mobile-nav-table-td"><a href="/images"><img src="images/images_icon_white.png" class="mobile-nav-icon-img"></a></td>
-                        <td class="mobile-nav-table-td"><a href="/visualisations"><img src="images/visualisations_icon_white.png" class="mobile-nav-icon-img"></a></td>
-                        <td class="mobile-nav-table-td"><a href="/database"><img src="images/database_icon_white.png" class="mobile-nav-icon-img"></a></td>
-                        <td class="mobile-nav-table-td"><a href="/code"><img src="images/code_icon_white.png" class="mobile-nav-icon-img"></a></td>
-                        <td class="mobile-nav-table-td"><a href="javascript:toggleOverlay('user-info')"><img src="images/user_pic_white.png" class="mobile-nav-icon-img"></a></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
         <div id="overlay-shadow">
             <a href="javascript:toggleOverlay()"><span id="overlay-span"></span></a>
             <div id="overlay-div">
                 <a href="javascript:toggleOverlay()"><img id="overlay-close" src="images/close.png"></a>
-                <div id="overlay-content"></div>
-                <div style="text-align: center;">
-                    <a href="/logout">Logout</a>
+                <div id="overlay-content">
+                    <div style="text-align: center;">
+                        <a href="/logout">Logout</a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -132,12 +129,14 @@
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     let sensorID = urlParams.get('sensorID')
+
+    document.title = 'SH Monitoring System | Sensor #'+sensorID
+    document.getElementById('comment-title').innerHTML += ` <a href="javascript:toggleOverlay('comments-form', '', 'Add note to sensor #${sensorID}:')"><img class="add-note-icon" src="images/edit_icon.png"></a>`
                  
     axios.get(`/api/comments?sensor-id=${sensorID}`)
     .then(function (response) {
         let commentsData = response.data
 
-        document.getElementById('comment-title').innerHTML += ` <a href="javascript:toggleOverlay('comments-form', '', 'Add note to sensor #${sensorID}:')"><img class="add-note-icon" src="images/edit_icon.png"></a>`
         commentsTable = document.getElementById("comment-table")
         commentsTable.innerHTML = ""
 
@@ -204,97 +203,79 @@
             })
         })
     }
-
-    document.getElementById("database-search-form").innerHTML += `<input type="hidden" name="sensorID" value="${sensorID}">`
-    
-    let dataQuery = `/api/data?sensor=${sensorID}`
-    
-    if (urlParams.has('from')) {
-        if (urlParams.get('from') != '') {
-            document.getElementById('date-from').value = urlParams.get('from')
-            dataQuery += `&from=${urlParams.get('from')}T00:00:00`
-        }
-    }
-    if (urlParams.has('until')) {
-        if (urlParams.get('until') != '') {
-            document.getElementById('date-until').value = urlParams.get('until')
-            dataQuery += `&until=${urlParams.get('until')}T23:59:59`
-        }
-    }
-
-    axios.get(dataQuery)
-    .then(function (response) {
-        document.getElementById('sensor-data').innerHTML = `<tr class="database-table-row"><th>Date</th><th>Time</th><th>value</th></tr>`
-        let sensorData = response.data
-        lastUpdatedArray = formatDateString(sensorData[sensorData.length - 1].time)
-        lastUpdated = lastUpdatedArray[0] + ', ' + lastUpdatedArray[1]
-
-        axios.get(`/api/sensors/${sensorID}`)
+    axios.get(`/api/sensors/${sensorID}`)
         .then(function (response) {
             let sensorDetails = response.data
 
-            document.getElementById('sensor-title').innerHTML = `Inspecting: ${sensorDetails.type} #${sensorID}`
-            let details = document.createElement("p")
-            sensorUnit = sensorDetails.unit
-            details.innerHTML = `
-            Sensor ID: <i>#${sensorDetails.id}</i><br>
-            Sensor Type: <i>${sensorDetails.type}</i><br>
-            Unit: <i>${formatUnitString(sensorDetails.unit)}</i><br>
-            Location: <i>${sensorDetails.location}</i><br><br>
-            Last Updated: <i>${lastUpdated}</i><br>
-            Last Detected Anomaly: <i>${null}</i>
-            `
-            document.getElementById("sensor-info").appendChild(details)
-
             axios.get(`/api/data?sensor=${sensorID}`)
             .then(function (response) {
+
                 let sensorData = response.data
-                
-                // Current day of iteration
-                currentDay = formatDateString(sensorData[0].time)[0]
-                // Current time used to get data for the preceding 24 hours
-                currentTime = new Date(sensorData[sensorData.length - 1].time)
-                
-                dayTotal = 0
-                numVals = 0
-                labels = [currentDay]
-                dayLabels = []
-                dayVals = []
-                vals = []
-                maxVals = [Number.NEGATIVE_INFINITY]
-                minVals = [Number.POSITIVE_INFINITY]
-                
-                for (let i = 0; i < sensorData.length; i++) {
+                luArr = formatDateString(sensorData.splice(-1)[0].time)
+                lastUpdated = luArr[0] + ', ' + luArr[1]
 
-                    if (sensorData[i].value < 1000) {
+                axios.get(`api/anomalies`)
+                .then(function (response) {
 
-                        if (formatDateString(sensorData[i].time)[0] == currentDay) {
-                            
-                            dayTotal += sensorData[i].value
-                            numVals += 1
+                    anomaliesData = response.data
+                    mostRecent = "No anomalies detected."
 
-                        } else {
-                            maxVals.push(Number.NEGATIVE_INFINITY)
-                            minVals.push(Number.POSITIVE_INFINITY)
-                            vals.push(dayTotal / numVals)
-                            dayTotal = sensorData[i].value
-                            numVals = 1
-                            currentDay = formatDateString(sensorData[i].time)[0]
-                            labels.push(currentDay)
-                        }
+                    // Change to either show last week or so of anomalies
+                    // or a day either side of the selected anomaly!
+                    reportStartTime = new Date(anomaliesData[0].time)
+                    reportEndTime = new Date(anomaliesData.splice(-1)[0].time)
+                    reportStartTime.setHours(reportStartTime.getHours() - 0.5)
+                    reportEndTime.setHours(reportEndTime.getHours() + 1)
 
-                        valueTime = new Date(sensorData[i].time)
-                        if (currentTime - valueTime < (1000 * 60 * 60 * 24)) {
-                            dayLabels.push(formatDateString(sensorData[i].time)[1].slice(0, -3))
-                            dayVals.push(sensorData[i].value)
-                        }
-                        if (sensorData[i].value > maxVals[maxVals.length - 1]) {maxVals[maxVals.length - 1] = sensorData[i].value}
-                        else if (sensorData[i].value < minVals[minVals.length - 1]) {minVals[minVals.length - 1] = sensorData[i].value}
+                    anomalyTimes = []
+                    anomalySensors = []
+                    anomalyIDs = []
+
+                    let colourScale = chroma.scale(['#00FF00', '#FFFF00', '#FF0000']);
+                    colours = []
+
+                    for (let i = 0; i < anomaliesData.length; i++) {
+                        if (anomaliesData[i].sensor_id == sensorID) {
+                            anomArr = formatDateString(anomaliesData[i].time)
+                            mostRecent = anomArr[0] + ', ' + anomArr[1]
+                            anomalyTimes.push(new Date(anomaliesData[i].time))
+                            anomalySensors.push(anomaliesData[i].sensor_id)
+                            anomalyIDs.push(anomaliesData[i].id)
+                            if (urlParams.has('anomalyID') && anomaliesData[i].id == urlParams.get('anomalyID')) {
+                                colours.push('#1f4587')
+                            } else {
+                                colour = colourScale(anomaliesData[i].confidence).hex()
+                                colours.push(colour)
+                            }
+                        } 
                     }
-                }
-                vals.push(dayTotal / numVals)
-                generateLineGraph('week-chart', 'Data - Previous Week', [vals, maxVals, minVals], ['Values', 'Maximum Value', 'Minimum Value'], labels, sensorUnit, ['#1f4587', '#7e7e7e', '#7e7e7e'], true)
-                generateLineGraph('day-chart', 'Data - Previous 24 hours', [dayVals], ['Values'], dayLabels, sensorUnit, ['#1f4587', '#1f4587'], false)
+                    if (urlParams.has('anomalyID')) {
+                        useDiv = 'anomaly-timeline-div-small'
+                        document.getElementById('timeline-title').style.display = "block"
+                        document.getElementById('anomaly-timeline-parent').style.display = "none"
+                    } else {
+                        useDiv = 'anomaly-timeline-div-main'
+                    }
+                    createAnomalyTimeline(useDiv, anomalyTimes, anomalySensors, anomalyIDs, [reportStartTime, reportEndTime], colours)
+                    
+                    document.getElementById('sensor-title').innerHTML = `Inspecting: ${sensorDetails.type} #${sensorID}`
+                    let details = document.createElement("p")
+                    sensorUnit = sensorDetails.unit
+                    details.innerHTML = `
+                    Sensor ID: <i>#${sensorDetails.id}</i><br>
+                    Sensor Type: <i>${sensorDetails.type}</i><br>
+                    Unit: <i>${formatUnitString(sensorDetails.unit)}</i><br>
+                    Location: <i>${sensorDetails.location}</i><br><br>
+                    Last Updated: <i>${lastUpdated}</i><br>
+                    Last Detected Anomaly: <i>${mostRecent}</i>
+                    `
+                    document.getElementById("sensor-info").appendChild(details)
+        
+                    seriesData = createSeriesFromData(sensorData)
+                    console.log(seriesData.vals)
+                    generateLineGraph('week-chart', 'Data - Previous Week', [seriesData[weekVals], seriesData[weekMaxVals], seriesData[weekMinVals]], ['Values', 'Maximum Value', 'Minimum Value'], seriesData[weekLabels], sensorUnit, ['#1f4587', '#7e7e7e', '#7e7e7e'], true)
+                    generateLineGraph('day-chart', 'Data - Previous 24 hours', [seriesData[dayVals]], ['Values'], seriesData[dayLabels], sensorUnit, ['#1f4587', '#1f4587'], false)
+                })
             })
 
             axios.get(`/api/sensors`)
@@ -310,16 +291,31 @@
                     }
                 }
                 document.getElementById("location-graph-title").innerHTML += ' - ('+sensorDetails.location+')'
-                generateLocationGraph('location-graph', sensorID, connectedSensors, connectedSensorTypes)
+                mapConnectedSensors('location-graph', sensorID, connectedSensors, connectedSensorTypes)
             })
         })
 
-        if (urlParams.get('ordering') == 'newest') {sensorData = sensorData.reverse()}
-
-        for (let i = 0; i < sensorData.length; i++ ) {
-            table = document.getElementById("sensor-data")
-            datetime = formatDateString(sensorData[i].time)
-            if (sensorData[i].value < 1000) {table.innerHTML += `<tr class="database-table-row"><td>${datetime[0]}</td><td>${datetime[1]}</td><td>${sensorData[i].value.toFixed(8)}</td></tr>` }
+    currentDataOffset = 0
+    numRows = 30
+    updateSensorData(sensorID, numRows, currentDataOffset*numRows)
+    
+    function incrementData() {
+        currentDataOffset += 1
+        updateSensorData(sensorID, numRows, currentDataOffset*numRows)
+        document.getElementById('previous-data-btn').disabled = false
+    }
+    function decrementData() {
+        if (currentDataOffset > 0) {
+            currentDataOffset -= 1
+            updateSensorData(sensorID, numRows, currentDataOffset*numRows)
+            document.getElementById('next-data-btn').disabled = false
+            if (currentDataOffset == 0) {
+                document.getElementById('previous-data-btn').disabled = true
+            }
         }
-    })
+    }
+    function reloadData() {
+        currentDataOffset = 0
+        updateSensorData(sensorID, numRows, currentDataOffset*numRows)
+    }
 </script>
