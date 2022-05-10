@@ -26,8 +26,8 @@ router.get('/', (req, res) => {
       'anomalies.sensor_id',
       'status',
       'confidence',
+      'sensitivity',
       'updated_at',
-      'notes',
       'user_id'
     )
     .modify((builder) => {
@@ -65,7 +65,7 @@ router.get('/:id', (req, res) => {
       'status',
       'confidence',
       'updated_at',
-      'notes',
+      'sensitivity',
       'user_id'
     )
     .where({ 'anomalies.id': id })
