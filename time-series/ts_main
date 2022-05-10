@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # returns the middle time, mean, and standard deviation for each increment of timeframe between start_time and end_time for a given sensor
-def stat_time(sensor, start_time, end_time, timeframe):
+def stat_time(sensor, start_time, end_time, timeframe = 'd'):
     # loads the data
     dbcon = pymysql.connect(user="root", password="example", database="humber_bridge", host="localhost", port=33061)
     data = pd.read_sql("select * from summary", dbcon)
@@ -47,17 +47,22 @@ def stat_time(sensor, start_time, end_time, timeframe):
     out = []
     x = end_time
     y = x-z
+    mean_out = []
+    std_out = []
+    mid_out = []
     while y >= start_time:
         mean = fin_data[sensor].loc[(fin_data["timestamp"] <= x) & (fin_data["timestamp"] >= y)].mean()
         std = fin_data[sensor].loc[(fin_data["timestamp"] <= x) & (fin_data["timestamp"] >= y)].std()
         mid = y-((y-x)/2)
         out.append((mid, mean, std))
+        mean_out.append(mean)
+        std_out.append(std)
+        mid_out.append(mid)
         x = y
         y = x-z
-
     # (0.0, 0.0) is when the sensor is offline but timestamps exist
     # (nan, nan) is when no timestamps exist for the sensor in the alloted time
-    return out
+    return out, mid_out, mean_out, std_out
 
 # returns an errorbar plot for the given data output in stat_time where the x value is the middle time, the y value is the mean, and the error is the standard deviation
 def stat_show(out):
