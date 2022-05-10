@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>SHM Monitoring Dashboard</title>
+        <title>SH Monitoring System | Anomalies</title>
         <link href="css/stylesheet.css" rel='stylesheet' type='text/css'/>
         <script src="js/js.js"></script>
+        <link rel="icon" type="image" href="/images/favicon.png">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     </head>
     <body>
         <div class="navbar-div">
-            <a href="javascript:toggleOverlay('user-info')" class="profile-link"><p class="profile-name" id="profile-name"></p><img src="images/user_pic.png" class="profile-pic"></a>
+            <img src="images/uoe.png" class="exeter-logo">
+            <a href="/settings" class="profile-link"><p class="profile-name" id="profile-name"><%= user.name %></p><img src=<%= user.picture %> class="profile-pic"></a>
         </div>
         <div class="sidebar-div">
             <div class="sidebar-icon-div">
@@ -18,18 +20,13 @@
                 </span></a>
             </div>
             <div class="sidebar-icon-div sidebar-icon-active">
-                <a href="/notifications"><span class="sidebar-icon-span">
-                    <img src="images/notifications_icon.png" class="sidebar-icon-img">
+                <a href="/anomalies"><span class="sidebar-icon-span">
+                    <img src="images/anomalies_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
             <div class="sidebar-icon-div">
-                <a href="/images"><span class="sidebar-icon-span">
-                    <img src="images/images_icon.png" class="sidebar-icon-img">
-                </span></a>
-            </div>
-            <div class="sidebar-icon-div">
-                <a href="/visualisations"><span class="sidebar-icon-span">
-                    <img src="images/visualisations_icon.png" class="sidebar-icon-img">
+                <a href="/reports"><span class="sidebar-icon-span">
+                    <img src="images/reports_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
             <div class="sidebar-icon-div">
@@ -42,12 +39,17 @@
                     <img src="images/code_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
+            <div class="sidebar-icon-div sidebar-icon-active" id="logout-div">
+                <a href="/logout"><span class="sidebar-icon-span">
+                    <img src="images/log_out.png" class="sidebar-icon-img">
+                </span></a>
+            </div>
         </div>
         <!-- Reports section -->
         <!-- "Unread notifications" section displaying pending anomalies -->
         <div class="main-content-div">
             <div class="database-main-content-div">
-                <h1 class="dashboard-title">Unread Notifications</h1>
+                <h1 class="dashboard-title">Pending Anomalies</h1>
                 <!--<p id="no-unread">No new anomalies have been detected.</p>-->
                 <table class="database-table">
                     <tbody id="unread-anomaly-table">
@@ -74,50 +76,6 @@
                     </tbody>
                 </table>
             </div>
-            <div class="database-main-content-div">
-                <h1 class="dashboard-title">Generated Reports</h1>
-                <form>
-                    <table class="database-search-table">
-                        <tbody>
-                            <tr>
-                                <td class="database-search-table-td">
-                                    <input id="sensorID" name="sensorID" type="text" placeholder="Search Reports"><img class="search-icon" src="images/search.png"></td>
-                                <td class="database-search-table-td">Sort By: <select>
-                                                                                    <option value="updated-newest">Newest First</option>
-                                                                                    <option value="updated-oldest">Oldest First</option>
-                                                                            </select></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </form>
-                <table class="database-table">
-                    <tbody id="reports-table">
-                        <tr class="database-table-row"><th>Date Generated</th><th>Title</th><th>Start Date</th><th>End Date</th><th>Author</th></tr>
-                        
-                    </tbody>
-                </table>
-            <!--<a href="https://www.flaticon.com/free-icons/dashboard" title="dashboard icons">Dashboard icons created by Those Icons - Flaticon</a>
-                <a href="https://www.flaticon.com/free-icons/email" title="email icons">Email icons created by Those Icons - Flaticon</a>
-                <a href="https://www.flaticon.com/free-icons/picture" title="picture icons">Picture icons created by Pixel perfect - Flaticon</a>
-                <a href="https://www.flaticon.com/free-icons/graph" title="graph icons">Graph icons created by ibrandify - Flaticon</a>
-                <a href="https://www.flaticon.com/free-icons/database" title="database icons">Database icons created by Pixel perfect - Flaticon</a>
-                <a href="https://www.flaticon.com/free-icons/code" title="code icons">Code icons created by Stockio - Flaticon</a>-->
-            </div>
-        </div>
-        <div class="mobile-nav-div">
-            <table class="mobile-nav-table">
-                <tbody>
-                    <tr class="mobile-nav-table-row">
-                        <td class="mobile-nav-table-td"><a href="/dash"><img src="images/dashboard_icon_white.png" class="mobile-nav-icon-img"></a></td>
-                        <td class="mobile-nav-table-td"><a href="notifications"><img src="images/notifications_icon_white.png" class="mobile-nav-icon-img"></a></td>
-                        <td class="mobile-nav-table-td"><a href="/images"><img src="images/images_icon_white.png" class="mobile-nav-icon-img"></a></td>
-                        <td class="mobile-nav-table-td"><a href="/visualisations"><img src="images/visualisations_icon_white.png" class="mobile-nav-icon-img"></a></td>
-                        <td class="mobile-nav-table-td"><a href="/database"><img src="images/database_icon_white.png" class="mobile-nav-icon-img"></a></td>
-                        <td class="mobile-nav-table-td"><a href="/code"><img src="images/code_icon_white.png" class="mobile-nav-icon-img"></a></td>
-                        <td class="mobile-nav-table-td"><a href="javascript:toggleOverlay('user-info')"><img src="images/user_pic_white.png" class="mobile-nav-icon-img"></a></td>
-                    </tr>
-                </tbody>
-            </table>
         </div>
         <div id="overlay-shadow">
             <a href="javascript:toggleOverlay()"><span id="overlay-span"></span></a>
@@ -148,8 +106,8 @@
                     else {trafficLight = 'confidence-green'}
 
                     document.getElementById("anomaly-table").innerHTML += `
-                    <tr class="database-table-row ${trafficLight}">
-                    <td><a href="/sensor?sensorID=${anomalyData[i].sensor_id}&anomalyID=${anomalyData[i].id}">#${anomalyData[i].id}</a></td>
+                    <tr class="database-table-row ${trafficLight}" onclick="window.location='/sensor?sensorID=${anomalyData[i].sensor_id}&anomalyID=${anomalyData[i].id}';" style="cursor:pointer;">
+                    <td>#${anomalyData[i].id}</td>
                     <td>${(anomalyData[i].confidence * 100).toFixed(1)}%</td>
                     <td>${anomalyData[i].sensor_id}</td>
                     <td>${detectedAt[0]}, ${detectedAt[1]}</td>
@@ -175,8 +133,8 @@
                 else {trafficLight = 'confidence-green'}
 
                 document.getElementById("unread-anomaly-table").innerHTML += `
-                <tr class="database-table-row ${trafficLight}">
-                <td><a href="/sensor?sensorID=${anomalyData[i].sensor_id}&anomalyID=${anomalyData[i].id}">#${anomalyData[i].id}</a></td>
+                <tr class="database-table-row ${trafficLight}" onclick="window.location='/sensor?sensorID=${anomalyData[i].sensor_id}&anomalyID=${anomalyData[i].id}';" style="cursor:pointer;">
+                <td>#${anomalyData[i].id}</td>
                 <td>${(anomalyData[i].confidence * 100).toFixed(1)}%</td>
                 <td>${anomalyData[i].sensor_id}</td>
                 <td>${detectedAt[0]}, ${detectedAt[1]}</td>
@@ -186,15 +144,4 @@
                 `;
             }
         })
-
-    for (let i = 0; i < reports.length; i++ ) {
-        document.getElementById('reports-table').innerHTML += `
-        <tr class="database-table-row">
-        <td>${reports[i][1].getFullYear()+'/'+(reports[i][1].getMonth()+1)+'/'+reports[i][1].getDate()}</td>
-        <td>${reports[i][2]}</td>
-        <td>${reports[i][3].getFullYear()+'/'+(reports[i][3].getMonth()+1)+'/'+reports[i][3].getDate()}</td>
-        <td>${reports[i][4].getFullYear()+'/'+(reports[i][4].getMonth()+1)+'/'+reports[i][4].getDate()}</td>
-        <td>${reports[i][5]}</td>
-        </tr>`
-    }
 </script>

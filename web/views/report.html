@@ -1,85 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>SHM Monitoring Dashboard</title>
+        <title>SH Monitoring System | Report</title>
         <link href="css/stylesheet.css" rel='stylesheet' type='text/css'/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script src="js/js.js" charset="UTF-8"></script>
+        <link rel="icon" type="image" href="/images/favicon.png">
         <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.4.2/chroma.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
     </head>
     <body>
         <div class="navbar-div">
-            <a href="javascript:toggleOverlay('user-info')" class="profile-link"><p class="profile-name" id="profile-name"></p><img src="images/user_pic.png" class="profile-pic"></a>
+            <img src="images/uoe.png" class="exeter-logo">
+            <a href="/settings" class="profile-link"><p class="profile-name" id="profile-name"><%= user.name %></p><img src=<%= user.picture %> class="profile-pic"></a>
         </div>
         <div class="sidebar-div">
             <div class="sidebar-icon-div">
-                <a href="dash.html"><span class="sidebar-icon-span">
+                <a href="/dash"><span class="sidebar-icon-span">
                     <img src="images/dashboard_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
+            <div class="sidebar-icon-div">
+                <a href="/anomalies"><span class="sidebar-icon-span">
+                    <img src="images/anomalies_icon.png" class="sidebar-icon-img">
+                </span></a>
+            </div>
             <div class="sidebar-icon-div sidebar-icon-active">
-                <a href="notifications.html"><span class="sidebar-icon-span">
-                    <img src="images/notifications_icon.png" class="sidebar-icon-img">
+                <a href="/reports"><span class="sidebar-icon-span">
+                    <img src="images/reports_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
             <div class="sidebar-icon-div">
-                <a href="images_page.html"><span class="sidebar-icon-span">
-                    <img src="images/images_icon.png" class="sidebar-icon-img">
-                </span></a>
-            </div>
-            <div class="sidebar-icon-div">
-                <a href="visualisations.html"><span class="sidebar-icon-span">
-                    <img src="images/visualisations_icon.png" class="sidebar-icon-img">
-                </span></a>
-            </div>
-            <div class="sidebar-icon-div">
-                <a href="database.html"><span class="sidebar-icon-span">
+                <a href="/database"><span class="sidebar-icon-span">
                     <img src="images/database_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
             <div class="sidebar-icon-div">
-                <a href="code.html"><span class="sidebar-icon-span">
+                <a href="/code"><span class="sidebar-icon-span">
                     <img src="images/code_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
+            <div class="sidebar-icon-div sidebar-icon-active" id="logout-div">
+                <a href="/logout"><span class="sidebar-icon-span">
+                    <img src="images/log_out.png" class="sidebar-icon-img">
+                </span></a>
+            </div>
         </div>
-        <div class="main-content-div">
-            <h1 class="sensor-title" id="report-title">Penis</h1>
+        <div class="main-content-div" id="main-content-div">
+            <h1 class="sensor-title" id="report-title">Report</h1>
             <div class="dashboard-tile-parent">
                 <div class="dashboard-tile-div" id="report-details-div">
-                    
                 </div>
             </div>
             <div class="dashboard-tile-parent">
-                <div class="dashboard-tile-div" id="week-chart-div">
-                    This is the report page!
-                </div>
-                <div class="dashboard-tile-div" id="week-chart-div">
-                    This is the report page!
+                <div class="dashboard-tile-div" style="height: auto;">
+                    <h1 class="dashboard-title">Detected Anomalies</h1>
+                    <div id="anomaly-timeline-div"></div>
                 </div>
             </div>
-            <div class="dashboard-tile-parent">
-                <div class="dashboard-tile-div" id="week-chart-div">
-                    This is the report page!
-                </div>
+            <div class="dashboard-tile-parent" id="sensor-visualisations-parent">
             </div>
-        </div>
-        <div class="mobile-nav-div">
-            <table class="mobile-nav-table">
-                <tbody>
-                    <tr class="mobile-nav-table-row">
-                        <td class="mobile-nav-table-td"><a href="dash.html"><img src="images/dashboard_icon_white.png" class="mobile-nav-icon-img"></a></td>
-                        <td class="mobile-nav-table-td"><a href="notifications.html"><img src="images/notifications_icon_white.png" class="mobile-nav-icon-img"></a></td>
-                        <td class="mobile-nav-table-td"><a href="images.html"><img src="images/images_icon_white.png" class="mobile-nav-icon-img"></a></td>
-                        <td class="mobile-nav-table-td"><a href="visualisations.html"><img src="images/visualisations_icon_white.png" class="mobile-nav-icon-img"></a></td>
-                        <td class="mobile-nav-table-td"><a href="database.html"><img src="images/database_icon_white.png" class="mobile-nav-icon-img"></a></td>
-                        <td class="mobile-nav-table-td"><a href="code.html"><img src="images/code_icon_white.png" class="mobile-nav-icon-img"></a></td>
-                        <td class="mobile-nav-table-td"><a href="javascript:toggleOverlay('user-info')"><img src="images/user_pic_white.png" class="mobile-nav-icon-img"></a></td>
-                    </tr>
-                </tbody>
-            </table>
         </div>
         <div id="overlay-shadow">
             <a href="javascript:toggleOverlay()"><span id="overlay-span"></span></a>
@@ -95,7 +77,6 @@
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     let reportID = urlParams.get('reportID')
-    reportID = '1'
 
     found = false
     reportDetails = []
@@ -107,11 +88,152 @@
         }    
     }
     if (found == true) {
-        document.getElementById('report-title').innerHTML = 'Report: ' + reportDetails[2]
-        // reportDetails = ['1', new Date('2022-02-03T12:00:00'), 'West Antenna January 2022', new Date('2022-01-01T00:00:00'), new Date('2022-01-31T23:59:59'), 'Marcia Ratke']
-        creationDateTime = formatDateString()
-        document.getElementById('report-details-div').innerHTML += `Created by: ${reportDetails[5]}<br>`
+        document.title = 'SH Monitoring System | '+reportDetails[2]
+        document.getElementById('report-title').innerHTML = reportDetails[2]
+
+        axios.get(`api/anomalies`)
+        .then(function (response) {
+
+            let anomaliesData = response.data
+
+            reportStartTime = new Date(anomaliesData[0].time)
+            reportEndTime = new Date(anomaliesData.splice(-1)[0].time)
+            reportStartTime.setHours(reportStartTime.getHours() - 0.5)
+            reportEndTime.setHours(reportEndTime.getHours() + 0.5)
+    
+            anomalyTimes = []
+            anomalySensors = []
+            anomalyIDs = []
+
+            let colourScale = chroma.scale(['#00FF00', '#FFFF00', '#FF0000']);
+            colours = []
+            for (let i = 0; i < anomaliesData.length; i++) {
+                anomalyTimes.push(new Date(anomaliesData[i].time))
+                anomalySensors.push(anomaliesData[i].sensor_id)
+                anomalyIDs.push(anomaliesData[i].id)
+                colour = colourScale(anomaliesData[i].confidence).hex()
+                colours.push(colour)
+            }
+            createAnomalyTimeline('anomaly-timeline-div', anomalyTimes, anomalySensors, anomalyIDs, [reportStartTime, reportEndTime], colours)
+
+            axios.get(`api/sensors`)
+            .then(function (response) {
+                allSensorDetails = response.data
+
+                var sensorIDs = []
+                var sensorData = []
+                var sensorDataLabels = []
+                var sensorTypes = []
+                var sensorUnits = []
+                var sensorLocations = []
+
+                for (let i = 0; i < allSensorDetails.length; i++) {
+                    sensorIDs.push(allSensorDetails[i].id)
+                    sensorData.push([])
+                    sensorDataLabels.push([])
+                    sensorTypes.push(allSensorDetails[i].subtype)
+                    sensorUnits.push(allSensorDetails[i].unit)
+                    sensorLocations.push(allSensorDetails[i].location)
+                }
+                
+                reportduration = 3
+                axios.get(`api/data`)
+                .then(function (response) {
+                    
+                    allSensorData = response.data
+
+                    for (let i = 0; i < allSensorData.length; i++) {
+                        sensorID = allSensorData[i].sensor_id
+                        sensorIndex = sensorIDs.indexOf(sensorID)
+                        if (allSensorData[i].value < 100) {sensorData[sensorIndex].push(allSensorData[i].value) }
+                        else {sensorData[sensorIndex].push(0)}
+                        label = formatDateString(allSensorData[i].time)[1].slice(0, -3)
+                        sensorDataLabels[sensorIndex].push(label)
+                    }
+                    
+                    chartGroups = []
+                    chartSensors = []
+                    charts = Array.from(new Set(sensorTypes))
+                    for (let i = 0; i < charts.length; i++) {
+                        chartGroups.push([])
+                        chartSensors.push([])
+                    }
+
+                    for (let i = 0; i < sensorIDs.length; i++) {
+                        sensorID = sensorIDs[i]
+                        sensorType = sensorTypes[i]
+                        groupIndex = charts.indexOf(sensorType)
+                        chartGroups[groupIndex].push(sensorData[i])
+                        chartSensors[groupIndex].push(sensorID)
+                    }
+
+                    for (let i = 0; i < charts.length; i++) {
+                        seriesLabels = []
+                        seriesColours = []
+                        for (let j = 0; j < chartSensors[i].length; j++) {
+                            sensorID = sensorIDs[sensorIDs.indexOf(chartSensors[i][j])]
+                            unit = sensorUnits[sensorIDs.indexOf(chartSensors[i][j])]
+                            seriesLabels.push('#'+sensorID)
+                            seriesColours.push('#'+Math.floor(Math.random()*16777215).toString(16))
+                        }
+                        document.getElementById('sensor-visualisations-parent').innerHTML += `<div class="dashboard-tile-div">
+                                                                                                <div height="100%">
+                                                                                                    <canvas id="${charts[i]}-chart"></canvas>
+                                                                                                </div>
+                                                                                            </div>`
+                        
+                        generateLineGraph(`${charts[i]}-chart`, `${charts[i]} Sensor Values`, chartGroups[i], seriesLabels, sensorDataLabels[i], unit, seriesColours, true, [])
+                    }
+
+                    creationTime = formatDate(reportDetails[1])
+                    startTime = formatDate(reportDetails[3])
+                    endTime = formatDate(reportDetails[4])
+                    console.log(creationTime)
+                    document.getElementById('report-details-div').innerHTML += `Created by: <i>${reportDetails[5]}</i> at <i>${creationTime}</i><br>
+                                                                                Report start: <i>${startTime}</i><br>
+                                                                                Report End: <i>${endTime}</i><br>
+                                                                                Anomalies detected: <i>${anomalyTimes.length}</i>`
+                
+                    tableGroups = []
+                    rows = Array.from(new Set(sensorLocations))
+                    for (let i = 0; i < rows.length; i++) {
+                        tableGroups.push([])
+                    }
+
+                    for (let i = 0; i < sensorIDs.length; i++) {
+                        sensorID = sensorIDs[i]
+                        sensorLocation = sensorLocations[i]
+                        groupIndex = rows.indexOf(sensorLocation)
+                        tableGroups[groupIndex].push(sensorID)
+                    }
+                    
+                    tableHTML = `<table class="database-table" id="report-sensors-table"><tbody><tr class="database-table-row"><th>Location</th><th>Sensors</th></tr>`
+
+                    for (let i = 0; i < rows.length; i++) {
+                        tableHTML += `<tr class="database-table-row"><td>${rows[i]}</td><td>`
+                        
+                        for (let j = 0; j < tableGroups[i].length; j++) {
+                            sensorType = sensorTypes[sensorIDs.indexOf(tableGroups[i][j])]
+                            tableHTML += `<a href="/sensor?sensorID=${tableGroups[i][j]}">#${tableGroups[i][j]}</a> (${sensorType})`
+                            if (j < tableGroups[i].length - 1) { tableHTML += ', '}
+                        }
+                        tableHTML += `</td></tr>`
+                    }
+
+                    tableHTML += `</tbody></table>`
+                    document.getElementById('report-details-div').innerHTML += tableHTML
+                })
+            })
+
+        })
     } else {
         document.getElementById('report-title').innerHTML = 'Report not found'
     }
+
+    function formatDate(date) {
+        formattedDate = ('0'+date.getDate()).slice(-2)+"/"+('0'+date.getMonth()).slice(-2)+"/"+date.getFullYear()
+        formattedDate += ", "+('0'+date.getHours()).slice(-2)+":"+('0'+date.getMinutes()).slice(-2)+":"+('0'+date.getSeconds()).slice(-2)
+        return formattedDate
+    }
+
 </script>
