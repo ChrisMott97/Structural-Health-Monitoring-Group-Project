@@ -87,7 +87,7 @@ def ts_nn(sensitivity = [2,3,4,5,6]):
 
     # Opens the saved prediction model
     try:
-        with open("time-series/ts_model.pkl", "rb") as fout:
+        with open("machine-learning/time-series/ts_model.pkl", "rb") as fout:
             best_tft = pickle.load(fout)
     except:
         print("No model found")
@@ -190,4 +190,4 @@ all_preds, all_vals, sns_ano, active_sensors, ts_data = ts_nn()
 for anomaly_list in sns_ano:
     df, dtb_df = data_frame(all_preds, all_vals, anomaly_list[0], active_sensors, ts_data)
     dtb_df["sensitivity"] = anomaly_list[1]
-    push_internal(dtb_df)
+    #push_internal(dtb_df)
