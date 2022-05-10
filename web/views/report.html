@@ -168,6 +168,10 @@
                     }
 
                     for (let i = 0; i < charts.length; i++) {
+                        document.getElementById('sensor-visualisations-parent').innerHTML += `<div class="dashboard-tile-div"><div height="100%"><canvas id="${charts[i]}-chart"></canvas></div></div>`
+                    }
+
+                    for (let i = 0; i < charts.length; i++) {
                         seriesLabels = []
                         seriesColours = []
                         for (let j = 0; j < chartSensors[i].length; j++) {
@@ -176,12 +180,6 @@
                             seriesLabels.push('#'+sensorID)
                             seriesColours.push('#'+Math.floor(Math.random()*16777215).toString(16))
                         }
-                        document.getElementById('sensor-visualisations-parent').innerHTML += `<div class="dashboard-tile-div">
-                                                                                                <div height="100%">
-                                                                                                    <canvas id="${charts[i]}-chart"></canvas>
-                                                                                                </div>
-                                                                                            </div>`
-                        
                         generateLineGraph(`${charts[i]}-chart`, `${charts[i]} Sensor Values`, chartGroups[i], seriesLabels, sensorDataLabels[i], unit, seriesColours, true, [])
                     }
 
