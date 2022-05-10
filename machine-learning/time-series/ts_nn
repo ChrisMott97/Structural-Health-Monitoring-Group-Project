@@ -185,9 +185,9 @@ def push_internal(dtb_df):
     dbcon.commit()
     cur.close()
 
-
-all_preds, all_vals, sns_ano, active_sensors, ts_data = ts_nn()
-for anomaly_list in sns_ano:
-    df, dtb_df = data_frame(all_preds, all_vals, anomaly_list[0], active_sensors, ts_data)
-    dtb_df["sensitivity"] = anomaly_list[1]
-    #push_internal(dtb_df)
+def main():
+    all_preds, all_vals, sns_ano, active_sensors, ts_data = ts_nn()
+    for anomaly_list in sns_ano:
+        df, dtb_df = data_frame(all_preds, all_vals, anomaly_list[0], active_sensors, ts_data)
+        dtb_df["sensitivity"] = anomaly_list[1]
+        push_internal(dtb_df)
