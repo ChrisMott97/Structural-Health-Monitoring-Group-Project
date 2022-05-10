@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>SHM Monitoring Dashboard</title>
+        <title>SH Monitoring System | Dashboard</title>
         <link href="css/stylesheet.css" rel='stylesheet' type='text/css'/>
         <script src="js/js.js"></script>
+        <link rel="icon" type="image" href="/images/favicon.png">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     </head>
     <body>
         <div class="navbar-div">
-            <a href="javascript:toggleOverlay('user-info')" class="profile-link"><p class="profile-name" id="profile-name"><%= user.name %></p><img src=<%= user.picture %> class="profile-pic"></a>
+            <img src="images/uoe.png" class="exeter-logo">
+            <a href="/settings" class="profile-link"><p class="profile-name" id="profile-name"><%= user.name %></p><img src=<%= user.picture %> class="profile-pic"></a>
         </div>
         <div class="sidebar-div">
             <div class="sidebar-icon-div sidebar-icon-active">
@@ -19,18 +21,13 @@
                 </span></a>
             </div>
             <div class="sidebar-icon-div">
-                <a href="/notifications"><span class="sidebar-icon-span">
-                    <img src="images/notifications_icon.png" class="sidebar-icon-img">
+                <a href="/anomalies"><span class="sidebar-icon-span">
+                    <img src="images/anomalies_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
             <div class="sidebar-icon-div">
-                <a href="/images"><span class="sidebar-icon-span">
-                    <img src="images/images_icon.png" class="sidebar-icon-img">
-                </span></a>
-            </div>
-            <div class="sidebar-icon-div">
-                <a href="/visualisations"><span class="sidebar-icon-span">
-                    <img src="images/visualisations_icon.png" class="sidebar-icon-img">
+                <a href="/reports"><span class="sidebar-icon-span">
+                    <img src="images/reports_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
             <div class="sidebar-icon-div">
@@ -43,15 +40,20 @@
                     <img src="images/code_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
+            <div class="sidebar-icon-div sidebar-icon-active" id="logout-div">
+                <a href="/logout"><span class="sidebar-icon-span">
+                    <img src="images/log_out.png" class="sidebar-icon-img">
+                </span></a>
+            </div>
         </div>
         <div class="main-content-div">
             <div class="dashboard-tile-parent">
                 <div class="dashboard-tile-div" id="tile4">
-                    <h1 class="dashboard-title">Sensors</h1>
-                    <div id="location-graph"></div>
+                    <h1 class="dashboard-title"><a href="/database">Sensors</a></h1>
+                    <div id="location-graph" height="100%"></div>
                 </div>
                 <div class="dashboard-tile-div" id="tile2">
-                    <a href="/notifications" class="dashboard-title"><h1 class="dashboard-title">Detected Anomalies</h1></a>
+                    <h1 class="dashboard-title"><a href="/notifications" class="dashboard-title">Recent Anomalies</a></h1>
                     <table class="anomaly-table">
                         <tbody id="anomaly-table">
                         </tbody>
@@ -64,14 +66,11 @@
                     </script>
                 </div>
                 <div class="dashboard-tile-div" id="tile1">
-                    <a href="/notifications" class="dashboard-title"><h1 class="dashboard-title">Reports</h1></a>
+                    <h1 class="dashboard-title"><a href="/reports" class="dashboard-title">Reports</a></h1>
                     <table class="anomaly-table">
                         <tbody id="reports-table">
                         </tbody>
                     </table>
-                </div>
-                <div class="dashboard-tile-div" id="tile5">
-                    <h1 class="dashboard-title">Even More Content</h1>
                 </div>
             </div>
 
@@ -84,37 +83,22 @@
             <a href="https://www.flaticon.com/free-icons/code" title="code icons">Code icons created by Stockio - Flaticon</a>
             <a href="https://www.flaticon.com/free-icons/edit" title="edit icons">Edit icons created by Kiranshastry - Flaticon</a>-->
         </div>
-        <div class="mobile-nav-div">
-            <table class="mobile-nav-table">
-                <tbody>
-                    <tr class="mobile-nav-table-row">
-                        <td class="mobile-nav-table-td"><a href="/dash"><img src="images/dashboard_icon_white.png" class="mobile-nav-icon-img"></a></td>
-                        <td class="mobile-nav-table-td"><a href="/notifications"><img src="images/notifications_icon_white.png" class="mobile-nav-icon-img"></a></td>
-                        <td class="mobile-nav-table-td"><a href="/images"><img src="images/images_icon_white.png" class="mobile-nav-icon-img"></a></td>
-                        <td class="mobile-nav-table-td"><a href="/visualisations"><img src="images/visualisations_icon_white.png" class="mobile-nav-icon-img"></a></td>
-                        <td class="mobile-nav-table-td"><a href="/database"><img src="images/database_icon_white.png" class="mobile-nav-icon-img"></a></td>
-                        <td class="mobile-nav-table-td"><a href="/code"><img src="images/code_icon_white.png" class="mobile-nav-icon-img"></a></td>
-                        <td class="mobile-nav-table-td"><a href="javascript:toggleOverlay('user-info')"><img src="images/user_pic_white.png" class="mobile-nav-icon-img"></a></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
         <div id="overlay-shadow">
             <a href="javascript:toggleOverlay()"><span id="overlay-span"></span></a>
             <div id="overlay-div">
                 <a href="javascript:toggleOverlay()"><img id="overlay-close" src="images/close.png"></a>
                 <div id="overlay-content">
-                    <img id="profile-pic-large" src=<%= user.picture %>>
+                    <!--<img id="profile-pic-large" src=<%= user.picture %>>
                     <p class="user-info-text">Hello <%= user.name %>!</p>
-                </div>
-                <div style="text-align: center;">
-                    <a href="/logout">Logout</a>
+                    <div style="text-align: center;">
+                        <a href="/logout">Logout</a>
+                    </div>-->
                 </div>
             </div>
         </div>
     </body>
 </html>
-<script>  
+<script> 
     axios.get('/api/anomalies')
         .then(function (response) {
             response.data.reverse().slice(0, 6).forEach(item => {
@@ -130,7 +114,7 @@
                 rowString = `${datetime[0]}, ${datetime[1]}: Sensor #${item.sensor_id}`
 
                 document.getElementById("anomaly-table").innerHTML += `
-                <tr class="anomaly-table-row">
+                <tr class="anomaly-table-row" onclick="window.location='/sensor?sensorID=${item.sensor_id}&anomalyID=${item.id}';" style="cursor:pointer;">
                 <td class="anomaly-table-element ${anomalyClass}"><a href="/sensor?sensorID=${item.sensor_id}&anomalyID=${item.id}">${rowString}</a></td>
                 </tr>
                 `;
@@ -139,15 +123,23 @@
 
     for (let i = 0; i < reports.length; i++ ) {
         document.getElementById('reports-table').innerHTML += `
-        <tr class="anomaly-table-row">
-        <td class="anomaly-table-element"><a href="/report.html?reportID=${reports[i][0]}">${reports[i][1].getFullYear()+'/'+(reports[i][1].getMonth()+1)+'/'+reports[i][1].getDate()}: ${reports[i][2]}</a></td>
+        <tr class="anomaly-table-row report-table-row" onclick="window.location='/report?reportID=${reports[i][0]}';" style="cursor:pointer;">
+        <td class="anomaly-table-element">${reports[i][1].getFullYear()+'/'+(reports[i][1].getMonth()+1)+'/'+reports[i][1].getDate()}: ${reports[i][2]}</td>
         </tr>`
     }
 
-    sensorID = 'GPH000WDN'
-    connectedSensors = ['GPH000EDE', 'GPH000EDH', 'GPH000EDN', 'GPH000WDE', 'GPH000WDH']
-    connectedSensorTypes = ['Longitude', 'Height', 'Latitude', 'Longitude', 'Height']
-    for (var i = connectedSensors.length; i--;) { if (connectedSensors[i] === sensorID) connectedSensors.splice(i, 1); }
-    generateLocationGraph('location-graph', sensorID, connectedSensors, connectedSensorTypes)
-    
+    axios.get('/api/sensors')
+        .then( function (response) {
+            sensors = response.data
+            var sensorLocations = {}
+            var sensorTypes = {}
+            for (let i = 0; i < sensors.length; i++) {
+                if (!(sensors[i].location in sensorLocations)) {
+                    sensorLocations[sensors[i].location] = [sensors[i].id]
+                }
+                sensorTypes[sensors[i].id] = sensors[i].subtype
+                sensorLocations[sensors[i].location].push(sensors[i].id)
+            }
+            mapAllSensors('location-graph', sensorLocations, sensorTypes)
+    })
 </script>

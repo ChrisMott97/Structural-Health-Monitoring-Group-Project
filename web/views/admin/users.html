@@ -1,56 +1,97 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <title>SH Monitoring System | </title>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="icon" type="image" href="../images/favicon.png">
+    <link href="../css/stylesheet.css" rel='stylesheet' type='text/css'/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.auth0.com/js/auth0-spa-js/1.13/auth0-spa-js.production.js"></script>
     <script src="./js/adduser.js"></script> -->
     <title>Document</title>
 </head>
-<body style="text-align: center;">
-    <div>
-        <form method="post" action="/admin/users">
-            <input type="hidden" name="type" value="create">
-            <label for="name">Name</label><br>
-            <input type="text" name="name" id="name"><br>
-            <label for="email">Email</label><br>
-            <input type="email" name="email" id="email"><br>
-            <label for="password">Password</label><br>
-            <input type="password" name="password" id="password"><br>
-            <label for="role">Role</label><br>
-            <select name="role" id="role">
-                <!-- Role IDs in Auth0 -->
-                <option value="rol_3j9yQtx4LTi55Htl">Admin</option>
-                <option value="rol_cIATSW4OESBg1Naj">Guest</option>
-              </select><br>
-            <input type="submit" value="Add User">
-        </form>
+<body>
+    <div class="navbar-div">
+        <img src="../images/uoe.png" class="exeter-logo">
+        <a href="../settings" class="profile-link"><p class="profile-name" id="profile-name"><%= user.name %></p><img src=<%= user.picture %> class="profile-pic"></a>
     </div>
-    <% if (locals.success) { %>
-        <div>
-            <p>User added successfully!</p>
+    <div class="sidebar-div">
+        <div class="sidebar-icon-div sidebar-icon-active">
+            <a href="../dash"><span class="sidebar-icon-span">
+                <img src="../images/dashboard_icon.png" class="sidebar-icon-img">
+            </span></a>
         </div>
-    <% } %>
-    <hr>
-    <div>
-        <% if (locals.users) { %>
-            <table style="margin: 0 auto;">
-                <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Role</th>
-                </tr>
-            <% users.forEach(function(user){ %>
-                <tr>
-                    <td><%= user.name %></td>
-                    <td><%= user.email %></td>
-                    <td><%= user.role.name %></td>
-                </tr>
-            <% }); %>
-            </table>
+        <div class="sidebar-icon-div">
+            <a href="../anomalies"><span class="sidebar-icon-span">
+                <img src="../images/anomalies_icon.png" class="sidebar-icon-img">
+            </span></a>
+        </div>
+        <div class="sidebar-icon-div">
+            <a href="../reports"><span class="sidebar-icon-span">
+                <img src="../images/reports_icon.png" class="sidebar-icon-img">
+            </span></a>
+        </div>
+        <div class="sidebar-icon-div">
+            <a href="../database"><span class="sidebar-icon-span">
+                <img src="../images/database_icon.png" class="sidebar-icon-img">
+            </span></a>
+        </div>
+        <div class="sidebar-icon-div">
+            <a href="../code"><span class="sidebar-icon-span">
+                <img src="../images/code_icon.png" class="sidebar-icon-img">
+            </span></a>
+        </div>
+        <div class="sidebar-icon-div sidebar-icon-active" id="logout-div">
+            <a href="/logout"><span class="sidebar-icon-span">
+                <img src="../images/log_out.png" class="sidebar-icon-img">
+            </span></a>
+        </div>
+    </div>
+    <div class="main-content-div">
+        <div style="width: 50%; margin: 0 auto; text-align: center;">
+            <form method="post" action="/admin/users">
+                <input type="hidden" name="type" value="create">
+                <label for="name">Name</label><br>
+                <input type="text" name="name" id="name"><br>
+                <label for="email">Email</label><br>
+                <input type="email" name="email" id="email"><br>
+                <label for="password">Password</label><br>
+                <input type="password" name="password" id="password"><br>
+                <label for="role">Role</label><br>
+                <select name="role" id="role">
+                    <!-- Role IDs in Auth0 -->
+                    <option value="rol_3j9yQtx4LTi55Htl">Admin</option>
+                    <option value="rol_cIATSW4OESBg1Naj">Guest</option>
+                </select><br>
+                <input class="button-styling" type="submit" style="margin-top: 20px;" value="Add User">
+            </form>
+        </div>
+        <% if (locals.success) { %>
+            <script>
+                alert('User added successfully!')
+            </script>
         <% } %>
+        <hr>
+        <div>
+            <% if (locals.users) { %>
+                <table style="margin: 0 auto;">
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                    </tr>
+                <% users.forEach(function(user){ %>
+                    <tr>
+                        <td><%= user.name %></td>
+                        <td><%= user.email %></td>
+                        <td><%= user.role.name %></td>
+                    </tr>
+                <% }); %>
+                </table>
+            <% } %>
+        </div>
     </div>
     
 </body>

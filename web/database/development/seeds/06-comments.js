@@ -22,17 +22,16 @@ exports.seed = async (knex) => {
         res.anomaly_id = row.id;
         res.body = faker.lorem.paragraph(3);
         res.sensor_id = row.sensor_id;
+        res.user_id = "auth0|624db449e287a5007080932d"
         results.push(res);
       });
     });
-  // Get random selection of users for comments
-
-  // await knex('users')
+  // await knex("users")
   //   .select()
   //   .then((users) => {
   //     results.forEach((res) => {
   //       res.user_id = users[Math.floor(Math.random() * users.length)].id;
   //     });
   //   });
-  await knex('comments').insert(results);
+  await knex("comments").insert(results);
 };
