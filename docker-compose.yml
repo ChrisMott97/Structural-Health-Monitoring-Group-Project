@@ -4,7 +4,7 @@ version: '3.8'
 services:
 
   external-database:
-    image: mysql
+    image: mysql:8.0.29
     platform: linux/amd64
     command: --default-authentication-plugin=mysql_native_password
     environment:
@@ -16,7 +16,7 @@ services:
       - ./external-database/data:/var/lib/mysql
       - ./external-database/init:/docker-entrypoint-initdb.d
   internal-database:
-    image: postgres
+    image: postgres:14.2
     environment:
       - POSTGRES_PASSWORD=example
       - POSTGRES_USER=root
@@ -25,7 +25,7 @@ services:
       - "33062:5432"
 
   database-ui:
-    image: adminer
+    image: adminer:4.8.1
     ports:
       - 8080:8080
     environment:
