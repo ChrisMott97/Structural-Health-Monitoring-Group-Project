@@ -47,7 +47,7 @@
         </div>
         <div class="main-content-div">
             <div class="database-main-content-div" style="text-align:center;">
-                <h1 class="dashboard-title">Data Reports <a href="javascript:toggleOverlay('reports-creation')"><img class="add-note-icon" src="images/edit_icon.png"></a></h1>
+                <h1 class="dashboard-title">Data Reports <a href="javascript:toggleOverlay('reports-creation')"><img class="add-note-icon" src="images/plus.png"></a></h1>
                 <table class="database-table">
                     <tbody id="reports-database">
                         <tr><td>Loading...</td></tr>
@@ -62,10 +62,12 @@
                 <div id="overlay-content"></div>
                     <h1 class="dashboard-title">Generate a New Report</h1>
                     <div>
-                        <table style="width:100%; text-align: center;"><tbody>
+                        <table style="width:100%; text-align: center;"><tbody><form>
+                            <input type="hidden" id="userID" name="userID" value="<%= user.sub %>">
                             <tr><td>Report Name:</td><td><input id="report-name" name="report-name" type="text"></td></tr>
                             <tr><td>Start Date:</td><td><input type="date" id="start-date" name="start-date"></td></tr>
                             <tr><td>End Date:</td><td><input type="date" id="end-date" name="end-date"></td></tr>
+                            <tr><td>Model Sensitivities:</td><td><select id="report-form-sensitivity-ddl" name="sensor-ddl"></select></td></tr>
                             <tr>
                                 <td>Add Sensors:</td><td>
                                     <select id="report-form-sensor-ddl" name="sensor-ddl" onmousedown="this.value='';" onchange="addSensorToList(this.value);">
@@ -75,6 +77,7 @@
                                 </td>
                             </tr>
                         </tbody></table>
+                    </form>
                         <table style="width:100%;"><tbody>
                             <tr><td><div class="report-form-sensor-list" id="report-form-sensor-list"></div></td></tr>
                             <tr><td style="text-align: center;">
@@ -135,6 +138,16 @@
             ddlOptions += `</optgroup>`
         }
         document.getElementById('report-form-sensor-ddl').innerHTML += ddlOptions
+
+        sensivityOptions = ``
+        for (let j = 0; j < sensitivities.length; j++) {
+            if (j == 2) {
+                selected = ' selected'
+            } else { selected = "" }
+            sensivityOptions += `<option value="${j}"${selected}>${sensitivities[j]}</option>`
+        }
+
+        document.getElementById('report-form-sensitivity-ddl').innerHTML += sensivityOptions
 
     })
 

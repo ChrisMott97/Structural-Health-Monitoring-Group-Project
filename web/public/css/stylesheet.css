@@ -606,7 +606,9 @@ body {
     width: auto;
     height: auto;
     min-height: 40px;
+    max-height: 150px;
     margin: 10px 0 20px;
+    overflow: scroll;
 }
 
 .report-form-sensor-list-item {
@@ -674,6 +676,11 @@ input[type="text"] {
     font-family: 'Open Sans';
 }
 
+input[type="email"] {
+    padding: 2px 8px;
+    font-family: 'Open Sans';
+}
+
 input[type="date"] {
     padding: 2px 8px;
     font-family: 'Open Sans';
@@ -697,4 +704,32 @@ select {
 
 .exeter-logo:hover {
     opacity: 0.8;
+}
+
+.main-dashboard-parent {
+    width: auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+a.button-styling {
+    text-decoration: none;
+}
+
+.user-table-row {
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.user-table-row:hover {
+    opacity: 0.5;
+}
+
+#go-to-users {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
 }
