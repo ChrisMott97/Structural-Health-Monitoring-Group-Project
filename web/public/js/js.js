@@ -2,7 +2,9 @@ const reports = [['1', new Date('2022-02-03T12:00:00'), 'West Antenna January 20
                  ['2', new Date('2022-02-21T12:00:00'), 'Storm Eunice Impact Report', new Date('2022-02-17T00:00:00'), new Date('2022-02-20T23:59:59'), 'Ross Kunze'],
                  ['3', new Date('2022-02-22T12:00:00'), '2021 Report', new Date('2021-01-01T00:00:00'), new Date('2021-12-31T23:59:59'), 'Mark Evans']]
 
-const statuses = ['Fixed', 'Dismissed', 'Under Investigation']
+const statuses = ['Pending', 'Under Investigation', 'Urgent', 'Fixed', 'Dismissed']
+const sensitivities = ['Very Low', 'Low', 'Normal', 'High', 'Very High']
+
 const confidenceColours = ['#00FF00', '#FFFF00', '#FF0000']
 
 const lineRenderer = ({ ctx, id, x, y, state: { selected, hover }, style }) => {
@@ -24,6 +26,22 @@ const lineRenderer = ({ ctx, id, x, y, state: { selected, hover }, style }) => {
     };
 }
 
+const custom_canvas_background_color = {
+    id: 'custom_canvas_background_color',
+    beforeDraw: (chart, args, options) => {
+      const {
+        ctx,
+        chartArea: { top, right, bottom, left, width, height },
+        scales: { x, y },
+      } = chart;
+      ctx.save();
+      ctx.globalCompositeOperation = 'destination-over';
+      ctx.fillStyle = '#FAFAFA';
+      ctx.fillRect(left, top, width, height);
+      ctx.restore();
+    },
+  };
+
 function formatDateString(date) {
     if (typeof date === 'string') {
         dateArray = date.split("T")
@@ -33,6 +51,20 @@ function formatDateString(date) {
     } else if (date instanceof Date) {
         return date
     }
+}
+
+function getSensitivityString(sensitivity) {
+    if (sensitivity >= sensitivities.length - 1 || sensitivity < 1) {
+        return 'INVALID'
+    }
+    return sensitivities[sensitivity - 1]
+}
+
+function getStatusString(status) {
+    if (status >= status.length - 1 || status < 1) {
+        return 'INVALID'
+    }
+    return statuses[status - 1]
 }
 
 function toggleOverlay(content, userID, formText) {
@@ -80,12 +112,17 @@ function enableScroll() {
 
 function loadAnomalyForm(div) {
     div.style.height = "auto";
+    statusOptions = ""
+    for (let i = 0; i < statuses.length; i++) {
+        if (statuses[i] == 'Pending') {
+            selected = ' disabled selected'
+        } else { selected = "" }
+        statusOptions += `<option value="${i}"${selected}>${statuses[i]}</option>`
+    }
+
     document.getElementById('overlay-content').innerHTML = `<table style="width: 80%;margin: 20px 10%;"><tbody style="text-align: center;"><form action='sensor.html' method='GET'><tr>
                         <td>Choose New Status: <select class="overlay-select">
-                            <option value="" disabled selected>Pending Status</option>
-                            <option value="status-investigating">Under Investigation</option>
-                            <option value="status-fixed">Fixed</option>
-                            <option value="status-dismissed">Dismissed</option>
+                            ${statusOptions}
                             </select>
                         </td></tr>
                         <tr><td><textarea class="overlay-textarea" placeholder="Notes"></textarea></td></tr>
@@ -275,9 +312,10 @@ function generateLineGraph(chartID, graphTitle, series, seriesLabels, xlabels, u
                         borderDash: dash
                     })
     }
-
+    ctx.globalCompositeOperation = 'destination-over';
     data = { labels: xlabels, datasets: datasets };
-    myChart = new Chart(ctx, config = {type: 'line',
+    myChart = new Chart(ctx, config = {plugins: [custom_canvas_background_color],
+                                        type: 'line',
                                              data: data,
                                              options: {
                                                 maintainAspectRatio: false,
@@ -440,6 +478,7 @@ function createAnomalyTimeline(divId, anomalyTimes, anomalySensors, anomalyIDs, 
     var nodes = new vis.DataSet(nodeList)
     var edges = new vis.DataSet(edgeList)
     var container = document.getElementById(divId);
+    container.style.backgroundColor = '#FFFFFF'
 
     var data = { nodes: nodes, edges: edges};
     var options = {
