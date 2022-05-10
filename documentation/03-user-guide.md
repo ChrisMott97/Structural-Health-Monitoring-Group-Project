@@ -72,6 +72,8 @@ Anomalies can be travelled to by clicking on the node in the report's anomaly ti
 
 ## Jupyter Notebooks
 
+The Jupyter Notebooks section can be accessed through the code icon in the main sidebar and allows the user to analyse and modify various parameters of both the time series and autoencoder models. By runnning the model through the Jupyter Notebooks using the instructions given, this will change the main model used throughout the whole system.
+
 ## Admin Settings
 
 Admin users are able to manage all other user accounts in the system. This can be accessed from the user settings page, where there is a link to the relevant page underneath the user settings. To add a user, simply enter a name, email and password for the new account, and to delete an account, click on the account in the user table at the bottom of the page.
