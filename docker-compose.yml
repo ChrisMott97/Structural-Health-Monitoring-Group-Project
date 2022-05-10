@@ -1,8 +1,7 @@
 # Use root/example as user/password credentials for MySQL databases
-version: '3.8'
+version: "3.8"
 
 services:
-
   external-database:
     image: mysql
     platform: linux/amd64
@@ -13,7 +12,6 @@ services:
     ports:
       - "33061:3306"
     volumes:
-      - ./external-database/data:/var/lib/mysql
       - ./external-database/init:/docker-entrypoint-initdb.d
   internal-database:
     image: postgres
