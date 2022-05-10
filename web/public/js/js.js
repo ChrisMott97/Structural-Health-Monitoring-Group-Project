@@ -456,7 +456,7 @@ function createAnomalyTimeline(divId, anomalyTimes, anomalySensors, anomalyIDs, 
     timelineLength = 1000
     reportDuration = reportStartEnd[1].getTime() - reportStartEnd[0].getTime()
     
-    nodeList = [{id: 0, label: "custom", shape: "custom", x:0, y:2, ctxRenderer: lineRenderer}]
+    nodeList = [{id: 0, label: "custom", shape: "custom", x:0, y:0, ctxRenderer: lineRenderer, fixed: true}]
                     
     edgeList = []
     for (let i = 0; i < anomalyTimes.length; i++) {
@@ -504,7 +504,7 @@ function createAnomalyTimeline(divId, anomalyTimes, anomalySensors, anomalyIDs, 
       });
 }
 
-function updateSensorData(sensorID, dataLimit, dataOffset) {
+function updateSensorData(sensorID, dataLimit, dataOffset, reverseData) {
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
 
@@ -530,6 +530,7 @@ function updateSensorData(sensorID, dataLimit, dataOffset) {
     .then(function (response) {
         document.getElementById('sensor-data').innerHTML = `<tr class="database-table-row"><th>Date</th><th>Time</th><th>value</th></tr>`
         let sensorData = response.data
+        if (reverseData) {sensorData.reverse()}
         lastUpdatedArray = formatDateString(sensorData[sensorData.length - 1].time)
         lastUpdated = lastUpdatedArray[0] + ', ' + lastUpdatedArray[1]
 
