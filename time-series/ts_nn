@@ -86,7 +86,7 @@ torch.cuda.empty_cache()
 
 # Opens the saved prediction model
 try:
-    with open("time-series\ts_model.pkl", "rb") as fout:
+    with open("time-series/ts_model.pkl", "rb") as fout:
         best_tft = pickle.load(fout)
 except:
     print("No model found")
