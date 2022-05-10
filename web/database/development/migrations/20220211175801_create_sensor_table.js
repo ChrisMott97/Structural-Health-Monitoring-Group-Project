@@ -8,7 +8,7 @@ exports.up = (knex) =>
     table.string('id').notNullable();
     table.string('type').notNullable();
     table.string('subtype');
-    table.string('location').notNullable();
+    table.string('location');
     table.string('unit');
   });
 
