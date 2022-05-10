@@ -56,14 +56,9 @@
             </div>
             <div class="database-main-content-div">
                 <h1 class="dashboard-title">Detected Anomalies</h1>
-                <form action="/notifications" method="GET" id="database-search-form">
-                    <input type="date" id="date-from" name="from">
-                    <input type="date" id="date-until" name="until">
-                                <select name="ordering">
-                                    <option value="updated-newest">Last Detected</option>
-                                    <option value="updated-oldest">First Detected</option>
-                                    <option value="updated-newest">Last Updated</option>
-                                    <option value="updated-oldest">First Updated</option></select>
+                <form action="/anomalies" method="GET" id="database-search-form">
+                    From <input type="date" id="date-from" name="from">
+                    to <input type="date" id="date-until" name="until">
                     <input class="button-styling" type="reset">
                     <input class="button-styling" type="submit" value="Search">
                 </form>
@@ -87,12 +82,40 @@
     </body>
 </html>
 <script>
-    axios.get('/api/anomalies')
+
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+
+    let dataQuery = `/api/anomalies`
+
+    added = false
+    
+    if (urlParams.has('from')) {
+        if (urlParams.get('from') != '') {
+            added = true
+            document.getElementById('date-from').value = urlParams.get('from')
+            dataQuery += `?from=${urlParams.get('from')}T00:00:00`
+        }
+    }
+    if (urlParams.has('until')) {
+        if (urlParams.get('until') != '') {
+            document.getElementById('date-until').value = urlParams.get('until')
+            if (added) { dataQuery += '&' }
+            else { dataQuery += '?' }
+            dataQuery += `until=${urlParams.get('until')}T23:59:59`
+        }
+    }
+
+    axios.get(dataQuery)
         .then(function (response) {
             
             loadedPendingAnomalies = false
             document.getElementById("anomaly-table").innerHTML = `<tr class="database-table-row"><th>Anomaly ID</th><th>Confidence</th><th>Sensor ID</th><th>Date & Time</th><th>Status</th><th>Last Update</th></tr>`
             anomalyData = response.data
+
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            let sensorID = urlParams.get('sensorID')
 
             for (let i = 0; i < anomalyData.length; i++ ) {
                 if (anomalyData[i].status == 1) {
