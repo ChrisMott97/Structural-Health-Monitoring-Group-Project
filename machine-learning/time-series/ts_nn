@@ -191,3 +191,5 @@ def main():
         df, dtb_df = data_frame(all_preds, all_vals, anomaly_list[0], active_sensors, ts_data)
         dtb_df["sensitivity"] = anomaly_list[1]
         push_internal(dtb_df)
+
+main()
