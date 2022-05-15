@@ -69,4 +69,22 @@ function create(name, email, password, role) {
     });
 }
 
-module.exports = { find, create, findOne };
+function remove(id) {
+  return auth0.deleteUser({ id })
+  return auth0
+    .createUser({
+      email,
+      name,
+      password,
+      connection: 'Username-Password-Authentication',
+    })
+    .then((user) => {
+      return auth0.assignRolestoUser({ id: user.user_id }, { roles: [role] });
+    })
+    .catch(() => {
+      // console.log('Create user error!');
+      // console.log(err);
+    });
+}
+
+module.exports = { find, create, findOne, remove };
