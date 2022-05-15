@@ -6,8 +6,8 @@ import pymysql
 import psycopg2
 
 def main(anomaly_sensitivity=[1,2,3,4,5]):
-    dbcon = pymysql.connect(user="root", password="example", database="humber_bridge", host="localhost", port=33061)
-    data = pd.read_sql("SELECT * FROM SUMMARY order by timestamp desc limit 2000", dbcon)
+    dbcon = pymysql.connect(user="root", password="example", database="humber_bridge", host="external-database")
+    data = pd.read_sql("SELECT * FROM summary order by timestamp desc limit 2000", dbcon)
     data.replace([1.1e+308], np.nan, inplace=True) # Replace infinite values with nan
     data.fillna(np.nan, inplace=True) # Replace empty cells with nan
     data.dropna(axis=1,how='all',inplace=True) # Remove empty columns (sensors with no data for all timesteps)
@@ -51,7 +51,7 @@ def main(anomaly_sensitivity=[1,2,3,4,5]):
 
     # Create the model
     model = AutoEncoder().to(device)
-    model.load_state_dict(torch.load('machine-learning/auto-encoder/ae_model'))
+    model.load_state_dict(torch.load('/app/autoencoder/ae_model'))
     loss_func = nn.MSELoss().to(device)
 
     model.eval()
@@ -88,12 +88,13 @@ def main(anomaly_sensitivity=[1,2,3,4,5]):
     sql_df.columns = col_names
     records = sql_df.to_records(index=False)
     result = list(records)
-    dbcon2 = psycopg2.connect(user="root", password="example", database="humber_bridge", host="localhost", port=33062)
+    dbcon2 = psycopg2.connect(user="root", password="example", database="humber_bridge", host="internal-database")
     cur = dbcon2.cursor()
-    sql = "INSERT INTO anomalies_ae (sensor_time, sensitivity, confidence) VALUES(%s, %s, %s)"
+    sql = "INSERT INTO anomalies (sensor_time, sensitivity, confidence) VALUES(%s, %s, %s)"
     for row in result:
         cur.execute(sql, row)
     dbcon2.commit()
     cur.close()
 
-main()
+if __name__ == "__main__":
+    main()

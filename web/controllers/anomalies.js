@@ -5,6 +5,7 @@ const knex = require('../database/knex-internal');
 
 router.get('/', (req, res) => {
   const { status } = req.query;
+  const { sensitivity } = req.query;
   const { limit } = req.query;
   const { offset } = req.query;
   const { from } = req.query;
@@ -23,6 +24,7 @@ router.get('/', (req, res) => {
       'user_id'
     )
     .modify((builder) => {
+      if (sensitivity) builder.where({ sensitivity })
       if (status) builder.where({ status });
       if (limit) builder.limit(limit);
       if (offset) builder.offset(offset);

@@ -19,7 +19,7 @@ import psycopg2
 
 def ts_nn(sensitivity = [2,3,4,5,6]):
     # Loads the data from the external database
-    dbcon = pymysql.connect(user="root", password="example", database="humber_bridge", host="localhost", port=33061)
+    dbcon = pymysql.connect(user="root", password="example", database="humber_bridge", host="external-database")
     data = pd.read_sql("select * from summary order by timestamp desc limit 2000", dbcon) # Can remove/increase limit if enough GPU memory for CUDA, will increase accuracy
     data.fillna(value = 0, inplace = True) # Replaces NoneType values with 0
     data.replace(1.1e308, 0, inplace = True) # Replaces infinite values with 0
@@ -87,7 +87,7 @@ def ts_nn(sensitivity = [2,3,4,5,6]):
 
     # Opens the saved prediction model
     try:
-        with open("machine-learning/time-series/ts_model.pkl", "rb") as fout:
+        with open("/app/timeseries/ts_model.pkl", "rb") as fout:
             best_tft = pickle.load(fout)
     except:
         print("No model found")
@@ -173,7 +173,7 @@ def data_frame(all_preds, all_vals, anomaly_list, active_sensors, timestamps):
 
 def push_internal(dtb_df):
     # This adds data to the internal database
-    dbcon = psycopg2.connect(user="root", password="example", database="humber_bridge", host="localhost", port=33062)
+    dbcon = psycopg2.connect(user="root", password="example", database="humber_bridge", host="internal-database")
     cur = dbcon.cursor()
     # Create a list of tupples from the dataframe values
     tuples = [tuple(x) for x in dtb_df.to_numpy()]
@@ -192,4 +192,5 @@ def main():
         dtb_df["sensitivity"] = anomaly_list[1]
         push_internal(dtb_df)
 
-main()
+if __name__ == "__main__":
+    main()
