@@ -65,4 +65,17 @@ router.get('/:id', (req, res) => {
     });
 });
 
+router.put('/:id', (req, res) => {
+  const { id } = req.params;
+  const { status, user_id } = req.body;
+  knex('anomalies')
+  .where({ id })
+  .update({ status, user_id })
+  .then((a)=>{
+    res.json(a)
+  })
+});
+
+
+
 module.exports = router;
