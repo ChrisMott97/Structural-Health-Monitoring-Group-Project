@@ -1,16 +1,39 @@
 const knex = require('../database/knex-internal');
 
 function find(limit, offset) {
-  return knex('reports')
-    .select()
-    .modify((builder) => {
-      if (limit) builder.limit(limit);
-      if (offset) builder.offset(offset);
-    });
+  return new Promise((resolve, reject)=>{
+    knex('reports')
+      .select()
+      .modify((builder) => {
+        if (limit) builder.limit(limit);
+        if (offset) builder.offset(offset);
+      }).then((rows)=>{
+        results = []
+        rows.forEach((row)=>{
+          knex('report_sensors').select("sensor_id").where({report_id: row.id}).then((sensors)=>{
+            sensors = sensors.map(x => x["sensor_id"])
+            row.sensors = sensors
+            results.push(row)
+            if(results.length == rows.length){
+              resolve(results)
+            }
+          })
+        })
+      })
+
+  })
 }
 
 function findOne(id) {
-  return knex('reports').select().where({ id }).first();
+  return new Promise((resolve, reject)=>{
+    knex('reports').select().where({ id }).first().then((row)=>{
+      knex('report_sensors').select("sensor_id").where({report_id: row.id}).then((sensors)=>{
+        sensors = sensors.map(x => x["sensor_id"])
+        row.sensors = sensors
+        resolve(row)
+      })
+    });
+  })
 }
 
 function create(title, start_date, end_date, sensitivity, user, sensors) {
