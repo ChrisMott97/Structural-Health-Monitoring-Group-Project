@@ -11,7 +11,7 @@ CREATE TABLE "public"."anomalies" (
     "confidence" real,
     "sensitivity" real NOT NULL,
     "user_id" character varying(255),
-    "sensor_time" timestamptz(0) NOT NULL,
+    "sensor_time" bigint NOT NULL,
     "sensor_id" character varying(255),
     "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
     "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
