@@ -119,6 +119,8 @@
                 </tr>
                 `;
             });
+        }).catch((err)=>{
+            console.log("No anomalies found.")
         })
 
     for (let i = 0; i < reports.length; i++ ) {

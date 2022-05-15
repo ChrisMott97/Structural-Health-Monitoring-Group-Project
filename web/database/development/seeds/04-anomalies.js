@@ -19,9 +19,9 @@ exports.seed = async (knex) => {
         res = {};
         res.status = Math.floor(Math.random() * status_max) + 1;
         res.confidence = Math.random();
-        res.notes = "This is a fake anomaly";
         res.sensor_time = row.time;
         res.sensor_id = row.sensor_id;
+        res.sensitivity = 1;
         res.user_id = "auth0|624db449e287a5007080932d";
         results.push(res);
       });
