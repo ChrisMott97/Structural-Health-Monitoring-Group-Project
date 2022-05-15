@@ -13,20 +13,6 @@ services:
       - "33061:3306"
     volumes:
       - ./external-database/init:/docker-entrypoint-initdb.d
-    healthcheck:
-      test:
-        [
-          "CMD",
-          "mysqladmin",
-          "ping",
-          "-h",
-          "localhost",
-          "-u",
-          "root",
-          "-p$$MYSQL_ROOT_PASSWORD",
-        ]
-      timeout: 20s
-      retries: 10
 
   internal-database:
     image: postgres
@@ -57,8 +43,6 @@ services:
       target: dev
     depends_on:
       internal-database:
-        condition: service_healthy
-      external-database:
         condition: service_healthy
     init: true
     volumes:
