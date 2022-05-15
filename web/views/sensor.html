@@ -97,9 +97,9 @@
             <div class="database-main-content-div">
                 <h1 class="dashboard-title">Sensor Values</h1>
                 <form action="/sensor" method="GET" id="database-search-form">
-                    <input type="date" id="date-from" name="from">
-                    <input type="date" id="date-until" name="until">
-                    <select name="ordering"><option value="newest">Newest First</option><option value="oldest">Oldest First</option></select><br>
+                    From <input type="date" id="date-from" name="from">
+                    to <input type="date" id="date-until" name="until">
+                    <!--<select name="ordering"><option value="newest">Newest First</option><option value="oldest">Oldest First</option></select>--><br>
                     <button class="button-styling" id="previous-data-btn" onclick="decrementData()" disabled="disabled"><</button>
                     <input class="button-styling" type="reset">
                     <input class="button-styling" type="submit" value="Search" onsubmit="reloadData()">
@@ -132,7 +132,7 @@
 
     document.title = 'SH Monitoring System | Sensor #'+sensorID
     document.getElementById('comment-title').innerHTML += ` <a href="javascript:toggleOverlay('comments-form', '', 'Add note to sensor #${sensorID}:')"><img class="add-note-icon" src="images/edit_icon.png"></a>`
-                 
+
     axios.get(`/api/comments?sensor-id=${sensorID}`)
     .then(function (response) {
         let commentsData = response.data
@@ -152,6 +152,7 @@
                 commentsTable.innerHTML += commentText
             })   
         }
+        console.log(commentsData.length)
     })
 
     if (urlParams.has('anomalyID')) {
@@ -172,13 +173,13 @@
 
             if (response.data.status != 1) {
                 anomalyText += ` The status of this anomaly was marked
-                            as <i>${response.data.status}</i> by <i>${response.data.name}</i> at ${updatedAt[0]}, ${updatedAt[1]}.`
+                            as <i>${getStatusString(response.data.status)}</i> by <i>Chris M</i> at ${updatedAt[0]}, ${updatedAt[1]}.`
             } else {
                 anomalyText += ` This anomaly has not yet been investigated. Once the anomaly is under investigation, change the status using the edit icon above.`
             }
 
             document.getElementById("anomaly-info-text").innerHTML += anomalyText+ `<h1 class="dashboard-title" id="anomaly-comments-title">Notes <a href="javascript:toggleOverlay('comments-form', '', 'Add note to anomaly #${anomalyID}:')"><img class="add-note-icon" src="images/edit_icon.png"></a></h1>`
-            document.getElementById("anomaly-title").innerHTML = `Anomaly #${anomalyID} (Under Investigation) <a href="javascript:toggleOverlay('anomaly-form')"><img class="add-note-icon" src="images/edit_icon.png"></a>`
+            document.getElementById("anomaly-title").innerHTML = `Anomaly #${anomalyID} (${getStatusString(response.data.status)}) <a href="javascript:toggleOverlay('anomaly-form')"><img class="add-note-icon" src="images/edit_icon.png"></a>`
 
             axios.get(`/api/comments?anomaly-id=${anomalyID}`)
             .then(function (response) {
@@ -220,12 +221,21 @@
                     anomaliesData = response.data
                     mostRecent = "No anomalies detected."
 
-                    // Change to either show last week or so of anomalies
-                    // or a day either side of the selected anomaly!
-                    reportStartTime = new Date(anomaliesData[0].time)
-                    reportEndTime = new Date(anomaliesData.splice(-1)[0].time)
-                    reportStartTime.setHours(reportStartTime.getHours() - 0.5)
-                    reportEndTime.setHours(reportEndTime.getHours() + 1)
+                    if (urlParams.has('anomalyID')) {
+                        for (let i = 0; i < anomaliesData.length; i++) {
+                            if (anomaliesData[i].id == urlParams.get('anomalyID')) {
+                                mainAnomalyTime = anomaliesData[i].time
+                            }
+                        }
+                        reportStartTime = new Date(mainAnomalyTime)
+                        reportEndTime = new Date(mainAnomalyTime)
+                        reportStartTime.setHours(reportStartTime.getHours() - 2)
+                        reportEndTime.setHours(reportEndTime.getHours() + 2)
+                    } else {
+                        today = new Date()
+                        reportStartTime = today
+                        reportEndTime = new Date(today.setDate(today.getDate() - 7));
+                    }
 
                     anomalyTimes = []
                     anomalySensors = []
@@ -235,19 +245,22 @@
                     colours = []
 
                     for (let i = 0; i < anomaliesData.length; i++) {
-                        if (anomaliesData[i].sensor_id == sensorID) {
-                            anomArr = formatDateString(anomaliesData[i].time)
-                            mostRecent = anomArr[0] + ', ' + anomArr[1]
-                            anomalyTimes.push(new Date(anomaliesData[i].time))
-                            anomalySensors.push(anomaliesData[i].sensor_id)
-                            anomalyIDs.push(anomaliesData[i].id)
-                            if (urlParams.has('anomalyID') && anomaliesData[i].id == urlParams.get('anomalyID')) {
-                                colours.push('#1f4587')
-                            } else {
-                                colour = colourScale(anomaliesData[i].confidence).hex()
-                                colours.push(colour)
-                            }
-                        } 
+                        anomalyTime = new Date(anomaliesData[i].time)
+                        if (anomalyTime > reportStartTime && anomalyTime < reportEndTime) {
+                            if (anomaliesData[i].sensor_id == sensorID) {
+                                anomArr = formatDateString(anomaliesData[i].time)
+                                mostRecent = anomArr[0] + ', ' + anomArr[1]
+                                anomalyTimes.push(new Date(anomaliesData[i].time))
+                                anomalySensors.push(anomaliesData[i].sensor_id)
+                                anomalyIDs.push(anomaliesData[i].id)
+                                if (urlParams.has('anomalyID') && anomaliesData[i].id == urlParams.get('anomalyID')) {
+                                    colours.push('#1f4587')
+                                } else {
+                                    colour = colourScale(anomaliesData[i].confidence).hex()
+                                    colours.push(colour)
+                                }
+                            } 
+                        }
                     }
                     if (urlParams.has('anomalyID')) {
                         useDiv = 'anomaly-timeline-div-small'
@@ -297,6 +310,7 @@
 
     currentDataOffset = 0
     numRows = 30
+    
     updateSensorData(sensorID, numRows, currentDataOffset*numRows)
     
     function incrementData() {
