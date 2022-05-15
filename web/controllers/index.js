@@ -24,6 +24,7 @@ router.get('/authenticated', requiresAuth(), (req, res) => {
 });
 
 router.get('/dash', requiresAuth(), (req, res) => {
+  console.log(res.locals.user)
   res.render('dash');
 });
 
@@ -50,5 +51,9 @@ router.get('/report', requiresAuth(), (req, res) => {
 router.get('/sensor', requiresAuth(), (req, res) => {
   res.render('sensor');
 });
+
+router.get('/setup', requiresAuth(), (req, res) => {
+  res.render('setup')
+})
 
 module.exports = router;
