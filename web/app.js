@@ -73,10 +73,10 @@ app.use(
   users
 );
 // app.use('/api/users',users);
-app.use('/api/data', data);
-app.use('/api/anomalies', anomalies);
-app.use('/api/comments', comments);
-app.use('/api/reports', reports);
+app.use('/api/data', requiresAuth(), data);
+app.use('/api/anomalies', requiresAuth(), anomalies);
+app.use('/api/comments', requiresAuth(), comments);
+app.use('/api/reports', requiresAuth(), reports);
 
 app.use((req, res) => {
   res.status(404).render('custom_404');

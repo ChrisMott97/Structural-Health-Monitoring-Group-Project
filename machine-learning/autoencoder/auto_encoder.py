@@ -4,9 +4,10 @@ import torch
 from torch import nn
 import pymysql
 import psycopg2
+from os import environ
 
 def main(anomaly_sensitivity=[1,2,3,4,5]):
-    dbcon = pymysql.connect(user="root", password="example", database="humber_bridge", host="external-database")
+    dbcon = pymysql.connect(user="root", password="example", database="humber_bridge", host=environ.get("DATABASE", "external-database"))
     data = pd.read_sql("SELECT * FROM summary order by timestamp desc limit 2000", dbcon)
     data.replace([1.1e+308], np.nan, inplace=True) # Replace infinite values with nan
     data.fillna(np.nan, inplace=True) # Replace empty cells with nan

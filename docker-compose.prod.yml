@@ -2,18 +2,6 @@
 version: "3.8"
 
 services:
-  external-database:
-    image: mysql:8.0.29
-    platform: linux/amd64
-    command: --default-authentication-plugin=mysql_native_password
-    environment:
-      MYSQL_ROOT_PASSWORD: example
-      MYSQL_DATABASE: humber_bridge
-    ports:
-      - "33061:3306"
-    volumes:
-      - ./external-database/init:/docker-entrypoint-initdb.d
-
   internal-database:
     image: postgres:14.2
     environment:
@@ -46,14 +34,12 @@ services:
         condition: service_healthy
     init: true
     volumes:
-      - ./web:/home/node/app
       - node_modules:/home/node/app/node_modules
     command: npm run start:dev
     ports:
       - "3030:3030"
-      - "9229:9229"
     environment:
-      NODE_ENV: development
+      NODE_ENV: production
   
   ml:
     build:
@@ -66,7 +52,7 @@ services:
     ports:
       - "5000:5000"
     environment:
-      DATABASE: external-database
+      DATABASE: http://fsdl-mon-2.ex.ac.uk
 
 volumes:
   node_modules:
