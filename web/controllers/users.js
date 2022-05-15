@@ -19,6 +19,14 @@ router.post('/', (req, res) => {
   });
 });
 
+router.delete('/:id', (req, res) => {
+  const { id } = req.params;
+
+  User.remove(id).then(() => {
+    res.json("User removed.");
+  });
+});
+
 router.get('/:id', (req, res) => {
   const { id } = req.params;
 

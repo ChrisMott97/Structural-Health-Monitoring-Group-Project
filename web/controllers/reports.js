@@ -20,7 +20,9 @@ router.post('/', (req, res) => {
 
   Report.create(title, start_date, end_date, sensitivity, user_id, sensors).then((report) => {
     res.json(report);
-  });
+  }).catch((err)=>{
+    res.status(404).json(err)
+  })
 });
 
 router.get('/:id', (req, res) => {

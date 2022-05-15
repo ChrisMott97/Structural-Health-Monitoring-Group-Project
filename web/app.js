@@ -66,6 +66,7 @@ app.use(
   claimIncludes('http://localhost:3030/roles', 'Admin'),
   users
 );
+// app.use('/api/users',users);
 app.use('/api/data', data);
 app.use('/api/anomalies', requiresAuth(), anomalies);
 app.use('/api/comments', requiresAuth(), comments);
