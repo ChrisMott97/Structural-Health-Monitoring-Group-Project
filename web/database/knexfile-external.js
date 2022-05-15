@@ -22,4 +22,23 @@ module.exports = {
       propagateCreateError: false, // <- default is true, set to false
     },
   },
+  production: {
+    client: 'mysql2',
+    connection: {
+      host: 'http://fsdl-mon-2.ex.ac.uk:3306',
+      user: 'root',
+      password: 'example',
+      database: 'humber_bridge',
+    },
+    pool: {
+      min: 2,
+      max: 6,
+      createTimeoutMillis: 3000,
+      acquireTimeoutMillis: 30000,
+      idleTimeoutMillis: 30000,
+      reapIntervalMillis: 1000,
+      createRetryIntervalMillis: 100,
+      propagateCreateError: false, // <- default is true, set to false
+    },
+  },
 };

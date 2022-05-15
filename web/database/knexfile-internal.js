@@ -29,20 +29,20 @@ module.exports = {
       propagateCreateError: false, // <- default is true, set to false
     },
   },
-  test: {
+  production: {
     client: 'pg',
     connection: {
-      host: 'internal-database-test',
+      host: 'internal-database',
       user: 'root',
       password: 'example',
       database: 'humber_bridge',
     },
     migrations: {
       tableName: 'migrations',
-      directory: './test/migrations',
+      directory: './development/migrations',
     },
     seeds: {
-      directory: './test/seeds',
+      directory: './development/seeds',
     },
     pool: {
       min: 2,
@@ -54,5 +54,5 @@ module.exports = {
       createRetryIntervalMillis: 100,
       propagateCreateError: false, // <- default is true, set to false
     },
-  },
+  }
 };
