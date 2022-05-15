@@ -15,10 +15,11 @@ router.get('/', (req, res) => {
 });
 
 router.post('/', (req, res) => {
-  const { title, start_date, end_date, sensitivity, user_id } = req.body;
+  const { title, start_date, end_date, sensitivity, user_id, sensors } = req.body;
+  console.log(req.body)
 
-  User.create(name, email, password, role).then((user) => {
-    res.json(user);
+  Report.create(title, start_date, end_date, sensitivity, user_id, sensors).then((report) => {
+    res.json(report);
   });
 });
 
