@@ -54,6 +54,17 @@ services:
       - "9229:9229"
     environment:
       NODE_ENV: development
+  
+  ml:
+    build:
+      context: ./machine-learning
+    depends_on:
+      internal-database:
+        condition: service_healthy
+    init: true
+    command: python3 -m flask run --host=0.0.0.0
+    ports:
+      - "5000:5000"
 
 volumes:
   node_modules:

@@ -68,7 +68,7 @@ app.use(
 );
 // app.use('/api/users',users);
 app.use('/api/data', data);
-app.use('/api/anomalies', requiresAuth(), anomalies);
+app.use('/api/anomalies', anomalies);
 app.use('/api/comments', requiresAuth(), comments);
 app.use('/api/reports', reports);
 
