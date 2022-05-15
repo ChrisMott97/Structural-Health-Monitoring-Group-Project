@@ -46,8 +46,45 @@
                 </span></a>
             </div>
         </div>
-        <div class="main-content-div">
-            <a href="admin/users">Go to add users page</a>
+        <div class="main-content-div" style="height: calc(100% - 120px); top: 0;">
+            <% if (user['http://localhost:3030/roles'] == 'Admin') { %>
+                <a href="/admin/users" id="go-to-users">Go to Add Users Page</a>
+            <% } %>
+            <div class="dashboard-tile-parent main-dashboard-parent">
+                <div class="dashboard-tile-div" style="height: auto;">
+                    <form>
+                        <table>
+                            <tbody>
+                                <tr><td>Name:</td><td><i><input type="text" disabled value="<%= user.name %>"></i></td></tr>
+                                <tr><td>Email:</td><td><i><input type="email" disabled value="<%= user.email %>"></i></td></tr>
+                                <tr><td>Role:</td><td><i><input type="text" disabled value="<%= user['http://localhost:3030/roles'] %>"></i></td></tr>
+                            </tbody>
+
+                        </table>
+                        <hr>
+                        <p id="sensitivities-info" style="margin: 0;"></p>
+                        
+                        <hr><p style="text-align: center; margin-top: 30px;">
+                            <input class="button-styling" type="button" onclick="location.reload()" value="Revert">
+                            <input class="button-styling" type="submit" value="Apply">
+                        </p>
+                    </form>
+                </div>
+            </div>
         </div>
     </body>
 </html>
+<script>
+    modelSensitivity = 3
+    
+    sensivityOptions = ``
+    for (let j = 0; j < sensitivities.length; j++) {
+        if (j + 1 == modelSensitivity) {
+            selected = ' selected'
+        } else { selected = "" }
+        sensivityOptions += `<option value="${j}"${selected}>${sensitivities[j]}</option>`
+    }
+
+    document.getElementById('sensitivities-info').innerHTML += `Model Sensitivities: <select class="overlay-select">${sensivityOptions}</select>`
+
+</script>
