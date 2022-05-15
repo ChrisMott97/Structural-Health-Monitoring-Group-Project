@@ -1,6 +1,7 @@
 const express = require('express');
 
 const router = express.Router();
+const Comment = require('../models/Comment');
 const knex = require('../database/knex-internal');
 
 router.get('/', (req, res) => {
@@ -26,6 +27,16 @@ router.get('/', (req, res) => {
         res.json(comments);
       }
     });
+});
+
+router.post('/', (req, res) => {
+  const { sensor_id, anomaly_id, body, user_id } = req.body;
+  console.log("Got the request")
+  Comment.create(sensor_id, anomaly_id, body, user_id).then((comment) => {
+    res.json(comment);
+  }).catch((err)=>{
+    res.status(404).json(err)
+  })
 });
 
 router.get('/:id', (req, res) => {

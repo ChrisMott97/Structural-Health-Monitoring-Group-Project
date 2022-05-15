@@ -12,6 +12,21 @@ function find(limit, offset, type, subtype, location) {
     });
 }
 
+function create(sensor_id, anomaly_id, body, user_id) {
+  return new Promise((resolve, reject)=>{
+    errored = true
+    if(sensor_id && body){
+      errored = false
+    }
+    if(errored){
+      reject('Some required fields not given.')
+    }
+    return knex('comments').insert({
+      sensor_id, anomaly_id, body, user_id
+    }).returning('id').then(resolve)
+  })
+}
+
 function findOne(id) {
   return knex('sensors').select().where({ id }).first();
 }
@@ -33,4 +48,4 @@ function findSimilar(id, by) {
         });
     });
 }
-module.exports = { find, findOne, findSimilar };
+module.exports = { find, findOne, findSimilar, create };
