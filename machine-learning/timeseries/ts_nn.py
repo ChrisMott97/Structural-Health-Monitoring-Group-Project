@@ -1,5 +1,5 @@
 import copy
-from os import kill
+from os import kill, environ
 from pathlib import Path
 import warnings
 import pickle
@@ -19,7 +19,7 @@ import psycopg2
 
 def ts_nn(sensitivity = [2,3,4,5,6]):
     # Loads the data from the external database
-    dbcon = pymysql.connect(user="root", password="example", database="humber_bridge", host="external-database")
+    dbcon = pymysql.connect(user="root", password="example", database="humber_bridge", host=environ.get("DATABASE", "external-database"))
     data = pd.read_sql("select * from summary order by timestamp desc limit 2000", dbcon) # Can remove/increase limit if enough GPU memory for CUDA, will increase accuracy
     data.fillna(value = 0, inplace = True) # Replaces NoneType values with 0
     data.replace(1.1e308, 0, inplace = True) # Replaces infinite values with 0
