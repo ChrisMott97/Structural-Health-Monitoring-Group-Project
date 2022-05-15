@@ -1,8 +1,7 @@
 # Use root/example as user/password credentials for MySQL databases
-version: '3.8'
+version: "3.8"
 
 services:
-
   external-database:
     image: mysql:8.0.29
     platform: linux/amd64
@@ -13,8 +12,8 @@ services:
     ports:
       - "33061:3306"
     volumes:
-      - ./external-database/data:/var/lib/mysql
       - ./external-database/init:/docker-entrypoint-initdb.d
+
   internal-database:
     image: postgres:14.2
     environment:
@@ -23,6 +22,13 @@ services:
       - POSTGRES_DB=humber_bridge
     ports:
       - "33062:5432"
+    volumes:
+      - ./internal-database/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   database-ui:
     image: adminer:4.8.1
@@ -36,7 +42,8 @@ services:
       context: ./web
       target: dev
     depends_on:
-      - internal-database
+      internal-database:
+        condition: service_healthy
     init: true
     volumes:
       - ./web:/home/node/app

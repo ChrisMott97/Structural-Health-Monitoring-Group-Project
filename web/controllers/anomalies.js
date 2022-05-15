@@ -12,30 +12,22 @@ router.get('/', (req, res) => {
   const { sensor } = req.query;
 
   knex('anomalies')
-    .join('data', (qb) => {
-      qb.on('anomalies.sensor_id', '=', 'data.sensor_id').andOn(
-        'anomalies.sensor_time',
-        '=',
-        'data.time'
-      );
-    })
     .select(
-      'anomalies.id',
-      'time',
-      'value',
-      'anomalies.sensor_id',
+      'id',
+      'sensor_time',
+      'sensor_id',
       'status',
       'confidence',
+      'sensitivity',
       'updated_at',
-      'notes',
       'user_id'
     )
     .modify((builder) => {
       if (status) builder.where({ status });
       if (limit) builder.limit(limit);
-      if (limit) builder.offset(offset);
-      if (from && until) builder.whereBetween('time', [from, until]);
-      if (sensor) builder.where({ 'anomalies.sensor_id': sensor });
+      if (offset) builder.offset(offset);
+      // if (from && until) builder.whereBetween('time', [from, until]);
+      if (sensor) builder.where({ 'sensor_id': sensor });
     })
     .then((anomalies) => {
       if (!anomalies || !anomalies.length) {
@@ -50,25 +42,17 @@ router.get('/:id', (req, res) => {
   const { id } = req.params;
 
   knex('anomalies')
-    .join('data', (qb) => {
-      qb.on('anomalies.sensor_id', '=', 'data.sensor_id').andOn(
-        'anomalies.sensor_time',
-        '=',
-        'data.time'
-      );
-    })
     .select(
-      'anomalies.id',
-      'time',
-      'value',
-      'anomalies.sensor_id',
+      'id',
+      'sensor_time',
+      'sensor_id',
       'status',
       'confidence',
+      'sensitivity',
       'updated_at',
-      'notes',
       'user_id'
     )
-    .where({ 'anomalies.id': id })
+    .where({ 'id': id })
     .first()
     .then((anomaly) => {
       if (!anomaly) {

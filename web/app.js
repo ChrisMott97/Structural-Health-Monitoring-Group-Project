@@ -14,6 +14,7 @@ const users = require('./controllers/users');
 const data = require('./controllers/data');
 const anomalies = require('./controllers/anomalies');
 const comments = require('./controllers/comments');
+const reports = require('./controllers/reports');
 
 const app = express();
 app.set('view engine', 'html');
@@ -59,15 +60,17 @@ app.use('/', index);
 app.use('/admin', claimIncludes('http://localhost:3030/roles', 'Admin'), admin);
 app.get('/login', (req, res) => res.oidc.login({ returnTo: '/dash' }));
 
-app.use('/api/sensors', requiresAuth(), sensors);
+app.use('/api/sensors', sensors);
 app.use(
   '/api/users',
   claimIncludes('http://localhost:3030/roles', 'Admin'),
   users
 );
-app.use('/api/data', requiresAuth(), data);
+// app.use('/api/users',users);
+app.use('/api/data', data);
 app.use('/api/anomalies', requiresAuth(), anomalies);
 app.use('/api/comments', requiresAuth(), comments);
+app.use('/api/reports', reports);
 
 app.use((req, res) => {
   res.status(404).render('custom_404');

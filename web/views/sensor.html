@@ -153,6 +153,8 @@
             })   
         }
         console.log(commentsData.length)
+    }).catch((err)=>{
+        console.log("No comments found.")
     })
 
     if (urlParams.has('anomalyID')) {
