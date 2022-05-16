@@ -48,6 +48,12 @@
         <div class="main-content-div">
             <div class="database-main-content-div">
                 <h1 class="dashboard-title">Pending Anomalies</h1>
+                <div style="width:100%; text-align:center; padding-bottom: 20px;">
+                    <button class="button-styling" id='unread-anomaly-table-prev-btn' onclick="decrementAnomalyTables('unread-anomaly-table', false)" disabled="disabled">Previous</button>
+                    <button class="button-styling" id='unread-anomaly-table-first-btn' onclick="decrementAnomalyTables('unread-anomaly-table', true)" disabled="disabled">First Page</button>
+                    <button class="button-styling" id='unread-anomaly-table-last-btn' onclick="incrementAnomalyTables('unread-anomaly-table', true)">Last Page</button>
+                    <button class="button-styling" id='unread-anomaly-table-next-btn' onclick="incrementAnomalyTables('unread-anomaly-table', false)">Next</button>
+                </div>
                 <table class="database-table">
                     <tbody id="unread-anomaly-table">
                         <tr><td id='no-unread-text'>Loading...</td></tr>
@@ -59,8 +65,12 @@
                 <form action="/anomalies" method="GET" id="database-search-form">
                     From <input type="date" id="date-from" name="from">
                     to <input type="date" id="date-until" name="until">
+                    <!--<input type="button" value="Previous" class="button-styling" id='anomaly-table-prev-btn' onclick="decrementAnomalyTables('anomaly-table', false)" disabled="disabled">
+                    <input type="button" value="First Page" class="button-styling" id='anomaly-table-first-btn' onclick="decrementAnomalyTables('anomaly-table', true)" disabled="disabled">-->
                     <input class="button-styling" type="reset">
                     <input class="button-styling" type="submit" value="Search">
+                    <!--<input type="button" value="Last Page" class="button-styling" id='anomaly-table-last-btn' onclick="incrementAnomalyTables('anomaly-table', true)">
+                    <input type="button" value="Next" class="button-styling" id='anomaly-table-next-btn' onclick="incrementAnomalyTables('anomaly-table', false)">-->
                 </form>
                 <table class="database-table">
                     <tbody id="anomaly-table">
@@ -85,66 +95,137 @@
 
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
-
-    let dataQuery = `/api/anomalies`
-
-    added = false
+    let sensorID = urlParams.get('sensorID')
     
-    if (urlParams.has('from')) {
-        if (urlParams.get('from') != '') {
-            added = true
-            document.getElementById('date-from').value = urlParams.get('from')
-            dataQuery += `?from=${urlParams.get('from')}T00:00:00`
-        }
-    }
-    if (urlParams.has('until')) {
-        if (urlParams.get('until') != '') {
-            document.getElementById('date-until').value = urlParams.get('until')
-            if (added) { dataQuery += '&' }
-            else { dataQuery += '?' }
-            dataQuery += `until=${urlParams.get('until')}T23:59:59`
-        }
+    userSensitivity = localStorage.getItem('userSensitivity');
+    if(!userSensitivity){
+        localStorage.setItem('userSensitivity', 3)
+        console.log(`'userSensitivity' set to default`);
+        userSensitivity = 3
+    } else {
+        console.log(`'userSensitivity' is at ${userSensitivity}`);
     }
 
-    axios.get(dataQuery)
+    pendingOffset = 0
+    pendingPerPage = 12
+    investigatedOffset = 0
+    investigatedPerPage = null
+
+    loadTable('unread-anomaly-table', pendingPerPage, pendingOffset)
+    loadTable('anomaly-table', investigatedPerPage, investigatedOffset)
+
+    function loadTable(table, perPage, offset, last) {
+
+        dataQuery = `/api/anomalies?sensivity=${userSensitivity}`
+        if (!last) {dataQuery += `&offset=${offset}`}
+
+        if (table == "unread-anomaly-table") {
+            noAnomalyMessage = "There are no pending anomalies."
+            dataQuery += `&status=1`
+            if (!last) {dataQuery += `&limit=${perPage}`}
+        } else {
+            noAnomalyMessage = "No anomalies have been detected."
+            if (urlParams.has('from')) { if (urlParams.get('from') != '') {
+                document.getElementById('date-from').value = urlParams.get('from')
+                dataQuery += `&from=${urlParams.get('from')}T00:00:00`
+            } }
+            if (urlParams.has('until')) { if (urlParams.get('until') != '') {
+                document.getElementById('date-until').value = urlParams.get('until')
+                dataQuery += `&until=${urlParams.get('until')}T23:59:59`
+            } }
+        }
+
+        axios.get(dataQuery)
         .then(function (response) {
             
-            loadedPendingAnomalies = false
-            document.getElementById("anomaly-table").innerHTML = `<tr class="database-table-row"><th>Anomaly ID</th><th>Confidence</th><th>Sensor ID</th><th>Date & Time</th><th>Status</th><th>Last Update</th></tr>`
+            document.getElementById(table).innerHTML = `<tr class="database-table-row"><th>Anomaly ID</th><th>Confidence</th><th>Sensor ID</th><th>Date & Time</th><th>Status</th><th>Last Update</th></tr>`
             anomalyData = response.data
 
-            const queryString = window.location.search;
-            const urlParams = new URLSearchParams(queryString);
-            let sensorID = urlParams.get('sensorID')
+            start = 0
+            included = 0
 
-            for (let i = 0; i < anomalyData.length; i++ ) {
-                if (anomalyData[i].status == 1) {
-                    if (!loadedPendingAnomalies) {
-                        document.getElementById("unread-anomaly-table").innerHTML = `<tr class="database-table-row"><th>Anomaly ID</th><th>Confidence</th><th>Sensor ID</th><th>Date & Time</th><th>Status</th><th>Last Update</th></tr>`
-                        loadedPendingAnomalies = true
-                    }
-                    useTable = "unread-anomaly-table"
-                } else { useTable = "anomaly-table" }
-
-                detectedAt = formatDateString(anomalyData[i].time)
-                updatedAt = formatDateString(anomalyData[i].updated_at)
-                if (anomalyData[i].confidence > 0.8) {trafficLight = 'confidence-red'}
-                else if (anomalyData[i].confidence > 0.6) {trafficLight = 'confidence-orange'}
-                else {trafficLight = 'confidence-green'}
-
-                document.getElementById(useTable).innerHTML += `
-                <tr class="database-table-row ${trafficLight}" onclick="window.location='/sensor?sensorID=${anomalyData[i].sensor_id}&anomalyID=${anomalyData[i].id}';" style="cursor:pointer;">
-                <td>#${anomalyData[i].id}</td>
-                <td>${(anomalyData[i].confidence * 100).toFixed(1)}%</td>
-                <td>${anomalyData[i].sensor_id}</td>
-                <td>${detectedAt[0]}, ${detectedAt[1]}</td>
-                <td>${getStatusString(anomalyData[i].status)}</td>
-                <td>${updatedAt[0]}, ${updatedAt[1]}</td>
-                </tr>
-                `;
+            if (last) {
+                start = Math.floor(anomalyData.length / perPage) * offset
+                if (table == "unread-anomaly-table") { pendingOffset = start }
+                else { investigatedOffset = start }
             }
-            if (!loadedPendingAnomalies) {
-                document.getElementById('no-unread-text').innerHTML = 'No new anomalies have been detected.'
+
+            for (let i = start; i < anomalyData.length; i++ ) {
+
+                if (table == "unread-anomaly-table" || anomalyData[i].status != 1) {
+                    included += 1
+                    detectedAt = formatDateString(matlabDatenumToDate(anomalyData[i].sensor_time))
+                    updatedAt = formatDateString(anomalyData[i].updated_at)
+                    if (anomalyData[i].confidence > 4) {trafficLight = 'confidence-red'}
+                    else if (anomalyData[i].sensitivity > 2) {trafficLight = 'confidence-orange'}
+                    else {trafficLight = 'confidence-green'}
+
+                    if (anomalyData[i].sensor_id == null) { anomalySensor='all' }
+                    else {anomalySensor = anomalyData[i].sensor_id}
+
+                    document.getElementById(table).innerHTML += `
+                    <tr class="database-table-row ${trafficLight}" onclick="window.location='/sensor?sensorID=${anomalySensor}&anomalyID=${anomalyData[i].id}';" style="cursor:pointer;">
+                    <td>#${anomalyData[i].id}</td>
+                    <td>${(anomalyData[i].confidence * 100).toFixed(1)}%</td>
+                    <td>${anomalySensor}</td>
+                    <td>${detectedAt[0]}, ${detectedAt[1]}</td>
+                    <td>${getStatusString(anomalyData[i].status)}</td>
+                    <td>${updatedAt[0]}, ${updatedAt[1]}</td>
+                    </tr>
+                    `;
+                }
             }
+
+            if (anomalyData.length < perPage || last) {
+                document.getElementById(table+'-next-btn').disabled = true
+            }
+            if (table == "anomaly-table" && included == 0) {
+                document.getElementById(table).innerHTML = `No other anomalies have been detected. Investigated anomalies will show here.`
+                //document.getElementById('database-search-form').remove()
+            }
+
+        }).catch((err)=>{
+            console.log(err)
+            console.log('No anomalies have been detected.')
+            document.getElementById(table).innerHTML = noAnomalyMessage
         })
+    }
+
+    function incrementAnomalyTables(table, last) {
+        if (last) {document.getElementById(table+'-last-btn').disabled = true}
+        if (table == "unread-anomaly-table") {
+            pendingOffset += pendingPerPage
+            tableOffset = pendingOffset
+            tableLimit = pendingPerPage
+        } else {
+            investigatedOffset += investigatedPerPage
+            tableOffset = investigatedOffset
+            tableLimit = investigatedPerPage
+        }
+        loadTable(table, tableLimit, tableOffset, last)
+        document.getElementById(table+'-prev-btn').disabled = false
+        document.getElementById(table+'-first-btn').disabled = false
+    }
+
+    function decrementAnomalyTables(table, first) {
+        if (first) {document.getElementById(table+'-first-btn').disabled = true}
+        if (table == "unread-anomaly-table") {
+            if (pendingOffset - pendingPerPage <= 0 || first == true) {
+                pendingOffset = 0
+                document.getElementById(table+'-prev-btn').disabled = true
+            } else { pendingOffset -= pendingPerPage }
+            tableOffset = pendingOffset
+            tableLimit = pendingPerPage
+        } else {
+            if (investigatedOffset - investigatedPerPage <= 0 || first == true) {
+                investigatedOffset = 0
+                document.getElementById(table+'-prev-btn').disabled = true
+            } else { investigatedOffset -= investigatedPerPage }
+            tableOffset = investigatedOffset
+            tableLimit = investigatedPerPage
+        }
+        loadTable(table, tableLimit, tableOffset, false)
+        document.getElementById(table+'-next-btn').disabled = false
+        document.getElementById(table+'-last-btn').disabled = false
+    }
 </script>
