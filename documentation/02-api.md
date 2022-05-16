@@ -55,6 +55,50 @@ All API routes begin with `/api`.
      - ```javascript
         [String]
         ```
+
+### Reports
+ - Get all reports
+   - Method: GET
+   - URI: `/reports`
+   - Response: 
+     - ```javascript
+        [{id:Number, title:String, user:String, sensitivity:Number, start_date:DateTime, end_date:DateTime, created_at:DateTime, sensors: [id: String]}]
+        ```
+ - Create a report
+   - Method: POST
+   - URI: `/reports`
+   - Body:
+     - ```javascript
+      {title: String, user_id: String, start_date: DateTime, end_date: DateTime, sensitivity: Number, sensors: [id: String]}
+      ```
+   - Response: 
+     - ```javascript
+        [{id:Number, title:String, user:String, sensitivity:Number, start_date:DateTime, end_date:DateTime, created_at:DateTime, sensors: [id: String]}]
+        ```
+ - Get limited set of reports
+   - Method: GET
+   - URI: `/reports?limit=6`
+   - Response: 
+     - ```javascript
+        [{id:Number, title:String, user:String, sensitivity:Number, start_date:DateTime, end_date:DateTime, created_at:DateTime, sensors: [id: String]}]
+        ```
+ - Get the second page of reports limited to 3 per page
+   - Method: GET
+   - URI: `/reports?limit=3&offset=3`
+   - Response: 
+     - ```javascript
+        [{id:Number, title:String, user:String, sensitivity:Number, start_date:DateTime, end_date:DateTime, created_at:DateTime, sensors: [id: String]}]
+        ```
+   - Notes:
+     - For even pages of reports, `offset` should increase in multiples of `limit`.
+      
+- Get one report by ID
+   - Method: GET
+   - URI: `/reports/1`
+   - Response: 
+     - ```javascript
+        {id:Number, title:String, user:String, sensitivity:Number, start_date:DateTime, end_date:DateTime, created_at:DateTime, sensors: [id: String]}
+        ```
 ### Data
  - Get all data
    - Method: GET
@@ -116,7 +160,25 @@ All API routes begin with `/api`.
    - URI: `/users/1`
    - Response: 
      - ```javascript
-        {id: Number, name: String, permission: Number}
+        {email: String, name: String, picture: String, user_id: String, role: {id: String, name: String}}
+        ```
+- Create user
+   - Method: POST
+   - URI: `/users`
+   - Body:
+     - ```javascript
+        {email: String, name: String, password: String, role: String}
+        ``` 
+   - Response: 
+     - ```javascript
+        {email: String, name: String, picture: String, user_id: String, role: {id: String, name: String}}
+        ```
+- Delete user
+   - Method: DELETE
+   - URI: `/users/1`
+   - Response: 
+     - ```javascript
+        "User removed"
         ```
 ### Anomalies
  - Get all anomalies
@@ -124,35 +186,53 @@ All API routes begin with `/api`.
    - URI: `/anomalies`
    - Response: 
      - ```javascript
-        [{"id": Number,"time": DateTime,"value": Number,"sensor_id": String,"status": Number,"confidence": Number,"updated_at": DateTime,"notes": String,"name": String}]
+        [{"id": Number,"sensor_time": Number,"sensor_id": String,"status": Number,"confidence": Number,"sensitivity": Number,"updated_at": DateTime,"user_id": String}]
         ```
 - Get anomaly by ID
    - Method: GET
    - URI: `/anomalies/1`
    - Response: 
      - ```javascript
-        {"id": Number,"time": DateTime,"value": Number,"sensor_id": String,"status": Number,"confidence": Number,"updated_at": DateTime,"notes": String,"name": String}
+        {"id": Number,"sensor_time": Number,"sensor_id": String,"status": Number,"confidence": Number,"sensitivity": Number,"updated_at": DateTime,"user_id": String}
+        ```
+- Update anomaly status
+   - Method: PUT
+   - URI: `/anomalies/1`
+   - Body:
+     - ```javascript
+      {status: Number, user_id: String}
+      ```
+   - Response: 
+     - ```javascript
+        {"id": Number,"sensor_time": Number,"sensor_id": String,"status": Number,"confidence": Number,"sensitivity": Number,"updated_at": DateTime,"user_id": String}
         ```
 - Get anomalies by status
    - Method: GET
    - URI: `/anomalies?status=1`
    - Response: 
      - ```javascript
-        [{"id": Number,"time": DateTime,"value": Number,"sensor_id": String,"status": Number,"confidence": Number,"updated_at": DateTime,"notes": String,"name": String}]
+        [{"id": Number,"sensor_time": Number,"sensor_id": String,"status": Number,"confidence": Number,"sensitivity": Number,"updated_at": DateTime,"user_id": String}]
         ```
 - Get a limited set of anomalies
    - Method: GET
    - URI: `/anomalies?limit=6`
    - Response: 
      - ```javascript
-        [{"id": Number,"time": DateTime,"value": Number,"sensor_id": String,"status": Number,"confidence": Number,"updated_at": DateTime,"notes": String,"name": String}]
+        [{"id": Number,"sensor_time": Number,"sensor_id": String,"status": Number,"confidence": Number,"sensitivity": Number,"updated_at": DateTime,"user_id": String}]
         ```
+- Get anomalies by sensitivity
+   - Method: GET
+   - URI: `/anomalies?sensitivity=3`
+   - Response: 
+     - ```javascript
+        [{"id": Number,"sensor_time": Number,"sensor_id": String,"status": Number,"confidence": Number,"sensitivity": Number,"updated_at": DateTime,"user_id": String}]
+
 - Get the second page of anomalies limited to 3 per page
    - Method: GET
    - URI: `/anomalies?limit=3&offset=3`
    - Response: 
      - ```javascript
-        [{"id": Number,"time": DateTime,"value": Number,"sensor_id": String,"status": Number,"confidence": Number,"updated_at": DateTime,"notes": String,"name": String}]
+        [{"id": Number,"sensor_time": Number,"sensor_id": String,"status": Number,"confidence": Number,"sensitivity": Number,"updated_at": DateTime,"user_id": String}]
         ```
    - Notes:
      - For even pages of users, `offset` should increase in multiples of `limit`.
@@ -161,7 +241,7 @@ All API routes begin with `/api`.
    - URI: `/anomalies?from=2011-02-23T22:30:00&until=2011-02-24T00:59:59`
    - Response: 
      - ```javascript
-        [{time: DateTime, value: Number, sensor_id: String}]
+        [{"id": Number,"sensor_time": Number,"sensor_id": String,"status": Number,"confidence": Number,"sensitivity": Number,"updated_at": DateTime,"user_id": String}]
         ```
    - Notes:
      - Date can also be used in format 2011-02-23 without time
@@ -180,6 +260,17 @@ All API routes begin with `/api`.
    - Response: 
      - ```javascript
         [{id: Number, user_id: Number, sensor_id: String, anomaly_id: Number, body: String, created_at: DateTime, updated_at: DateTime}]
+        ```
+- Create a comment
+   - Method: POST
+   - URI: `/comments`
+   - Body:
+     -  ```javascript
+        {sensor_id: String, anomaly_id: Number, body: String, user_id: String}
+        ```
+   - Response: 
+     - ```javascript
+        {id: Number}
         ```
 - Get limited set of comments
    - Method: GET

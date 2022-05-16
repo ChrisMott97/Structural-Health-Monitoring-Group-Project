@@ -28,7 +28,7 @@ router.get('/', (req, res) => {
       if (status) builder.where({ status });
       if (limit) builder.limit(limit);
       if (offset) builder.offset(offset);
-      // if (from && until) builder.whereBetween('time', [from, until]);
+      if (from && until) builder.whereBetween('time', [from, until]);
       if (sensor) builder.where({ 'sensor_id': sensor });
     })
     .then((anomalies) => {
