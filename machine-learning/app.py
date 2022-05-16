@@ -6,7 +6,8 @@ app = Flask(__name__)
 
 @app.route('/')
 def hello_world():
-    return 'Python server is running.'
+    
+    return 'Python server is running. <br> Click <a href="/predict">here</a> to trigger machine learning prediction. <br> <b> Warning: this overwrites previous predictions and clears the comments of the old anomalies</b>'
 
 @app.route('/predict')
 def predict_route():
@@ -19,4 +20,4 @@ def predict_route():
     
     predict_ae()
     predict_ts()
-    return "Predicted"
+    return "Successfully predicted. You can now return to the original tab."
