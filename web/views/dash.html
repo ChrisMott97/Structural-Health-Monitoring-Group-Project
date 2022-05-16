@@ -36,7 +36,7 @@
                 </span></a>
             </div>
             <div class="sidebar-icon-div">
-                <a href="/code"><span class="sidebar-icon-span">
+                <a href="https://git.exeter.ac.uk/ab1185/2021-ecmm427-project-04/-/tree/master/machine-learning"><span class="sidebar-icon-span">
                     <img src="images/code_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
@@ -69,6 +69,9 @@
                     <h1 class="dashboard-title"><a href="/reports" class="dashboard-title">Reports</a></h1>
                     <table class="anomaly-table">
                         <tbody id="reports-table">
+                            <tr class="anomaly-table-row">
+                                <td class="anomaly-table-element">No Reports have been created.</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -88,18 +91,47 @@
             <div id="overlay-div">
                 <a href="javascript:toggleOverlay()"><img id="overlay-close" src="images/close.png"></a>
                 <div id="overlay-content">
-                    <!--<img id="profile-pic-large" src=<%= user.picture %>>
-                    <p class="user-info-text">Hello <%= user.name %>!</p>
-                    <div style="text-align: center;">
-                        <a href="/logout">Logout</a>
-                    </div>-->
                 </div>
             </div>
         </div>
     </body>
 </html>
 <script> 
-    axios.get('/api/anomalies')
+
+    userSensitivity = localStorage.getItem('userSensitivity');
+    if(!userSensitivity){
+        localStorage.setItem('userSensitivity', 3)
+        console.log(`'userSensitivity' set to default`);
+        userSensitivity = 3
+    } else {
+        console.log(`'userSensitivity' is at ${userSensitivity}`);
+    }
+
+    axios.get('/api/reports')
+    .then(function (response) {
+        document.getElementById("reports-table").innerHTML = ""
+        reportsData = response.data
+        reportsData.reverse()
+        for (let i = 0; i < 3; i++) {
+            if (i >= reportsData.length) {break}
+            reportDate = new Date(reportsData[i].created_at)
+            document.getElementById('reports-table').innerHTML += `
+                <tr class="anomaly-table-row report-table-row" onclick="window.location='/report?reportID=${reportsData[i].id}';" style="cursor:pointer;">
+                <td class="anomaly-table-element">${reportDate.getFullYear()+'/'+(reportDate.getMonth()+1)+'/'+reportDate.getDate()}: ${reportsData[i].title}</td>
+                </tr>`
+        }
+    }).catch((err)=>{
+        console.log('Could not fetch reports.')
+        console.log(err)
+        document.getElementById("reports-table").innerHTML = `
+            <tr class="anomaly-table-row">
+            <td class="anomaly-table-element">No Reports have been created.</td>
+            </tr>
+            `;
+    
+    })
+
+    axios.get(`/api/anomalies?sensitivity=${userSensitivity}`)
         .then(function (response) {
             response.data.reverse().slice(0, 6).forEach(item => {
                 if (item.confidence > 0.8) {
@@ -110,7 +142,7 @@
                     anomalyClass = "confidence-green"
                 }
 
-                datetime = formatDateString(item.time)
+                datetime = formatDateString(matlabDatenumToDate(item.sensor_time))
                 rowString = `${datetime[0]}, ${datetime[1]}: Sensor #${item.sensor_id}`
 
                 document.getElementById("anomaly-table").innerHTML += `
@@ -120,28 +152,31 @@
                 `;
             });
         }).catch((err)=>{
-            console.log("No anomalies found.")
+            console.log(err)
+            document.getElementById("anomaly-table").innerHTML += `
+                <tr class="anomaly-table-row">
+                <td class="anomaly-table-element">No Anomalies have been detected.</td>
+                </tr>
+                `;
         })
 
-    for (let i = 0; i < reports.length; i++ ) {
-        document.getElementById('reports-table').innerHTML += `
-        <tr class="anomaly-table-row report-table-row" onclick="window.location='/report?reportID=${reports[i][0]}';" style="cursor:pointer;">
-        <td class="anomaly-table-element">${reports[i][1].getFullYear()+'/'+(reports[i][1].getMonth()+1)+'/'+reports[i][1].getDate()}: ${reports[i][2]}</td>
-        </tr>`
-    }
-
     axios.get('/api/sensors')
-        .then( function (response) {
-            sensors = response.data
-            var sensorLocations = {}
-            var sensorTypes = {}
-            for (let i = 0; i < sensors.length; i++) {
+    .then( function (response) {
+        sensors = response.data
+        var sensorLocations = {}
+        var sensorTypes = {}
+        for (let i = 0; i < sensors.length; i++) {
+            if (sensors[i].location != null) {
                 if (!(sensors[i].location in sensorLocations)) {
                     sensorLocations[sensors[i].location] = [sensors[i].id]
                 }
                 sensorTypes[sensors[i].id] = sensors[i].subtype
                 sensorLocations[sensors[i].location].push(sensors[i].id)
             }
-            mapAllSensors('location-graph', sensorLocations, sensorTypes)
+        }
+        mapAllSensors('location-graph', sensorLocations, sensorTypes)
+    }).catch((err)=>{
+        console.log(err)
+        console.log('Cannot find sensors')
     })
 </script>

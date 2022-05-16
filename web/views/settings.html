@@ -36,7 +36,7 @@
                 </span></a>
             </div>
             <div class="sidebar-icon-div">
-                <a href="/code"><span class="sidebar-icon-span">
+                <a href="https://git.exeter.ac.uk/ab1185/2021-ecmm427-project-04/-/tree/master/machine-learning"><span class="sidebar-icon-span">
                     <img src="images/code_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
@@ -48,7 +48,7 @@
         </div>
         <div class="main-content-div" style="height: calc(100% - 120px); top: 0;">
             <% if (user['http://localhost:3030/roles'] == 'Admin') { %>
-                <a href="/admin/users" id="go-to-users">Go to Add Users Page</a>
+                <a href="/admin/users" id="go-to-users">Manage Users</a>
             <% } %>
             <div class="dashboard-tile-parent main-dashboard-parent">
                 <div class="dashboard-tile-div" style="height: auto;">
@@ -66,7 +66,7 @@
                         
                         <hr><p style="text-align: center; margin-top: 30px;">
                             <input class="button-styling" type="button" onclick="location.reload()" value="Revert">
-                            <input class="button-styling" type="submit" value="Apply">
+                            <input class="button-styling" type="button" onclick="updateSensitivity()" value="Apply Changes">
                         </p>
                     </form>
                 </div>
@@ -75,16 +75,28 @@
     </body>
 </html>
 <script>
-    modelSensitivity = 3
+    userSensitivity = localStorage.getItem('userSensitivity');
+    if(!userSensitivity){
+        localStorage.setItem('userSensitivity', 3)
+        console.log(`'userSensitivity' set to default`);
+        userSensitivity = 3
+    } else {
+        console.log(`'userSensitivity' is at ${userSensitivity}`);
+    }
     
     sensivityOptions = ``
     for (let j = 0; j < sensitivities.length; j++) {
-        if (j + 1 == modelSensitivity) {
+        if (j + 1 == userSensitivity) {
             selected = ' selected'
         } else { selected = "" }
-        sensivityOptions += `<option value="${j}"${selected}>${sensitivities[j]}</option>`
+        sensivityOptions += `<option value="${j+1}"${selected}>${sensitivities[j]}</option>`
     }
 
-    document.getElementById('sensitivities-info').innerHTML += `Model Sensitivities: <select class="overlay-select">${sensivityOptions}</select>`
+    document.getElementById('sensitivities-info').innerHTML += `Model Sensitivities: <select class="overlay-select" id="sensitivities-ddl">${sensivityOptions}</select>`
+
+    function updateSensitivity() {
+        localStorage.setItem('userSensitivity', document.getElementById('sensitivities-ddl').value)
+        location.reload()
+    }
 
 </script>

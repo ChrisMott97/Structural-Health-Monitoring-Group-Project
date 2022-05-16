@@ -38,7 +38,7 @@
                 </span></a>
             </div>
             <div class="sidebar-icon-div">
-                <a href="/code"><span class="sidebar-icon-span">
+                <a href="https://git.exeter.ac.uk/ab1185/2021-ecmm427-project-04/-/tree/master/machine-learning"><span class="sidebar-icon-span">
                     <img src="images/code_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
@@ -60,7 +60,7 @@
                     <div id="anomaly-timeline-div"></div>
                 </div>
             </div>
-            <div class="dashboard-tile-parent" id="sensor-visualisations-parent">
+            <div class="dashboard-tile-parent" style="height: auto;" id="sensor-visualisations-parent">
             </div>
         </div>
         <div id="overlay-shadow">
@@ -78,155 +78,173 @@
     const urlParams = new URLSearchParams(queryString);
     let reportID = urlParams.get('reportID')
 
-    found = false
-    reportDetails = []
-    for (let i = 0; i < reports.length; i++ ) {
-        if (reports[i][0] == reportID) {
-            reportDetails = reports[i]
-            found = true
-            break
-        }    
-    }
-    if (found == true) {
-        document.title = 'SH Monitoring System | '+reportDetails[2]
-        document.getElementById('report-title').innerHTML = reportDetails[2]
+    axios.get(`api/reports/${reportID}`)
+    .then(function (response) {
+        reportDetails = response.data
 
-        axios.get(`api/anomalies`)
+        creationTime = new Date(reportDetails.created_at)
+        startTime = new Date(reportDetails.start_date)
+        endTime = new Date(reportDetails.end_date)
+        
+        document.title = 'SH Monitoring System | '+reportDetails.title
+        document.getElementById('report-title').innerHTML = 'Report: ' + reportDetails.title
+
+        document.getElementById('report-details-div').innerHTML += `Created by: <i>${reportDetails[5]}</i> at <i>${formatDate(creationTime)}</i><br>
+                                                                            Report start: <i>${formatDate(startTime)}</i><br>
+                                                                            Report End: <i>${formatDate(endTime)}</i><br>
+                                                                            Report Sensitivity: <i>${getSensitivityString(reportDetails.sensitivity)}</i>`
+
+        reportSensors = reportDetails.sensors
+        console.log(reportSensors)
+
+        axios.get(`api/sensors`)
         .then(function (response) {
 
-            let anomaliesData = response.data
+            allSensorDetails = response.data
 
-            reportStartTime = new Date(anomaliesData[0].time)
-            reportEndTime = new Date(anomaliesData.splice(-1)[0].time)
-            reportStartTime.setHours(reportStartTime.getHours() - 0.5)
-            reportEndTime.setHours(reportEndTime.getHours() + 0.5)
-    
-            anomalyTimes = []
-            anomalySensors = []
-            anomalyIDs = []
+            var sensorIDs = []
+            var sensorData = []
+            var sensorDataLabels = []
+            var sensorTypes = []
+            var sensorUnits = []
+            var sensorLocations = []
 
-            let colourScale = chroma.scale(['#00FF00', '#FFFF00', '#FF0000']);
-            colours = []
-            for (let i = 0; i < anomaliesData.length; i++) {
-                anomalyTimes.push(new Date(anomaliesData[i].time))
-                anomalySensors.push(anomaliesData[i].sensor_id)
-                anomalyIDs.push(anomaliesData[i].id)
-                colour = colourScale(anomaliesData[i].confidence).hex()
-                colours.push(colour)
-            }
-            createAnomalyTimeline('anomaly-timeline-div', anomalyTimes, anomalySensors, anomalyIDs, [reportStartTime, reportEndTime], colours)
-
-            axios.get(`api/sensors`)
-            .then(function (response) {
-                allSensorDetails = response.data
-
-                var sensorIDs = []
-                var sensorData = []
-                var sensorDataLabels = []
-                var sensorTypes = []
-                var sensorUnits = []
-                var sensorLocations = []
-
-                for (let i = 0; i < allSensorDetails.length; i++) {
+            for (let i = 0; i < allSensorDetails.length; i++) {
+                if (reportSensors.indexOf(allSensorDetails[i].id) >= 0) {
                     sensorIDs.push(allSensorDetails[i].id)
                     sensorData.push([])
                     sensorDataLabels.push([])
-                    sensorTypes.push(allSensorDetails[i].subtype)
+                    sensorTypes.push(allSensorDetails[i].type)
                     sensorUnits.push(allSensorDetails[i].unit)
                     sensorLocations.push(allSensorDetails[i].location)
                 }
-                
-                reportduration = 3
-                axios.get(`api/data`)
-                .then(function (response) {
-                    
-                    allSensorData = response.data
+            }
 
-                    for (let i = 0; i < allSensorData.length; i++) {
-                        sensorID = allSensorData[i].sensor_id
+            axios.get(`api/data?from=${startTime.toISOString()}&until=${endTime.toISOString()}`)
+            .then(function (response) {
+                
+                allSensorData = response.data
+                for (let i = 0; i < allSensorData.length; i++) {
+                    for (let j = 0; j < reportSensors.length; j++) {
+                        sensorID = reportSensors[j]
                         sensorIndex = sensorIDs.indexOf(sensorID)
-                        if (allSensorData[i].value < 100) {sensorData[sensorIndex].push(allSensorData[i].value) }
-                        else {sensorData[sensorIndex].push(0)}
-                        label = formatDateString(allSensorData[i].time)[1].slice(0, -3)
-                        sensorDataLabels[sensorIndex].push(label)
-                    }
-                    
-                    chartGroups = []
-                    chartSensors = []
-                    charts = Array.from(new Set(sensorTypes))
-                    for (let i = 0; i < charts.length; i++) {
-                        chartGroups.push([])
-                        chartSensors.push([])
-                    }
-
-                    for (let i = 0; i < sensorIDs.length; i++) {
-                        sensorID = sensorIDs[i]
-                        sensorType = sensorTypes[i]
-                        groupIndex = charts.indexOf(sensorType)
-                        chartGroups[groupIndex].push(sensorData[i])
-                        chartSensors[groupIndex].push(sensorID)
-                    }
-
-                    for (let i = 0; i < charts.length; i++) {
-                        document.getElementById('sensor-visualisations-parent').innerHTML += `<div class="dashboard-tile-div"><div height="100%"><canvas id="${charts[i]}-chart"></canvas></div></div>`
-                    }
-
-                    for (let i = 0; i < charts.length; i++) {
-                        seriesLabels = []
-                        seriesColours = []
-                        for (let j = 0; j < chartSensors[i].length; j++) {
-                            sensorID = sensorIDs[sensorIDs.indexOf(chartSensors[i][j])]
-                            unit = sensorUnits[sensorIDs.indexOf(chartSensors[i][j])]
-                            seriesLabels.push('#'+sensorID)
-                            seriesColours.push('#'+Math.floor(Math.random()*16777215).toString(16))
+                        if (sensorIndex >= 0) {
+                            sensorData[sensorIndex].push(allSensorData[i][sensorID])
+                            valueTime = new Date(matlabDatenumToDate(allSensorData[i].timestamp))
+                            label = formatDate(valueTime)
+                            sensorDataLabels[sensorIndex].push(label)
                         }
-                        generateLineGraph(`${charts[i]}-chart`, `${charts[i]} Sensor Values`, chartGroups[i], seriesLabels, sensorDataLabels[i], unit, seriesColours, true, [])
                     }
-
-                    creationTime = formatDate(reportDetails[1])
-                    startTime = formatDate(reportDetails[3])
-                    endTime = formatDate(reportDetails[4])
-                    console.log(creationTime)
-                    document.getElementById('report-details-div').innerHTML += `Created by: <i>${reportDetails[5]}</i> at <i>${creationTime}</i><br>
-                                                                                Report start: <i>${startTime}</i><br>
-                                                                                Report End: <i>${endTime}</i><br>
-                                                                                Anomalies detected: <i>${anomalyTimes.length}</i>`
+                }
                 
-                    tableGroups = []
-                    rows = Array.from(new Set(sensorLocations))
-                    for (let i = 0; i < rows.length; i++) {
-                        tableGroups.push([])
-                    }
+                chartGroups = []
+                chartSensors = []
+                charts = Array.from(new Set(sensorTypes))
+                for (let i = 0; i < charts.length; i++) {
+                    chartGroups.push([])
+                    chartSensors.push([])
+                }
 
-                    for (let i = 0; i < sensorIDs.length; i++) {
-                        sensorID = sensorIDs[i]
-                        sensorLocation = sensorLocations[i]
-                        groupIndex = rows.indexOf(sensorLocation)
-                        tableGroups[groupIndex].push(sensorID)
+                for (let i = 0; i < sensorIDs.length; i++) {
+                    sensorID = sensorIDs[i]
+                    sensorType = sensorTypes[i]
+                    groupIndex = charts.indexOf(sensorType)
+                    chartGroups[groupIndex].push(sensorData[i])
+                    chartSensors[groupIndex].push(sensorID)
+                }
+
+                for (let i = 0; i < charts.length; i++) {
+                    document.getElementById('sensor-visualisations-parent').innerHTML += `<div class="dashboard-tile-div report-graph-tiles"><div height="400px"><canvas id="${charts[i]}-chart"></canvas></div></div>`
+                }
+
+                for (let i = 0; i < charts.length; i++) {
+                    seriesLabels = []
+                    seriesColours = []
+                    for (let j = 0; j < chartSensors[i].length; j++) {
+                        sensorID = sensorIDs[sensorIDs.indexOf(chartSensors[i][j])]
+                        unit = sensorUnits[sensorIDs.indexOf(chartSensors[i][j])]
+                        seriesLabels.push('#'+sensorID)
+                        seriesColours.push('#'+Math.floor(Math.random()*16777215).toString(16))
                     }
+                    generateLineGraph(`${charts[i]}-chart`, '400px', `${charts[i]} Sensor Values`, chartGroups[i], seriesLabels, sensorDataLabels[i], unit, seriesColours, true, [])
+                }
+            
+                tableGroups = []
+                rows = Array.from(new Set(sensorLocations))
+                for (let i = 0; i < rows.length; i++) {
+                    tableGroups.push([])
+                }
+
+                for (let i = 0; i < sensorIDs.length; i++) {
+                    sensorID = sensorIDs[i]
+                    sensorLocation = sensorLocations[i]
+                    groupIndex = rows.indexOf(sensorLocation)
+                    tableGroups[groupIndex].push(sensorID)
+                }
+                
+                tableHTML = `<table class="database-table" id="report-sensors-table"><tbody><tr class="database-table-row"><th>Location</th><th>Sensors</th></tr>`
+
+                for (let i = 0; i < rows.length; i++) {
+                    tableHTML += `<tr class="database-table-row"><td>${rows[i]}</td><td>`
                     
-                    tableHTML = `<table class="database-table" id="report-sensors-table"><tbody><tr class="database-table-row"><th>Location</th><th>Sensors</th></tr>`
-
-                    for (let i = 0; i < rows.length; i++) {
-                        tableHTML += `<tr class="database-table-row"><td>${rows[i]}</td><td>`
-                        
-                        for (let j = 0; j < tableGroups[i].length; j++) {
-                            sensorType = sensorTypes[sensorIDs.indexOf(tableGroups[i][j])]
-                            tableHTML += `<a href="/sensor?sensorID=${tableGroups[i][j]}">#${tableGroups[i][j]}</a> (${sensorType})`
-                            if (j < tableGroups[i].length - 1) { tableHTML += ', '}
-                        }
-                        tableHTML += `</td></tr>`
+                    for (let j = 0; j < tableGroups[i].length; j++) {
+                        sensorType = sensorTypes[sensorIDs.indexOf(tableGroups[i][j])]
+                        tableHTML += `<a href="/sensor?sensorID=${tableGroups[i][j]}">#${tableGroups[i][j]}</a> (${sensorType})`
+                        if (j < tableGroups[i].length - 1) { tableHTML += ', '}
                     }
+                    tableHTML += `</td></tr>`
+                }
 
-                    tableHTML += `</tbody></table>`
-                    document.getElementById('report-details-div').innerHTML += tableHTML
-                })
+                tableHTML += `</tbody></table>`
+                document.getElementById('report-details-div').innerHTML += tableHTML
+                
+            }).catch((err)=>{
+                console.log(err)
+                console.log("Cannot fetch data.")
             })
 
+            axios.get(`api/anomalies`)
+            .then(function (response) {
+
+                let anomaliesData = response.data
+                
+                reportStartTime = new Date(reportDetails.start_date)
+                reportEndTime = new Date(reportDetails.end_date)
+        
+                anomalyTimes = []
+                anomalySensors = []
+                anomalyIDs = []
+
+                let colourScale = chroma.scale(['#00FF00', '#FFFF00', '#FF0000']);
+                colours = []
+                for (let i = 0; i < anomaliesData.length; i++) {
+                    anomalyTime = new Date(matlabDatenumToDate(anomaliesData[i].sensor_time))
+                    if (anomalyTime > reportStartTime && anomalyTime < reportEndTime) {
+                        if (reportSensors.indexOf(anomaliesData[i].sensor_id) >= 0) {
+                            anomalyTimes.push(anomalyTime)
+                            anomalySensors.push(anomaliesData[i].sensor_id)
+                            anomalyIDs.push(anomaliesData[i].id)
+                            colour = colourScale(anomaliesData[i].confidence).hex()
+                            colours.push(colour)
+                        }
+                    }
+                }
+
+                createAnomalyTimeline('anomaly-timeline-div', anomalyTimes, anomalySensors, anomalyIDs, [reportStartTime, reportEndTime], colours)
+            }).catch((err)=>{
+                console.log("No anomalies during report timeframe.")
+                document.getElementById('anomaly-timeline-div').innerHTML = "No anomalies were detected in this timeframe."
+                document.getElementById('anomaly-timeline-div').style.border = "none"
+                document.getElementById('anomaly-timeline-div').style.textAlign = "center"
+                document.getElementById('anomaly-timeline-div').style.height = "auto"
+            })
         })
-    } else {
+        
+    }).catch(function (error) {
         document.getElementById('report-title').innerHTML = 'Report not found'
-    }
+    });
+        
+
 
     function formatDate(date) {
         formattedDate = ('0'+date.getDate()).slice(-2)+"/"+('0'+date.getMonth()).slice(-2)+"/"+date.getFullYear()
