@@ -1,0 +1,40 @@
+
+:root {
+  --main-blue: #1f4587;
+  --active-grey: #F2F2F2;
+  --dark-grey: #7e7e7e;
+}
+@font-face {
+  font-family: "Open Sans";
+  src: url('fonts/Open_Sans/static/OpenSans-Regular.ttf');
+  font-weight: normal;
+  font-style: normal;
+}
+body{
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center; 
+  height: 97vh;
+  background-color: var(--main-blue);
+  font-family: "Open Sans", Calibri, sans-seif;
+  color: #ffffff;
+}
+
+a:hover{
+  color:inherit
+}
+
+a:active{
+  color:inherit
+}
+
+a:visited{
+  color:inherit
+}
+
+.container{
+  width: 100%;
+  display: inline-block; 
+  font-size: 5vh;
+}

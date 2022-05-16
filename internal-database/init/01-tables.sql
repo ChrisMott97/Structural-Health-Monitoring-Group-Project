@@ -26,7 +26,7 @@ CREATE SEQUENCE comments_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE
 CREATE TABLE "public"."comments" (
     "id" integer DEFAULT nextval('comments_id_seq') NOT NULL,
     "user_id" character varying(255),
-    "sensor_id" character varying(255) NOT NULL,
+    "sensor_id" character varying(255),
     "anomaly_id" integer,
     "body" text NOT NULL,
     "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
