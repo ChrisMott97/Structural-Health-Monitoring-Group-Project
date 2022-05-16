@@ -50,13 +50,14 @@
         </div>
         <div class="main-content-div">
             <h1 class="sensor-title" id="sensor-title"></h1>
-            <div class="dashboard-tile-parent">
-                <div class="dashboard-tile-div" id="sensor-info">
+            <div class="dashboard-tile-parent" id="infos">
+                <div class="dashboard-tile-div" id="sensor-info-div">
                     <h1 class="dashboard-title">Sensor Details</h1>
+                    <p id="sensor-info"></p>
                 </div>
                 <div class="dashboard-tile-div" id="sensor-location">
                     <h1 class="dashboard-title" id="location-graph-title">Related Sensors</h1>
-                    <div id="location-graph"></div>
+                    <div id="connected-graph"></div>
                 </div>
             </div>
             <div class="database-main-content-div" id="anomaly-info-div">
@@ -71,7 +72,7 @@
                 <h1 class="dashboard-title" id="timeline-title">Anomaly Timeline</h1>
                 <div id="anomaly-timeline-div-small"></div>
             </div>
-            <div class="dashboard-tile-parent">
+            <div class="dashboard-tile-parent" id="charts-parent-div">
                 <div class="dashboard-tile-div" id="week-chart-div">
                     <div height="100%"><canvas id="week-chart"></canvas></div>
                 </div>
@@ -94,7 +95,7 @@
                     </table>
                 </div>
             </div>
-            <div class="database-main-content-div">
+            <div class="database-main-content-div" id="sensor-database-div">
                 <h1 class="dashboard-title">Sensor Values</h1>
                 <form action="/sensor" method="GET" id="database-search-form">
                     From <input type="date" id="date-from" name="from">
@@ -130,83 +131,61 @@
     const urlParams = new URLSearchParams(queryString);
     let sensorID = urlParams.get('sensorID')
 
-    document.title = 'SH Monitoring System | Sensor #'+sensorID
-    document.getElementById('comment-title').innerHTML += ` <a href="javascript:toggleOverlay('comments-form', '', 'Add note to sensor #${sensorID}:')"><img class="add-note-icon" src="images/edit_icon.png"></a>`
+    if (sensorID != 'all') {
+        document.title = 'SH Monitoring System | Sensor #'+sensorID
+        document.getElementById('comment-title').innerHTML += ` <a href="javascript:toggleOverlay('comments-form', '<%= user.sub %>', 'Add note to sensor #${sensorID}:', '${sensorID}', null, null, 'comment-table')"><img class="add-note-icon" src="images/edit_icon.png"></a>`
 
-    axios.get(`/api/comments?sensor-id=${sensorID}`)
-    .then(function (response) {
-        let commentsData = response.data
+        reloadComments(sensorID, null, 'comment-table')
 
-        commentsTable = document.getElementById("comment-table")
-        commentsTable.innerHTML = ""
+        if (urlParams.has('anomalyID')) {
+            const anomalyID = urlParams.get('anomalyID')
 
-        for (let i = 0; i < commentsData.length; i++ ) {
-            axios.get(`/api/users/${commentsData[i].user_id}`)
+            axios.get(`/api/anomalies/${anomalyID}`)
             .then(function (response) {
-                commentAuthor = response.data.name
-                commentText = `<tr class="comment-table-row">
-                                <td class="comment-table-body">
-                                    <span class="comment-author">${commentAuthor}</span><i> ${formatCommentDateString(commentsData[i].created_at)}</i><br>
-                                    ${commentsData[i].body}
-                                </td></tr>`
-                commentsTable.innerHTML += commentText
-            })   
-        }
-        console.log(commentsData.length)
-    }).catch((err)=>{
-        console.log("No comments found.")
-    })
+                anomalyData = response.data
+                detectedAt = formatDateString(matlabDatenumToDate(anomalyData.sensor_time))
+                updatedAt = formatDateString(anomalyData.updated_at)
+                if (anomalyData.confidence > 3) {trafficLight = 'red'}
+                else if (anomalyData.confidence > 2) {trafficLight = 'orange'}
+                else {trafficLight = 'green'}
 
-    if (urlParams.has('anomalyID')) {
-        const anomalyID = urlParams.get('anomalyID')
+                anomalyInfoDiv = document.getElementById("anomaly-info-div")
+                anomalyInfoDiv.style.display = "block"
 
-        axios.get(`/api/anomalies/${anomalyID}`)
-        .then(function (response) {
-            detectedAt = formatDateString(response.data.time)
-            updatedAt = formatDateString(response.data.updated_at)
-            if (response.data.confidence > 0.8) {trafficLight = 'red'}
-            else if (response.data.confidence > 0.6) {trafficLight = 'orange'}
-            else {trafficLight = 'green'}
-
-            anomalyInfoDiv = document.getElementById("anomaly-info-div")
-            anomalyInfoDiv.style.display = "block"
-            anomalyText = `An anomaly was detected by this sensor at ${detectedAt[0]}, ${detectedAt[1]} with a
-                            confidence of <i style="color: ${trafficLight};">${(response.data.confidence * 100).toFixed(1)}%</i>.`
-
-            if (response.data.status != 1) {
-                anomalyText += ` The status of this anomaly was marked
-                            as <i>${getStatusString(response.data.status)}</i> by <i>Chris M</i> at ${updatedAt[0]}, ${updatedAt[1]}.`
-            } else {
-                anomalyText += ` This anomaly has not yet been investigated. Once the anomaly is under investigation, change the status using the edit icon above.`
-            }
-
-            document.getElementById("anomaly-info-text").innerHTML += anomalyText+ `<h1 class="dashboard-title" id="anomaly-comments-title">Notes <a href="javascript:toggleOverlay('comments-form', '', 'Add note to anomaly #${anomalyID}:')"><img class="add-note-icon" src="images/edit_icon.png"></a></h1>`
-            document.getElementById("anomaly-title").innerHTML = `Anomaly #${anomalyID} (${getStatusString(response.data.status)}) <a href="javascript:toggleOverlay('anomaly-form')"><img class="add-note-icon" src="images/edit_icon.png"></a>`
-
-            axios.get(`/api/comments?anomaly-id=${anomalyID}`)
-            .then(function (response) {
-
-                let commentsData = response.data
-                commentsTable = document.getElementById("anomaly-comment-table")
-                commentsTable.innerHTML = ""
-
-                for (let i = 0; i < commentsData.length; i++ ) {
-                    axios.get(`/api/users/${commentsData[i].user_id}`)
+                document.getElementById("anomaly-info-text").innerHTML = ""
+                if (sensorID != 'all') {
+                    document.getElementById("anomaly-info-text").innerHTML += `An anomaly was detected on this sensor using the timeseries model at ${detectedAt[0]}, ${detectedAt[1]} with a confidence of <i style="color: ${trafficLight};">${(anomalyData.confidence * 100).toFixed(1)}%</i> and ${getSensitivityString(anomalyData.sensitivity)} sensitivity.`
+                } else {
+                    document.getElementById("anomaly-info-text").innerHTML += `An anomaly was detected on this sensor using the autoencoder model at ${detectedAt[0]}, ${detectedAt[1]}, with ${getSensitivityString(anomalyData.sensitivity)} sensitivity.`
+                }
+                
+                statusString = getStatusString(anomalyData.status)
+                if (anomalyData.status != 1) {
+                    axios.get(`/api/users/${anomalyData.user_id}`)
                     .then(function (response) {
-                        commentAuthor = response.data.name
-                        commentTime = formatCommentDateString(commentsData[i].created_at)
-                        commentText = `<tr class="comment-table-row">
-                                        <td class="comment-table-body">
-                                            <span class="comment-author">${commentAuthor}</span><i> ${formatCommentDateString(commentsData[i].created_at)}</i><br>
-                                            ${commentsData[i].body}
-                                        </td></tr>`
-                        commentsTable.innerHTML += commentText
-                    })   
-                }  
-            })
-        })
-    }
-    axios.get(`/api/sensors/${sensorID}`)
+                        userInfo = response.data
+                        console.log(userInfo)
+                        document.getElementById("anomaly-info-text").innerHTML += ` The status of this anomaly has been marked
+                                    as '<i>${statusString}</i>' by <i>${userInfo.name}</i>.`
+
+                        document.getElementById("anomaly-info-text").innerHTML += anomalyText+ `<h1 class="dashboard-title" id="anomaly-comments-title">Notes <a href="javascript:toggleOverlay('comments-form', '<%= user.sub %>', 'Add note to anomaly #${anomalyID}:', '${sensorID}', '${anomalyID}', null, 'anomaly-comment-table')"><img class="add-note-icon" src="images/edit_icon.png"></a></h1>`
+                    })
+                } else {
+                    document.getElementById("anomaly-info-text").innerHTML += ` This anomaly has not yet been investigated. Once the anomaly is under investigation, change the status using the edit icon above.`
+                    document.getElementById("anomaly-info-text").innerHTML += `<h1 class="dashboard-title" id="anomaly-comments-title">Notes <a href="javascript:toggleOverlay('comments-form', '<%= user.sub %>', 'Add note to anomaly #${anomalyID}:', '${sensorID}', '${anomalyID}', null, 'anomaly-comment-table')"><img class="add-note-icon" src="images/edit_icon.png"></a></h1>`
+                }
+
+                document.getElementById("anomaly-title").innerHTML = `Anomaly #${anomalyID} (${getStatusString(response.data.status)}) <a href="javascript:toggleOverlay('anomaly-form', '<%= user.sub %>', '', '', '${anomalyID}', '${statusString}')"><img class="add-note-icon" src="images/edit_icon.png"></a>`
+
+                reloadComments(sensorID, anomalyID, "anomaly-comment-table")
+                
+            }).catch(function (error) {
+                console.log(error)
+                console.log(`Anomaly #${anomalyID} could not be found!`)
+
+            });
+        }
+        axios.get(`/api/sensors/${sensorID}`)
         .then(function (response) {
             let sensorDetails = response.data
 
@@ -214,19 +193,37 @@
             .then(function (response) {
 
                 let sensorData = response.data
-                luArr = formatDateString(sensorData.splice(-1)[0].time)
+                luArr = formatDateString(matlabDatenumToDate(sensorData.splice(-1)[0].timestamp))
                 lastUpdated = luArr[0] + ', ' + luArr[1]
+                
+                document.getElementById('sensor-title').innerHTML = `Inspecting: ${sensorDetails.type} #${sensorID}`
+                sensorUnit = sensorDetails.unit
+                document.getElementById("sensor-info").innerHTML = `
+                Sensor ID: <i>#${sensorDetails.id}</i><br>
+                Sensor Type: <i>${sensorDetails.type}</i><br>
+                Unit: <i>${formatUnitString(sensorDetails.unit)}</i><br>
+                Location: <i>${sensorDetails.location}</i><br><br>
+                Last Updated: <i>${lastUpdated}</i>
+                `
+                
+                seriesData = createSeriesFromData(sensorData, sensorDetails.id)
+                if (seriesData.allVals.length > 0) {
+                    generateLineGraph('week-chart', '300px', 'Data - Previous Week', [seriesData.weekVals, seriesData.weekMaxVals, seriesData.weekMinVals], ['Values', 'Maximum Value', 'Minimum Value'], seriesData.weekLabels, sensorUnit, ['#1f4587', '#7e7e7e', '#7e7e7e'], true)
+                    generateLineGraph('day-chart', '300px', 'Data - Previous 24 hours', [seriesData.previousDayVals], ['Values'], seriesData.previousDayLabels, sensorUnit, ['#1f4587', '#1f4587'], false)
+                } else {
+                    document.getElementById('charts-parent-div').remove()
+                }
 
                 axios.get(`api/anomalies`)
                 .then(function (response) {
 
                     anomaliesData = response.data
-                    mostRecent = "No anomalies detected."
+                    mostRecent = "No anomalies have been detected in the previous week."
 
                     if (urlParams.has('anomalyID')) {
                         for (let i = 0; i < anomaliesData.length; i++) {
                             if (anomaliesData[i].id == urlParams.get('anomalyID')) {
-                                mainAnomalyTime = anomaliesData[i].time
+                                mainAnomalyTime = matlabDatenumToDate(anomaliesData[i].sensor_time)
                             }
                         }
                         reportStartTime = new Date(mainAnomalyTime)
@@ -246,13 +243,17 @@
                     let colourScale = chroma.scale(['#00FF00', '#FFFF00', '#FF0000']);
                     colours = []
 
+                    allMostRecent = new Date(Date.UTC(1970, 0, 1, 0, 0, 0))
+                    numSensorAnomalies = 0
                     for (let i = 0; i < anomaliesData.length; i++) {
-                        anomalyTime = new Date(anomaliesData[i].time)
-                        if (anomalyTime > reportStartTime && anomalyTime < reportEndTime) {
-                            if (anomaliesData[i].sensor_id == sensorID) {
-                                anomArr = formatDateString(anomaliesData[i].time)
+                        anomalyTime = new Date(matlabDatenumToDate(anomaliesData[i].sensor_time))
+                        if (anomaliesData[i].sensor_id == sensorID) {
+                            numSensorAnomalies += 1
+                            if (anomalyTime > allMostRecent) {allMostRecent = anomalyTime}
+                            if (anomalyTime > reportStartTime && anomalyTime < reportEndTime) {
+                                anomArr = formatDateString(matlabDatenumToDate(anomaliesData[i].sensor_time))
                                 mostRecent = anomArr[0] + ', ' + anomArr[1]
-                                anomalyTimes.push(new Date(anomaliesData[i].time))
+                                anomalyTimes.push(new Date(matlabDatenumToDate(anomaliesData[i].sensor_time)))
                                 anomalySensors.push(anomaliesData[i].sensor_id)
                                 anomalyIDs.push(anomaliesData[i].id)
                                 if (urlParams.has('anomalyID') && anomaliesData[i].id == urlParams.get('anomalyID')) {
@@ -264,6 +265,9 @@
                             } 
                         }
                     }
+                    allMostRecentArry = formatDateString(allMostRecent.toISOString())
+                    allMostRecent = allMostRecentArry[0] + ', ' + allMostRecentArry[1]
+                    document.getElementById('sensor-info').innerHTML += `<br>Last Anomaly: <i>${allMostRecent}</i><br>Total Anomalies Detected: <i>${numSensorAnomalies}</i>`
                     if (urlParams.has('anomalyID')) {
                         useDiv = 'anomaly-timeline-div-small'
                         document.getElementById('timeline-title').style.display = "block"
@@ -271,26 +275,23 @@
                     } else {
                         useDiv = 'anomaly-timeline-div-main'
                     }
-                    createAnomalyTimeline(useDiv, anomalyTimes, anomalySensors, anomalyIDs, [reportStartTime, reportEndTime], colours)
-                    
-                    document.getElementById('sensor-title').innerHTML = `Inspecting: ${sensorDetails.type} #${sensorID}`
-                    let details = document.createElement("p")
-                    sensorUnit = sensorDetails.unit
-                    details.innerHTML = `
-                    Sensor ID: <i>#${sensorDetails.id}</i><br>
-                    Sensor Type: <i>${sensorDetails.type}</i><br>
-                    Unit: <i>${formatUnitString(sensorDetails.unit)}</i><br>
-                    Location: <i>${sensorDetails.location}</i><br><br>
-                    Last Updated: <i>${lastUpdated}</i><br>
-                    Last Detected Anomaly: <i>${mostRecent}</i>
-                    `
-                    document.getElementById("sensor-info").appendChild(details)
-        
-                    seriesData = createSeriesFromData(sensorData)
-                    console.log(seriesData.vals)
-                    generateLineGraph('week-chart', 'Data - Previous Week', [seriesData[weekVals], seriesData[weekMaxVals], seriesData[weekMinVals]], ['Values', 'Maximum Value', 'Minimum Value'], seriesData[weekLabels], sensorUnit, ['#1f4587', '#7e7e7e', '#7e7e7e'], true)
-                    generateLineGraph('day-chart', 'Data - Previous 24 hours', [seriesData[dayVals]], ['Values'], seriesData[dayLabels], sensorUnit, ['#1f4587', '#1f4587'], false)
-                })
+
+                    if (anomalyTimes.length > 0) {
+                        createAnomalyTimeline(useDiv, anomalyTimes, anomalySensors, anomalyIDs, [reportStartTime, reportEndTime], colours)
+                    } else {
+                        document.getElementById(useDiv).innerHTML = mostRecent
+                        document.getElementById(useDiv).style.border = "none"
+                        document.getElementById(useDiv).style.textAlign = "center"
+                        document.getElementById(useDiv).style.height = "auto"
+                    }
+                }).catch(function (error) {
+                    document.getElementById('anomaly-timeline-div-main').innerHTML = "No anomalies have been detected in the previous week."
+                    if (!urlParam.has('anomalyID')) {
+                        document.getElementById('anomaly-timeline-div-main').style.border = "none"
+                        document.getElementById('anomaly-timeline-div-main').style.textAlign = "center"
+                        document.getElementById('anomaly-timeline-div-main').style.height = "auto"
+                    }
+                });
             })
 
             axios.get(`/api/sensors`)
@@ -306,32 +307,145 @@
                     }
                 }
                 document.getElementById("location-graph-title").innerHTML += ' - ('+sensorDetails.location+')'
-                mapConnectedSensors('location-graph', sensorID, connectedSensors, connectedSensorTypes)
-            })
+                mapConnectedSensors('connected-graph', sensorID, connectedSensors, connectedSensorTypes)
+            }).catch(function (error) {
+                console.log('Could not find connected sensors.')
+            });
         })
 
-    currentDataOffset = 0
-    numRows = 30
-    
-    updateSensorData(sensorID, numRows, currentDataOffset*numRows)
-    
-    function incrementData() {
-        currentDataOffset += 1
+        currentDataOffset = 0
+        numRows = 50
+        
         updateSensorData(sensorID, numRows, currentDataOffset*numRows)
-        document.getElementById('previous-data-btn').disabled = false
-    }
-    function decrementData() {
-        if (currentDataOffset > 0) {
-            currentDataOffset -= 1
+        
+        function incrementData() {
+            currentDataOffset += 1
             updateSensorData(sensorID, numRows, currentDataOffset*numRows)
-            document.getElementById('next-data-btn').disabled = false
-            if (currentDataOffset == 0) {
-                document.getElementById('previous-data-btn').disabled = true
+            document.getElementById('previous-data-btn').disabled = false
+        }
+        function decrementData() {
+            if (currentDataOffset > 0) {
+                currentDataOffset -= 1
+                updateSensorData(sensorID, numRows, currentDataOffset*numRows)
+                document.getElementById('next-data-btn').disabled = false
+                if (currentDataOffset == 0) {
+                    document.getElementById('previous-data-btn').disabled = true
+                }
             }
         }
-    }
-    function reloadData() {
-        currentDataOffset = 0
-        updateSensorData(sensorID, numRows, currentDataOffset*numRows)
+        function reloadData() {
+            currentDataOffset = 0
+            updateSensorData(sensorID, numRows, currentDataOffset*numRows)
+        }
+    } else {
+        document.getElementById('sensor-database-div').remove()
+        document.getElementById('infos').remove()
+        document.getElementById('sensor-comments-div').remove()
+        document.getElementById('charts-parent-div').remove()
+        document.getElementById('anomaly-timeline-parent').remove()
+        const anomalyID = urlParams.get('anomalyID')
+
+        document.title = 'SH Monitoring System | Anomaly #'+anomalyID
+        document.getElementById('sensor-title').innerHTML = `Inspecting: Anomaly #${anomalyID}`
+
+            axios.get(`/api/anomalies/${anomalyID}`)
+            .then(function (response) {
+                anomalyData = response.data
+                detectedAt = formatDateString(matlabDatenumToDate(anomalyData.sensor_time))
+                updatedAt = formatDateString(anomalyData.updated_at)
+                if (anomalyData.confidence > 3) {trafficLight = 'red'}
+                else if (anomalyData.confidence > 2) {trafficLight = 'orange'}
+                else {trafficLight = 'green'}
+
+                anomalyInfoDiv = document.getElementById("anomaly-info-div")
+                anomalyInfoDiv.style.display = "block"
+
+                document.getElementById("anomaly-info-text").innerHTML = ""
+                document.getElementById("anomaly-info-text").innerHTML += `An anomaly was detected on all sensors using the autoencoder model at ${detectedAt[0]}, ${detectedAt[1]}, with ${getSensitivityString(anomalyData.sensitivity)} sensitivity.`
+                
+                statusString = getStatusString(anomalyData.status)
+                if (anomalyData.status != 1) {
+                    axios.get(`/api/users/${anomalyData.user_id}`)
+                    .then(function (response) {
+                        userInfo = response.data
+                        console.log(userInfo)
+                        document.getElementById("anomaly-info-text").innerHTML += ` The status of this anomaly has been marked
+                                    as '<i>${statusString}</i>' by <i>${userInfo.name}</i>.`
+
+                        document.getElementById("anomaly-info-text").innerHTML += anomalyText+ `<h1 class="dashboard-title" id="anomaly-comments-title">Notes <a href="javascript:toggleOverlay('comments-form', '<%= user.sub %>', 'Add note to anomaly #${anomalyID}:', '${sensorID}', '${anomalyID}', null, 'anomaly-comment-table')"><img class="add-note-icon" src="images/edit_icon.png"></a></h1>`
+                    })
+                } else {
+                    document.getElementById("anomaly-info-text").innerHTML += ` This anomaly has not yet been investigated. Once the anomaly is under investigation, change the status using the edit icon above.`
+                    document.getElementById("anomaly-info-text").innerHTML += `<h1 class="dashboard-title" id="anomaly-comments-title">Notes <a href="javascript:toggleOverlay('comments-form', '<%= user.sub %>', 'Add note to anomaly #${anomalyID}:', 'RMS_LS2c', '${anomalyID}', null, 'anomaly-comment-table')"><img class="add-note-icon" src="images/edit_icon.png"></a></h1>`
+                }
+
+                document.getElementById("anomaly-title").innerHTML = `Status: ${getStatusString(response.data.status)} <a href="javascript:toggleOverlay('anomaly-form', '<%= user.sub %>', '', '', '${anomalyID}', '${statusString}', 'anomaly-comments-table')"><img class="add-note-icon" src="images/edit_icon.png"></a>`
+
+                reloadComments(null, anomalyID, "anomaly-comment-table")
+                
+            }).catch(function (error) {
+                console.log(error)
+                console.log(`Anomaly #${anomalyID} could not be found!`)
+        });
+        axios.get(`api/anomalies`)
+        .then(function (response) {
+            anomaliesData = response.data
+            mostRecent = "No anomalies have been detected in the previous week."
+
+            for (let i = 0; i < anomaliesData.length; i++) {
+                if (anomaliesData[i].id == anomalyID) {
+                    mainAnomalyTime = matlabDatenumToDate(anomaliesData[i].sensor_time)
+                }
+            }
+            reportStartTime = new Date(mainAnomalyTime)
+            reportEndTime = new Date(mainAnomalyTime)
+            reportStartTime.setHours(reportStartTime.getHours() - 2)
+            reportEndTime.setHours(reportEndTime.getHours() + 2)
+
+            anomalyTimes = []
+            anomalySensors = []
+            anomalyIDs = []
+
+            let colourScale = chroma.scale(['#00FF00', '#FFFF00', '#FF0000']);
+            colours = []
+
+            for (let i = 0; i < anomaliesData.length; i++) {
+                anomalyTime = new Date(matlabDatenumToDate(anomaliesData[i].sensor_time))
+                
+                if (anomalyTime > reportStartTime && anomalyTime < reportEndTime) {
+                    anomArr = formatDateString(matlabDatenumToDate(anomaliesData[i].sensor_time))
+                    mostRecent = anomArr[0] + ', ' + anomArr[1]
+                    anomalyTimes.push(new Date(matlabDatenumToDate(anomaliesData[i].sensor_time)))
+                    anomalySensors.push('all')
+                    anomalyIDs.push(anomaliesData[i].id)
+                    if (urlParams.has('anomalyID') && anomaliesData[i].id == urlParams.get('anomalyID')) {
+                        colours.push('#1f4587')
+                    } else {
+                        colour = colourScale(anomaliesData[i].confidence).hex()
+                        colours.push(colour)
+                    }
+                } 
+                
+            }
+
+            document.getElementById('timeline-title').style.display = "block"
+
+            if (anomalyTimes.length > 0) {
+                createAnomalyTimeline('anomaly-timeline-div-small', anomalyTimes, anomalySensors, anomalyIDs, [reportStartTime, reportEndTime], colours)
+            } else {
+                document.getElementById(useDiv).innerHTML = mostRecent
+                document.getElementById(useDiv).style.border = "none"
+                document.getElementById(useDiv).style.textAlign = "center"
+                document.getElementById(useDiv).style.height = "auto"
+            }
+        }).catch(function (error) {
+            console.log(error)
+            document.getElementById('anomaly-timeline-div-main').innerHTML = "No anomalies have been detected in the previous week."
+            if (!urlParam.has('anomalyID')) {
+                document.getElementById('anomaly-timeline-div-main').style.border = "none"
+                document.getElementById('anomaly-timeline-div-main').style.textAlign = "center"
+                document.getElementById('anomaly-timeline-div-main').style.height = "auto"
+            }
+        });
     }
 </script>
