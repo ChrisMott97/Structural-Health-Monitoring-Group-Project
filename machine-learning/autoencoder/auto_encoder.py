@@ -7,6 +7,13 @@ import psycopg2
 from os import environ
 
 def main(anomaly_sensitivity=[1,2,3,4,5]):
+    '''
+    Carry out the anomaly detection based on the input sensitivies.
+    Note: For more detailed comments and for training a model on new data please see the Jupyter notebook file.
+    Parameters:
+    anomaly_sensitivity: List of values to determine how sensitive the anomaly detection is, where the smaller the number is the
+    higher the sensitivity.
+    '''
     dbcon = pymysql.connect(user="root", password="example", database="humber_bridge", host=environ.get("DATABASE", "external-database"))
     data = pd.read_sql("SELECT * FROM summary order by timestamp desc limit 2000", dbcon)
     data.replace([1.1e+308], np.nan, inplace=True) # Replace infinite values with nan
