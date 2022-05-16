@@ -31,7 +31,6 @@ router.get('/', (req, res) => {
 
 router.post('/', (req, res) => {
   const { sensor_id, anomaly_id, body, user_id } = req.body;
-  console.log("Got the request")
   Comment.create(sensor_id, anomaly_id, body, user_id).then((comment) => {
     res.json(comment);
   }).catch((err)=>{

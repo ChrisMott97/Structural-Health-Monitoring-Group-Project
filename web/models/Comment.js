@@ -15,7 +15,7 @@ function find(limit, offset, type, subtype, location) {
 function create(sensor_id, anomaly_id, body, user_id) {
   return new Promise((resolve, reject)=>{
     errored = true
-    if(sensor_id && body){
+    if(body){
       errored = false
     }
     if(errored){

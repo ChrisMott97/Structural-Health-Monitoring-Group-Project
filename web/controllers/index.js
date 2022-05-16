@@ -16,6 +16,9 @@ router.use((req, res, next) => {
 });
 
 router.get('/', (req, res) => {
+  if (res.locals.authenticated){
+    res.redirect('/dash')
+  }
   res.render('index');
 });
 
@@ -24,7 +27,6 @@ router.get('/authenticated', requiresAuth(), (req, res) => {
 });
 
 router.get('/dash', requiresAuth(), (req, res) => {
-  console.log(res.locals.user)
   res.render('dash');
 });
 

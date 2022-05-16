@@ -4,15 +4,17 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="css/index.css" rel='stylesheet' type='text/css'/>
   <style>
     .hidden {
       display: none;
     }
   </style>
-  <title>Document</title>
+  <title>SH Monitoring System</title>
 </head>
-<body style="text-align: center;display: flex;justify-content: center;align-items: center; height: 80%;">
-  <div style="width: 100%;">
+<body>
+  <div style="border-right: solid;"><h1>University of Exeter's <br> Structural Health Monitoring System</h1></div>
+  <div class="container">
 
     <% if (authenticated) { %>
       <a href="/logout">Logout</a>
@@ -20,7 +22,9 @@
       <a href="/login">Login</a>
     <% } %>
 
-    <p><a href="/authenticated">Click here to see a page only accessible when logged in.</a></p>
+    <% if (authenticated) { %>
+    <p><a href="/dash">Proceed To Application</a></p>
+    <% } %>
     
     <% if (authenticated) { %>
       <div class="hidden" id="gated-content">
