@@ -1,12 +1,9 @@
-const reports = [['1', new Date('2022-02-03T12:00:00'), 'West Antenna January 2022', new Date('2022-01-01T00:00:00'), new Date('2022-01-31T23:59:59'), 'Marcia Ratke'],
-                 ['2', new Date('2022-02-21T12:00:00'), 'Storm Eunice Impact Report', new Date('2022-02-17T00:00:00'), new Date('2022-02-20T23:59:59'), 'Ross Kunze'],
-                 ['3', new Date('2022-02-22T12:00:00'), '2021 Report', new Date('2021-01-01T00:00:00'), new Date('2021-12-31T23:59:59'), 'Mark Evans']]
-
 const statuses = ['Pending', 'Under Investigation', 'Urgent', 'Fixed', 'Dismissed']
 const sensitivities = ['Very Low', 'Low', 'Normal', 'High', 'Very High']
 
 const confidenceColours = ['#00FF00', '#FFFF00', '#FF0000']
 
+// Draws lines at the end of a timeline
 const lineRenderer = ({ ctx, id, x, y, state: { selected, hover }, style }) => {
     const r = style.size;
     const drawNode = () => {
@@ -26,6 +23,7 @@ const lineRenderer = ({ ctx, id, x, y, state: { selected, hover }, style }) => {
     };
 }
 
+// Adds white background to canvases
 const custom_canvas_background_color = {
     id: 'custom_canvas_background_color',
     beforeDraw: (chart, args, options) => {
@@ -42,6 +40,8 @@ const custom_canvas_background_color = {
     },
   };
 
+// Converts a ISO date string into an array
+// with the date and time
 function formatDateString(date) {
     if (typeof date === 'string') {
         dateArray = date.split("T")
@@ -53,12 +53,14 @@ function formatDateString(date) {
     }
 }
 
+// Converts a date object into a label for timelines
 function formatDateObject(date, includeTime) {
     dateString = date.getDate()+"/"+date.getMonth()+"/"+date.getFullYear()
     if (includeTime) { dateString += ", "+date.getHours()+":"+('0'+date.getMinutes()).slice(-2)+":"+('0'+date.getSeconds()).slice(-2) }
     return dateString
 }
 
+// Gets the sensitivity value string from the list
 function getSensitivityString(sensitivity) {
     if (sensitivity > sensitivities.length || sensitivity < 1) {
         return 'INVALID'
@@ -66,6 +68,7 @@ function getSensitivityString(sensitivity) {
     return sensitivities[sensitivity - 1]
 }
 
+// Gets the status value string from the list
 function getStatusString(status) {
     if (status >= status.length - 1 || status < 1) {
         return 'INVALID'
@@ -73,6 +76,7 @@ function getStatusString(status) {
     return statuses[status - 1]
 }
 
+// Toggles the overlay div & shadow
 function toggleOverlay(content, userID, formText, sensorID, anomalyID, currentStatus, commentsTable) {
     shadow = document.getElementById('overlay-shadow')
     div = document.getElementById('overlay-div')
@@ -103,6 +107,7 @@ function toggleOverlay(content, userID, formText, sensorID, anomalyID, currentSt
     }
 }
 
+// Disables scrolling
 function disableScroll() {
     scrollTop = window.pageYOffset || document.documentElement.scrollTop;
     scrollLeft = window.pageXOffset || document.documentElement.scrollLeft,
@@ -112,10 +117,13 @@ function disableScroll() {
         };
 }
   
+// Renables scrolling
 function enableScroll() {
     window.onscroll = function() {};
 }
 
+// Loads the anomaly status change form into
+// the overlay div
 function loadAnomalyForm(div, userID, anomalyID, currentStatus) {
     div.style.height = "auto";
     statusOptions = ""
@@ -135,6 +143,7 @@ function loadAnomalyForm(div, userID, anomalyID, currentStatus) {
                     </form></tbody></table>`
 }
 
+// Submits the anomaly form to change the status of an anomaly
 function submitAnomalyForm(anomalyID, userID) {
     newStatus = document.getElementById('new-status').value
     statusChange = {status: newStatus, user_id: userID}
@@ -147,6 +156,8 @@ function submitAnomalyForm(anomalyID, userID) {
     });
 }
 
+// Loads the comments form into
+// the overlay div
 function loadCommentsForm(div, userID, formText, sensorID, anomalyID, commentsTable) {
     div.style.height = "auto";
     div.style.width = "60%";
@@ -160,6 +171,7 @@ function loadCommentsForm(div, userID, formText, sensorID, anomalyID, commentsTa
                     </form></tbody></table>`
 }
 
+// Submits the comment form, updating the database
 function submitCommentsForm(sensorID, anomalyID, userID, table) {
     comment = document.getElementById('comment-textarea').value
     if (comment != '') {
@@ -178,8 +190,8 @@ function submitCommentsForm(sensorID, anomalyID, userID, table) {
     }
 }
 
+// Updates the comments table on the page
 function reloadComments(sensorID, anomalyID, table) {
-
     dataQuery = `/api/comments`
     added = false
     if (anomalyID != null){
@@ -212,18 +224,21 @@ function reloadComments(sensorID, anomalyID, table) {
             })   
         }
     }).catch((err)=>{
-        console.log(table)
         commentsTable = document.getElementById(table)
         commentsTable.innerHTML = "No comments."
     })
 }
 
+// Loads the report creation change form into
+// the overlay div
 function loadReportCreationForm(div) {
     div.style.height = "auto"
     div.style.width = "30%"
     div.style.padding = "60px"
 }
 
+// Formats a date string in a comment format,
+// giving the time since the comment
 function formatCommentDateString(dateString) {
     commentDate = new Date(dateString)
     currentDate = new Date()
@@ -264,14 +279,25 @@ function formatCommentDateString(dateString) {
     }
 }
 
+// Converts units into its full name
+// and abbreviation
 function formatUnitString(unit) {
     if (unit == 'metre') {
         return 'Metres (m)'
     } else if (unit == 'degrees') {
         return 'Degrees ( ° )'
-    } else { return 'unit' }
+    } else if (unit == 'mm') {
+        return 'Millimetres (mm)'
+    } else if (unit == 'C') {
+        return 'Degrees Celsius ( °C )'
+    } else if (unit == 'Hz') {
+        return 'Hertz (Hz)'
+    } else if (unit == '%') {
+        return 'Percent (%)'
+    } else { return unit }
 }
 
+// Adds a report sensor chart for a given sensor group
 function addReportSensorChart(sensorID, reportDuration) {
     axios.get(`/api/sensors/${sensorID}`)
         .then(function (response) {
@@ -302,6 +328,8 @@ function addReportSensorChart(sensorID, reportDuration) {
     })
 }
 
+// Converts a matlab datenum object to a
+// ISO string
 function matlabDatenumToDate(datenum) {
     baseDate = new Date(Date.UTC(1970, 0, 1, 0, 0, 0));
     daysSinceEpoch = (datenum / (24*3600*1000)) - 719528
@@ -317,12 +345,20 @@ function matlabDatenumToDate(datenum) {
     return newDate.toISOString()
 }
 
+// Creates a set of week and day series for use in graphs
 function createSeriesFromData(sensorData, sensorID) {
-    sensorData.reverse()
-    // Current day of iteration
-    currentDay = formatDateString(matlabDatenumToDate(sensorData[0].timestamp))[0]
-    // Current time used to get data for the preceding 24 hours
-    currentTime = new Date(matlabDatenumToDate(sensorData[sensorData.length - 1].timestamp))
+    console.log(sensorData)
+
+    latestTime = new Date(Date.UTC(1970, 0, 1, 0, 0, 0));
+    earliestTime = new Date(2100, 0, 1, 0, 0, 0)
+
+    for (let i = 0; i < sensorData.length; i++) {
+        valueDatetime = new Date(matlabDatenumToDate(sensorData[i].timestamp))
+        if (valueDatetime < earliestTime) {earliestTime = valueDatetime}
+        if (valueDatetime > latestTime) {latestTime = valueDatetime}
+    }
+    currentDay = formatDateString(earliestTime.toISOString())[0]
+    currentTime = latestTime
     
     allVals = []
     weekVals = []
@@ -388,6 +424,7 @@ function createSeriesFromData(sensorData, sensorID) {
     return seriesData
 }
 
+// Generates a line graph
 function generateLineGraph(chartID, height, graphTitle, series, seriesLabels, xlabels, unit, colours, showLegend, dash) {
     unit = formatUnitString(unit)
     ctx = document.getElementById(chartID);
@@ -444,6 +481,8 @@ function generateLineGraph(chartID, height, graphTitle, series, seriesLabels, xl
                                                             
 }
 
+// Creates a network diagram of all sensors, grouped
+// by location
 function mapAllSensors(graphContainerID, sensorLocations, sensorTypes) {
     edgeList = []
     nodeList = []
@@ -500,6 +539,8 @@ function mapAllSensors(graphContainerID, sensorLocations, sensorTypes) {
       });
 }
 
+// Creates a network diagram of sensors connected by location,
+// with the main focused node in the centre
 function mapConnectedSensors(graphContainerID, sensorID, connectedSensors, connectedSensorTypes) {
 
     edgeList = []
@@ -549,6 +590,7 @@ function mapConnectedSensors(graphContainerID, sensorID, connectedSensors, conne
       });
 }
 
+// Generates a timeline displaying the given anomalies
 function createAnomalyTimeline(divId, anomalyTimes, anomalySensors, anomalyIDs, reportStartEnd, colours, timelineLength) {
     timelineLength = 1000
     reportDuration = reportStartEnd[1].getTime() - reportStartEnd[0].getTime()
@@ -602,6 +644,7 @@ function createAnomalyTimeline(divId, anomalyTimes, anomalySensors, anomalyIDs, 
       });
 }
 
+// Updates the table showing a sensor's data
 function updateSensorData(sensorID, dataLimit, dataOffset, reverseData) {
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
