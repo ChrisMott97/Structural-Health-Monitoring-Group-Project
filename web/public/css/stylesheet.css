@@ -239,6 +239,9 @@ body {
 #tile4 {
     height: auto;
 }
+#tile2 {
+    height: auto;
+}
 
 .anomaly-table {
     border-spacing: 0;
@@ -539,10 +542,11 @@ body {
 }
 
 #location-graph {
-    /*background-image: url('../images/humber_diagram.png');*/
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: 100% auto;
+    height: 350px;
+    cursor: pointer;
+}
+
+#connected-graph {
     height: 175px;
     cursor: pointer;
 }
@@ -732,4 +736,8 @@ a.button-styling {
     bottom: 0;
     left: 50%;
     transform: translateX(-50%);
+}
+
+.report-graph-tiles {
+    height: 400px !important;
 }

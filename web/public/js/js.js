@@ -1,12 +1,9 @@
-const reports = [['1', new Date('2022-02-03T12:00:00'), 'West Antenna January 2022', new Date('2022-01-01T00:00:00'), new Date('2022-01-31T23:59:59'), 'Marcia Ratke'],
-                 ['2', new Date('2022-02-21T12:00:00'), 'Storm Eunice Impact Report', new Date('2022-02-17T00:00:00'), new Date('2022-02-20T23:59:59'), 'Ross Kunze'],
-                 ['3', new Date('2022-02-22T12:00:00'), '2021 Report', new Date('2021-01-01T00:00:00'), new Date('2021-12-31T23:59:59'), 'Mark Evans']]
-
 const statuses = ['Pending', 'Under Investigation', 'Urgent', 'Fixed', 'Dismissed']
 const sensitivities = ['Very Low', 'Low', 'Normal', 'High', 'Very High']
 
 const confidenceColours = ['#00FF00', '#FFFF00', '#FF0000']
 
+// Draws lines at the end of a timeline
 const lineRenderer = ({ ctx, id, x, y, state: { selected, hover }, style }) => {
     const r = style.size;
     const drawNode = () => {
@@ -26,6 +23,7 @@ const lineRenderer = ({ ctx, id, x, y, state: { selected, hover }, style }) => {
     };
 }
 
+// Adds white background to canvases
 const custom_canvas_background_color = {
     id: 'custom_canvas_background_color',
     beforeDraw: (chart, args, options) => {
@@ -42,6 +40,8 @@ const custom_canvas_background_color = {
     },
   };
 
+// Converts a ISO date string into an array
+// with the date and time
 function formatDateString(date) {
     if (typeof date === 'string') {
         dateArray = date.split("T")
@@ -53,13 +53,22 @@ function formatDateString(date) {
     }
 }
 
+// Converts a date object into a label for timelines
+function formatDateObject(date, includeTime) {
+    dateString = date.getDate()+"/"+date.getMonth()+"/"+date.getFullYear()
+    if (includeTime) { dateString += ", "+date.getHours()+":"+('0'+date.getMinutes()).slice(-2)+":"+('0'+date.getSeconds()).slice(-2) }
+    return dateString
+}
+
+// Gets the sensitivity value string from the list
 function getSensitivityString(sensitivity) {
-    if (sensitivity >= sensitivities.length - 1 || sensitivity < 1) {
+    if (sensitivity > sensitivities.length || sensitivity < 1) {
         return 'INVALID'
     }
     return sensitivities[sensitivity - 1]
 }
 
+// Gets the status value string from the list
 function getStatusString(status) {
     if (status >= status.length - 1 || status < 1) {
         return 'INVALID'
@@ -67,7 +76,8 @@ function getStatusString(status) {
     return statuses[status - 1]
 }
 
-function toggleOverlay(content, userID, formText) {
+// Toggles the overlay div & shadow
+function toggleOverlay(content, userID, formText, sensorID, anomalyID, currentStatus, commentsTable) {
     shadow = document.getElementById('overlay-shadow')
     div = document.getElementById('overlay-div')
     if (shadow.style.display == 'block') {
@@ -85,8 +95,8 @@ function toggleOverlay(content, userID, formText) {
         div.style.width = "400px";
         div.style.height = "75%";
         if (content == 'user-info') { loadUserInfo(div) }
-        else if (content == 'anomaly-form') { loadAnomalyForm(div)}
-        else if (content == 'comments-form') { loadCommentsForm(div, userID, formText)}
+        else if (content == 'anomaly-form') { loadAnomalyForm(div, userID, anomalyID, currentStatus)}
+        else if (content == 'comments-form') { loadCommentsForm(div, userID, formText, sensorID, anomalyID, commentsTable)}
         else if (content == 'reports-creation') {loadReportCreationForm(div)}
         disableScroll()
         shadow.classList.remove('overlay-fadeOut');
@@ -97,6 +107,7 @@ function toggleOverlay(content, userID, formText) {
     }
 }
 
+// Disables scrolling
 function disableScroll() {
     scrollTop = window.pageYOffset || document.documentElement.scrollTop;
     scrollLeft = window.pageXOffset || document.documentElement.scrollLeft,
@@ -106,46 +117,128 @@ function disableScroll() {
         };
 }
   
+// Renables scrolling
 function enableScroll() {
     window.onscroll = function() {};
 }
 
-function loadAnomalyForm(div) {
+// Loads the anomaly status change form into
+// the overlay div
+function loadAnomalyForm(div, userID, anomalyID, currentStatus) {
     div.style.height = "auto";
     statusOptions = ""
     for (let i = 0; i < statuses.length; i++) {
-        if (statuses[i] == 'Pending') {
-            selected = ' disabled selected'
-        } else { selected = "" }
-        statusOptions += `<option value="${i}"${selected}>${statuses[i]}</option>`
+        selected = ""
+        if (statuses[i] == 'Pending' || statuses[i] == currentStatus) { selected += ' disabled' }
+        if (statuses[i] == currentStatus) { selected += " selected" }
+        console.log(currentStatus, statuses[i], selected)
+        statusOptions += `<option value="${i+1}"${selected}>${statuses[i]}</option>`
     }
-
     document.getElementById('overlay-content').innerHTML = `<table style="width: 80%;margin: 20px 10%;"><tbody style="text-align: center;"><form action='sensor.html' method='GET'><tr>
-                        <td>Choose New Status: <select class="overlay-select">
+                        <td>Choose New Status: <select class="overlay-select" id="new-status">
                             ${statusOptions}
                             </select>
                         </td></tr>
-                        <tr><td><textarea class="overlay-textarea" placeholder="Notes"></textarea></td></tr>
-                        <tr><td><button class="button-styling" onclick="toggleOverlay('reload')">Change Status</button> <button class="button-styling" onclick='toggleOverlay()'>Cancel</button></td></tr>
+                        <tr><td><button class="button-styling" onclick="submitAnomalyForm('${anomalyID}', '${userID}')">Change Status</button> <button class="button-styling" onclick="toggleOverlay('reload')">Cancel</button></td></tr>
                     </form></tbody></table>`
 }
 
-function loadCommentsForm(div, userID, formText) {
+// Submits the anomaly form to change the status of an anomaly
+function submitAnomalyForm(anomalyID, userID) {
+    newStatus = document.getElementById('new-status').value
+    statusChange = {status: newStatus, user_id: userID}
+    console.log(statusChange)
+    axios.put(`/api/anomalies/${anomalyID}`, statusChange).then(function (response) {
+        location.reload()
+    }).catch(function (error) {
+        console.log('Status could not be changed.')
+        console.log(error)
+    });
+}
+
+// Loads the comments form into
+// the overlay div
+function loadCommentsForm(div, userID, formText, sensorID, anomalyID, commentsTable) {
     div.style.height = "auto";
     div.style.width = "60%";
     document.getElementById('overlay-content').innerHTML = `<table style="width: 90%;margin: 20px 5%;"><tbody style="text-align: center;"><form action='sensor.html' method='GET'><tr>
                         <td>${formText}</td></tr>
-                        <tr><td><textarea class="overlay-textarea" placeholder="Notes" style="height: 100px"></textarea></td></tr>
-                        <tr><td><button class="button-styling" onclick="toggleOverlay('reload')">Add Note</button> <button class="button-styling" onclick='toggleOverlay()'>Cancel</button></td></tr>
+                        <input type="hidden" id="user-id" value="${userID}">
+                        <input type="hidden" id="sensor-id" value="${sensorID}">
+                        <input type="hidden" id="anomaly-id" value="${anomalyID}">
+                        <tr><td><textarea class="overlay-textarea" id="comment-textarea" placeholder="Notes" style="height: 100px"></textarea></td></tr>
+                        <tr><td><button class="button-styling" onclick="submitCommentsForm('${sensorID}', ${anomalyID}, '${userID}', '${commentsTable}')">Add Note</button> <button class="button-styling" onclick="toggleOverlay('reload')">Cancel</button></td></tr>
                     </form></tbody></table>`
 }
 
+// Submits the comment form, updating the database
+function submitCommentsForm(sensorID, anomalyID, userID, table) {
+    comment = document.getElementById('comment-textarea').value
+    if (comment != '') {
+        
+        if (anomalyID != null) {commentInfo = {sensor_id: sensorID, anomaly_id: anomalyID, body: comment, user_id:userID}}
+        else {commentInfo = {sensor_id: sensorID, body: comment, user_id:userID}}
+
+        axios.post('/api/comments', commentInfo).then(function (response) {
+            toggleOverlay('')
+            reloadComments(sensorID, anomalyID, table)
+        }).catch(function (error) {
+            alert('Comment could not be added.')
+            console.log(error);
+            console.log(comment)
+        });
+    }
+}
+
+// Updates the comments table on the page
+function reloadComments(sensorID, anomalyID, table) {
+    dataQuery = `/api/comments`
+    added = false
+    if (anomalyID != null){
+        added = true
+        dataQuery = `/api/comments?anomaly-id=${anomalyID}`
+    }
+    if (sensorID != null) {
+        if (added) {dataQuery += '&'}
+        else {dataQuery += '?'}
+        dataQuery += `sensor-id=${sensorID}`
+    }
+
+    axios.get(dataQuery)
+    .then(function (response) {
+        let commentsData = response.data
+
+        commentsTable = document.getElementById(table)
+        commentsTable.innerHTML = ""
+
+        for (let i = 0; i < commentsData.length; i++ ) {
+            axios.get(`/api/users/${commentsData[i].user_id}`)
+            .then(function (response) {
+                commentAuthor = response.data.name
+                commentText = `<tr class="comment-table-row">
+                                <td class="comment-table-body">
+                                    <span class="comment-author">${commentAuthor}</span><i> ${formatCommentDateString(commentsData[i].created_at)}</i><br>
+                                    ${commentsData[i].body}
+                                </td></tr>`
+                commentsTable.innerHTML += commentText
+            })   
+        }
+    }).catch((err)=>{
+        commentsTable = document.getElementById(table)
+        commentsTable.innerHTML = "No comments."
+    })
+}
+
+// Loads the report creation change form into
+// the overlay div
 function loadReportCreationForm(div) {
     div.style.height = "auto"
     div.style.width = "30%"
     div.style.padding = "60px"
 }
 
+// Formats a date string in a comment format,
+// giving the time since the comment
 function formatCommentDateString(dateString) {
     commentDate = new Date(dateString)
     currentDate = new Date()
@@ -186,14 +279,25 @@ function formatCommentDateString(dateString) {
     }
 }
 
+// Converts units into its full name
+// and abbreviation
 function formatUnitString(unit) {
     if (unit == 'metre') {
         return 'Metres (m)'
     } else if (unit == 'degrees') {
         return 'Degrees ( ° )'
-    } else { return 'unit' }
+    } else if (unit == 'mm') {
+        return 'Millimetres (mm)'
+    } else if (unit == 'C') {
+        return 'Degrees Celsius ( °C )'
+    } else if (unit == 'Hz') {
+        return 'Hertz (Hz)'
+    } else if (unit == '%') {
+        return 'Percent (%)'
+    } else { return unit }
 }
 
+// Adds a report sensor chart for a given sensor group
 function addReportSensorChart(sensorID, reportDuration) {
     axios.get(`/api/sensors/${sensorID}`)
         .then(function (response) {
@@ -224,76 +328,107 @@ function addReportSensorChart(sensorID, reportDuration) {
     })
 }
 
-function createSeriesFromData(sensorData) {
-    // Current day of iteration
-    currentDay = formatDateString(sensorData[0].time)[0]
-    // Current time used to get data for the preceding 24 hours
-    currentTime = new Date(sensorData[sensorData.length - 1].time)
-    
-    dayTotal = 0
-    numVals = 0
+// Converts a matlab datenum object to a
+// ISO string
+function matlabDatenumToDate(datenum) {
+    baseDate = new Date(Date.UTC(1970, 0, 1, 0, 0, 0));
+    daysSinceEpoch = (datenum / (24*3600*1000)) - 719528
+    numDays = Math.floor(daysSinceEpoch)
 
-    allVals = []
-    allLabels = []
-    
-    weekVals = []
-    weekLabels = [currentDay]
-    weekMaxVals = [Number.NEGATIVE_INFINITY]
-    weekMinVals = [Number.POSITIVE_INFINITY]
+    hours = (daysSinceEpoch - numDays) * 24
+    minutes = (hours - Math.floor(hours)) * 60
+    seconds = (minutes - Math.floor(minutes)) * 60
 
-    dayLabels = []
-    dayVals = []
-    
+    newDate = new Date(baseDate.setDate(baseDate.getDate() + numDays))
+    newDate = new Date(newDate.setHours(newDate.getHours()+Math.floor(hours), newDate.getMinutes()+Math.floor(minutes), newDate.getSeconds()+Math.floor(seconds)))
+
+    return newDate.toISOString()
+}
+
+// Creates a set of week and day series for use in graphs
+function createSeriesFromData(sensorData, sensorID) {
+    console.log(sensorData)
+
+    latestTime = new Date(Date.UTC(1970, 0, 1, 0, 0, 0));
+    earliestTime = new Date(2100, 0, 1, 0, 0, 0)
+
     for (let i = 0; i < sensorData.length; i++) {
+        valueDatetime = new Date(matlabDatenumToDate(sensorData[i].timestamp))
+        if (valueDatetime < earliestTime) {earliestTime = valueDatetime}
+        if (valueDatetime > latestTime) {latestTime = valueDatetime}
+    }
+    currentDay = formatDateString(earliestTime.toISOString())[0]
+    currentTime = latestTime
+    
+    allVals = []
+    weekVals = []
+    weekLabels = []
+    previousDayVals = []
+    previousDayLabels = []
 
-        if (sensorData[i].value < 1000) {
-            
-            allVals.push(sensorData[i].value)
-            allLabels.push(formatDateString(sensorData[i].time)[1].slice(0, -3))
+    for (let i = 0; i < sensorData.length; i++) {
+        valueDatetime = new Date(matlabDatenumToDate(sensorData[i].timestamp))
+        if (((currentTime - valueDatetime) / (1000 * 3600 * 24)) < 7 && (currentTime - valueDatetime >= 0)) {
+            if (sensorData[i][sensorID] != null) {
+                allVals.push(sensorData[i][sensorID])
+                valueDatetimeArray = formatDateString(valueDatetime.toISOString())
+                valueDay = valueDatetimeArray[0]
+                valueTime = valueDatetimeArray[1]
 
-            if (formatDateString(sensorData[i].time)[0] == currentDay) {
-                
-                dayTotal += sensorData[i].value
-                numVals += 1
+                if (weekLabels.indexOf(valueDay) < 0) {
+                    weekVals.push([sensorData[i][sensorID]])
+                    weekLabels.push(valueDay)
+                } else {
+                    weekVals[weekLabels.indexOf(valueDay)].push(sensorData[i][sensorID])
+                }
 
-            } else {
-                weekMaxVals.push(Number.NEGATIVE_INFINITY)
-                weekMinVals.push(Number.POSITIVE_INFINITY)
-                weekVals.push(dayTotal / numVals)
-                dayTotal = sensorData[i].value
-                numVals = 1
-                currentDay = formatDateString(sensorData[i].time)[0]
-                weekLabels.push(currentDay)
+                if (((currentTime - valueDatetime) / (1000 * 3600 * 24)) < 1) {
+                    previousDayVals.push(sensorData[i][sensorID])
+                    previousDayLabels.push(valueTime.slice(0, -3))
+                }
             }
-
-            valueTime = new Date(sensorData[i].time)
-            if (currentTime - valueTime < (1000 * 60 * 60 * 24)) {
-                dayLabels.push(formatDateString(sensorData[i].time)[1].slice(0, -3))
-                dayVals.push(sensorData[i].value)
-            }
-            if (sensorData[i].value > weekMaxVals[weekMaxVals.length - 1]) {weekMaxVals[weekMaxVals.length - 1] = sensorData[i].value}
-            else if (sensorData[i].value < weekMinVals[weekMinVals.length - 1]) {weekMinVals[weekMinVals.length - 1] = sensorData[i].value}
         }
     }
-    weekVals.push(dayTotal / numVals)
 
-    var seriesData = {}
-    seriesData[allVals] = allVals
-    seriesData[allLabels] = allLabels
-    seriesData[weekVals] = weekVals
-    seriesData[weekLabels] = weekLabels
-    seriesData[weekMinVals] = weekMinVals
-    seriesData[weekMaxVals] = weekMaxVals
-    seriesData[dayVals] = dayVals
-    seriesData[dayLabels] = dayLabels
+    weekMinVals = []
+    weekMaxVals = []
+
+    for (let i = 0; i < weekVals.length; i++) {
+        maxVal = Number.NEGATIVE_INFINITY
+        minVal = Number.POSITIVE_INFINITY
+        
+
+        total = 0
+        for (let j = 0; j < weekVals[i].length; j++) {
+            total += weekVals[i][j]
+            if (weekVals[i][j] > maxVal) {maxVal = weekVals[i][j]}
+            else if (weekVals[i][j] < minVal) {minVal = weekVals[i][j]}
+        }
+        if (weekVals[i].length > 0) {
+            weekVals[i] = total / weekVals[i].length
+        }
+        weekMinVals.push(minVal)
+        weekMaxVals.push(maxVal)
+    }
+
+    var seriesData = {
+                        allVals: allVals,
+                        weekVals: weekVals,
+                        weekLabels: weekLabels,
+                        weekMinVals: weekMinVals,
+                        weekMaxVals: weekMaxVals,
+                        previousDayVals: previousDayVals,
+                        previousDayLabels: previousDayLabels
+                     }
 
     return seriesData
 }
 
-function generateLineGraph(chartID, graphTitle, series, seriesLabels, xlabels, unit, colours, showLegend, dash) {
+// Generates a line graph
+function generateLineGraph(chartID, height, graphTitle, series, seriesLabels, xlabels, unit, colours, showLegend, dash) {
     unit = formatUnitString(unit)
     ctx = document.getElementById(chartID);
-    ctx.style.height = '300px';
+    ctx.style.height = height;
 
     datasets = []
     for (let i = 0; i < series.length; i++) {
@@ -346,6 +481,8 @@ function generateLineGraph(chartID, graphTitle, series, seriesLabels, xlabels, u
                                                             
 }
 
+// Creates a network diagram of all sensors, grouped
+// by location
 function mapAllSensors(graphContainerID, sensorLocations, sensorTypes) {
     edgeList = []
     nodeList = []
@@ -382,11 +519,10 @@ function mapAllSensors(graphContainerID, sensorLocations, sensorTypes) {
         nodes: {
           shape: "dot",
           size: 10,
+          widthConstraint: 50
         },
         interaction: {
                         dragNodes: false,
-                        zoomView: false,
-                        dragView: false,
                         hover: true,
                         hoverConnectedEdges: false
                     }
@@ -403,6 +539,8 @@ function mapAllSensors(graphContainerID, sensorLocations, sensorTypes) {
       });
 }
 
+// Creates a network diagram of sensors connected by location,
+// with the main focused node in the centre
 function mapConnectedSensors(graphContainerID, sensorID, connectedSensors, connectedSensorTypes) {
 
     edgeList = []
@@ -452,6 +590,7 @@ function mapConnectedSensors(graphContainerID, sensorID, connectedSensors, conne
       });
 }
 
+// Generates a timeline displaying the given anomalies
 function createAnomalyTimeline(divId, anomalyTimes, anomalySensors, anomalyIDs, reportStartEnd, colours, timelineLength) {
     timelineLength = 1000
     reportDuration = reportStartEnd[1].getTime() - reportStartEnd[0].getTime()
@@ -486,6 +625,7 @@ function createAnomalyTimeline(divId, anomalyTimes, anomalySensors, anomalyIDs, 
           shape: "dot",
           size: 10,
         },
+        physics: {enabled: false},
         interaction: {
                         dragNodes: false,
                         hover: true,
@@ -504,6 +644,7 @@ function createAnomalyTimeline(divId, anomalyTimes, anomalySensors, anomalyIDs, 
       });
 }
 
+// Updates the table showing a sensor's data
 function updateSensorData(sensorID, dataLimit, dataOffset, reverseData) {
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
@@ -531,16 +672,19 @@ function updateSensorData(sensorID, dataLimit, dataOffset, reverseData) {
         document.getElementById('sensor-data').innerHTML = `<tr class="database-table-row"><th>Date</th><th>Time</th><th>value</th></tr>`
         let sensorData = response.data
         if (reverseData) {sensorData.reverse()}
-        lastUpdatedArray = formatDateString(sensorData[sensorData.length - 1].time)
+        lastUpdatedArray = formatDateString(matlabDatenumToDate(sensorData[sensorData.length - 1].timestamp))
         lastUpdated = lastUpdatedArray[0] + ', ' + lastUpdatedArray[1]
 
         for (let i = 0; i < sensorData.length; i++ ) {
             table = document.getElementById("sensor-data")
-            datetime = formatDateString(sensorData[i].time)
-            if (sensorData[i].value < 1000) {table.innerHTML += `<tr class="database-table-row"><td>${datetime[0]}</td><td>${datetime[1]}</td><td>${sensorData[i].value.toFixed(8)}</td></tr>` }
+            datetime = formatDateString(matlabDatenumToDate(sensorData[i].timestamp))
+            
+            table.innerHTML += `<tr class="database-table-row"><td>${datetime[0]}</td><td>${datetime[1]}</td><td>${sensorData[i][sensorID]}</td></tr>`
         }
         if (sensorData.length < dataLimit) {
             document.getElementById('next-data-btn').disabled = true
         }
+    }).catch((err)=>{
+        document.getElementById('sensor-data').innerHTML = `<br>No sensor data found`
     })
 }

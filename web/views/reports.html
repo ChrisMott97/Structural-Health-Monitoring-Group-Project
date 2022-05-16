@@ -35,7 +35,7 @@
                 </span></a>
             </div>
             <div class="sidebar-icon-div">
-                <a href="/code"><span class="sidebar-icon-span">
+                <a href="https://git.exeter.ac.uk/ab1185/2021-ecmm427-project-04/-/tree/master/machine-learning"><span class="sidebar-icon-span">
                     <img src="images/code_icon.png" class="sidebar-icon-img">
                 </span></a>
             </div>
@@ -50,7 +50,7 @@
                 <h1 class="dashboard-title">Data Reports <a href="javascript:toggleOverlay('reports-creation')"><img class="add-note-icon" src="images/plus.png"></a></h1>
                 <table class="database-table">
                     <tbody id="reports-database">
-                        <tr><td>Loading...</td></tr>
+                        <tr><td>No Reports Have Been Generated.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -62,9 +62,10 @@
                 <div id="overlay-content"></div>
                     <h1 class="dashboard-title">Generate a New Report</h1>
                     <div>
-                        <table style="width:100%; text-align: center;"><tbody><form>
-                            <input type="hidden" id="userID" name="userID" value="<%= user.sub %>">
-                            <tr><td>Report Name:</td><td><input id="report-name" name="report-name" type="text"></td></tr>
+                        <table style="width:100%; text-align: center;"><tbody><form id="report-creation-form">
+                            <input type="hidden" id="user-id" name="user-id" value="<%= user.sub %>">
+                            <input type="hidden" id="report-sensors" name="report-sensor" value="[]">
+                            <tr><td>Report Name:</td><td><input id="report-name" name="report-name" type="text" placeholder="New Report"></td></tr>
                             <tr><td>Start Date:</td><td><input type="date" id="start-date" name="start-date"></td></tr>
                             <tr><td>End Date:</td><td><input type="date" id="end-date" name="end-date"></td></tr>
                             <tr><td>Model Sensitivities:</td><td><select id="report-form-sensitivity-ddl" name="sensor-ddl"></select></td></tr>
@@ -77,15 +78,17 @@
                                 </td>
                             </tr>
                         </tbody></table>
-                    </form>
                         <table style="width:100%;"><tbody>
                             <tr><td><div class="report-form-sensor-list" id="report-form-sensor-list"></div></td></tr>
                             <tr><td style="text-align: center;">
-                                <button class="button-styling" onclick="addSensorToList('all')">Add All Sensors</button>
-                                <input class="button-styling" type="submit" value="Create Report">
+                                <input class="button-styling" type="button" value="Add All Sensors" onclick="addSensorToList('all')">
+                                <input class="button-styling" type="button" value="Remove All Sensors" onclick="removeSensorFromList('all')">
+                            </td><tr><td style="text-align: center;">
+                                <input class="button-styling" type="button" value="Create Report" onclick="submitReportForm()">
                             </td></tr>
                             
                         </tbody></table>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -94,17 +97,32 @@
 </html>
 
 <script>
-    document.getElementById("reports-database").innerHTML = `<tr class="database-table-row"><th>Title</th><th>Start Date</th><th>End Date</th><th>Date Created</th><th>Author</th></tr>`
+
+    axios.get('api/reports')
+    .then(function (response) {
+        reportsData = response.data
+        document.getElementById("reports-database").innerHTML = `<tr class="database-table-row"><th>Title</th><th>Start Date</th><th>End Date</th><th>Date Created</th><th>Sensitivity</th></tr>`
     
-    for (let i = 0; i < reports.length; i++) {
-        document.getElementById("reports-database").innerHTML += `<tr class="database-table-row" onclick="window.location='/report?reportID=${reports[i][0]}';" style="cursor:pointer;">
-                    <td>${reports[i][2]}</td>
-                    <td>${reports[i][3].toLocaleString()}</td>
-                    <td>${reports[i][4].toLocaleString()}</td>
-                    <td>${reports[i][1].toLocaleString()}</td>
-                    <td>${reports[i][5]}</td>
-                    </tr>`
-    }
+        for (let i = 0; i < reportsData.length; i++) {
+            console.log(reportsData[i])
+            startDate = new Date(reportsData[i].start_date)
+            endDate = new Date(reportsData[i].end_date)
+            createdAt = new Date(reportsData[i].created_at)
+
+            document.getElementById("reports-database").innerHTML += `<tr class="database-table-row" onclick="window.location='/report?reportID=${reportsData[i].id}';" style="cursor:pointer;">
+                        <td>${reportsData[i].title}</td>
+                        <td>${formatDateObject(startDate, false)}</td>
+                        <td>${formatDateObject(endDate, false)}</td>
+                        <td>${formatDateObject(createdAt, true)}</td>
+                        <td>${getSensitivityString(reportsData[i].sensitivity)}</td>
+                        </tr>`
+            
+        }
+    }).catch((err)=>{
+        console.log("No reports found.")
+        document.getElementById("reports-database").innerHTML = `No reports have been generated.`
+    
+    })
 
     axios.get(`api/sensors`)
     .then(function (response) {
@@ -144,7 +162,7 @@
             if (j == 2) {
                 selected = ' selected'
             } else { selected = "" }
-            sensivityOptions += `<option value="${j}"${selected}>${sensitivities[j]}</option>`
+            sensivityOptions += `<option value="${j+1}"${selected}>${sensitivities[j]}</option>`
         }
 
         document.getElementById('report-form-sensitivity-ddl').innerHTML += sensivityOptions
@@ -180,19 +198,80 @@
                 console.log(`#${newSensorID} already added!`)
             }
         }
+        document.getElementById('report-sensors').value = JSON.stringify(reportSensorList)
     }
 
     function removeSensorFromList(sensorID) {
-        newSensorList = []
-        for (let i = 0; i < reportSensorList.length; i++){
-            if (reportSensorList[i] != sensorID) {
-                newSensorList.push(reportSensorList[i])
-            } else {
-                itemDiv = document.getElementById(`${sensorID}-list-item`)
-                itemDiv.remove()
-                console.log(`Removed #${sensorID}!`)
+        if (sensorID == 'all') {
+            axios.get(`api/sensors?enumerate=id`)
+            .then(function (response) {
+                allSensors = response.data
+                for (let i = 0; i < allSensors.length; i++) {
+                    removeSensorFromList(allSensors[i])
+                }
+            })
+        } else {
+            newSensorList = []
+            for (let i = 0; i < reportSensorList.length; i++){
+                if (reportSensorList[i] != sensorID) {
+                    newSensorList.push(reportSensorList[i])
+                } else {
+                    itemDiv = document.getElementById(`${sensorID}-list-item`)
+                    itemDiv.remove()
+                    console.log(`Removed #${sensorID}!`)
+                }
             }
+            reportSensorList = newSensorList
         }
-        reportSensorList = newSensorList
+        document.getElementById('report-sensors').value = JSON.stringify(reportSensorList)
     }
+
+    //document.getElementById('report-creation-form').onsubmit = function() {submitReportForm()}
+    
+    function submitReportForm() {
+        reportTitle = document.getElementById('report-name').value
+        startDate = document.getElementById('start-date').value
+        endDate = document.getElementById('end-date').value
+        userID = document.getElementById('user-id').value
+        sensorList = document.getElementById('report-sensors').value
+        sensitivity = document.getElementById('report-form-sensitivity-ddl').value
+
+        if (reportTitle == "") { reportTitle = "New Report" }
+        if (sensorList == "[]") {
+            alert('Add sensors to the report using the drop down list below.')
+            return
+        }
+        if (startDate == "" || endDate == "") {
+            alert('Please enter a valid start and end date.')
+            return
+        }
+        else {
+            startDate = new Date(startDate)
+            endDate = new Date(endDate)
+            if (startDate > endDate) {
+                alert('The start date must be before the end date')
+                return
+            }
+            endDate = new Date((endDate.setDate(endDate.getDate() + 1)) - 1);
+            startDate = startDate.toISOString()
+            endDate = endDate.toISOString()
+        }
+        reportInfo = {title: reportTitle,
+                      start_date: startDate,
+                      end_date: endDate,
+                      sensitivity: sensitivity,
+                      user_id: userID,
+                      sensors: sensorList
+                    }
+
+        axios.post('/api/reports', reportInfo).then(function (response) {
+            location.reload()
+        })
+        .catch(function (error) {
+            alert('Report could not be created.')
+            console.log(error);
+        });
+
+    }
+
 </script>

@@ -10,6 +10,8 @@
     <!-- <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.auth0.com/js/auth0-spa-js/1.13/auth0-spa-js.production.js"></script>
     <script src="./js/adduser.js"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.4.2/chroma.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <title>Document</title>
 </head>
 <body>
@@ -39,7 +41,7 @@
             </span></a>
         </div>
         <div class="sidebar-icon-div">
-            <a href="../code"><span class="sidebar-icon-span">
+            <a href="https://git.exeter.ac.uk/ab1185/2021-ecmm427-project-04/-/tree/master/machine-learning"><span class="sidebar-icon-span">
                 <img src="../images/code_icon.png" class="sidebar-icon-img">
             </span></a>
         </div>
@@ -97,8 +99,15 @@
 </html>
 <script>
     function deleteUser(userID, userName) {
-        if (confirm(`This action will delete the user '${userName}'. Are you sure you want to continue?`)) {
-            console.log('uh oh')
+        if (confirm(`This action will delete the user '${userName}.' Are you sure you want to continue?`)) {
+            axios.delete(`/api/users/${userID}`)
+            .then(function (response) {
+                alert('The user has been deleted.')
+                location.reload()
+            }).catch((err)=>{
+                console.log("Could not delete user.")
+                console.log(err)
+            })
         }
     }
 </script>
