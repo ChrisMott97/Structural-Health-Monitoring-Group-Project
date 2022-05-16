@@ -34,6 +34,9 @@ Finally, the application can be stopped with
 docker-compose -f docker-compose.prod.yml down
 ```
 
+## Running the machine learning
+The machine learning can be triggered by going to http://fsdl-mon-2.ex.ac.uk:5000
+
 ## Authentication
 Authentication is managed by the external provider [Auth0](https://auth0.com/). Most of the user management can be managed within the application itself, however additional functionality and for transparency, access directly to the Auth0 platform is provided here. The Auth0 associated account can only be accessed via the provisioned Gmail account. The Gmail account for this application is `***REMOVED***` with password `humber_bridge`. Using these details via the Login With Google button on the [Auth0 website](https://manage.auth0.com), all the user management can be accessed.
 

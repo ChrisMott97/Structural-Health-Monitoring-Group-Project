@@ -90,6 +90,9 @@ As this user database is being used for both development and production, extreme
 - Email: ***REMOVED***
 - Password: ***REMOVED***
 
+## Running the machine learning
+The machine learning can be triggered by going to http://localhost:5000
+
 ## Data Import
 ### Overview 
 1. The MySQL and Postgres containers runs any `.sql` files that it has in `/docker-entrypoint-initdb.d` folder within the container.
